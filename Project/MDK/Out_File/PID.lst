@@ -1,0 +1,78 @@
+C251 COMPILER V5.60.0,  PID                                                                26/02/24  18:04:15  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE PID
+OBJECT MODULE PLACED IN .\Out_File\PID.obj
+COMPILER INVOKED BY: D:\keil5\keil5_MDK\keil5_MDK_32\C251\BIN\C251.EXE ..\CODE\PID.c XSMALL INTR2 WARNINGLEVEL(3) BROWSE
+                    - INCDIR(..\..\Libraries\libraries;..\..\Libraries\seekfree_libraries;..\..\Libraries\seekfree_peripheral;..\CODE;..\USER
+                    -\inc;..\USER\src) DEBUG PRINT(.\Out_File\PID.lst) OBJECT(.\Out_File\PID.obj) 
+
+stmt  level    source
+
+    1          #include "zf_tim.h"
+    2          #include "isr.h"
+    3          #include <string.h>
+    4          #include <stdio.h>
+    5          #include "common.h"
+    6          #include "Motor.h"
+    7          #include "ZF_PWM.h"
+    8          #include "PID.h"
+    9          
+   10          void PID_Init(PID_InitTypeDef *PID_Struct, float Kp, float Ki, float Kd,float Out_Limit, float Integral_L
+             -imit)                //PID初始化
+   11          {
+   12   1              PID_Struct->Kp = Kp;
+   13   1              PID_Struct->Ki = Ki;
+   14   1              PID_Struct->Kd = Kd;
+   15   1              
+   16   1              PID_Struct->Err = 0;
+   17   1              PID_Struct->Err_last = 0;
+   18   1      
+   19   1              PID_Struct->PID_Out = 0;
+   20   1              PID_Struct->Out_Limit = Out_Limit;
+   21   1              PID_Struct->Integral_Limit = Integral_Limit;
+   22   1      }
+   23          
+   24          void PID_Calculate(PID_InitTypeDef *PID_Struct, float Exp_Val, float Act_Val)           //PID计算
+   25          {
+   26   1              PID_Struct->Err = Exp_Val-Act_Val;              //err值为期望偏差与当前偏差的差值       
+   27   1              PID_Struct->Integral += PID_Struct->Err;                //误差值累加    
+   28   1              Limit_Out(&PID_Struct->Integral, -PID_Struct->Integral_Limit,PID_Struct->Integral_Limit);                                                                       //积分
+             -限幅
+   29   1              PID_Struct->PID_Out = PID_Struct->Err * PID_Struct->Kp + 
+   30   1                                                                      PID_Struct->Integral * PID_Struct->Ki + //计算总输出量
+   31   1                                                                              (PID_Struct->Err - PID_Struct->Err_last)*(PID_Struct->Kd);
+   32   1              
+   33   1              Limit_Out(&PID_Struct->PID_Out,-PID_Struct->Out_Limit,PID_Struct->Out_Limit);                                                   //输出限幅
+   34   1              PID_Struct->Err_last = PID_Struct->Err;         //更新上一次err
+   35   1      }
+   36          
+   37          
+   38          
+   39          
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =       283     ------
+  ecode size           =    ------     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+  xdata size           =    ------     ------
+  xdata-const size     =    ------     ------
+  edata size           =    ------         20
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+C251 COMPILER V5.60.0,  PID                                                                26/02/24  18:04:15  PAGE 2   
+
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =    ------     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

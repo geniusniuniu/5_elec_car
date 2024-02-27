@@ -1,0 +1,87 @@
+C251 COMPILER V5.60.0,  ADC                                                                26/02/24  19:56:50  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE ADC
+OBJECT MODULE PLACED IN .\Out_File\ADC.obj
+COMPILER INVOKED BY: D:\keil5\keil5_MDK\keil5_MDK_32\C251\BIN\C251.EXE ..\CODE\ADC.c XSMALL INTR2 WARNINGLEVEL(3) BROWSE
+                    - INCDIR(..\..\Libraries\libraries;..\..\Libraries\seekfree_libraries;..\..\Libraries\seekfree_peripheral;..\CODE;..\USER
+                    -\inc;..\USER\src) DEBUG PRINT(.\Out_File\ADC.lst) OBJECT(.\Out_File\ADC.obj) 
+
+stmt  level    source
+
+    1          #include "isr.h"
+    2          #include <string.h>
+    3          #include <stdio.h>
+    4          #include "common.h"
+    5          #include "zf_adc.h"
+    6          #include "Motor.h"
+    7          
+    8          float ADC_Array_Original[5][3];
+    9          float ADC_proc[5];
+   10          
+   11          void ADC_InitAll(void)
+   12          {
+   13   1              adc_init(ADC_P00, ADC_SYSclk_DIV_2);
+   14   1              adc_init(ADC_P05, ADC_SYSclk_DIV_2);
+   15   1              
+   16   1              adc_init(ADC_P10, ADC_SYSclk_DIV_2);
+   17   1      
+   18   1              adc_init(ADC_P06, ADC_SYSclk_DIV_2);
+   19   1              adc_init(ADC_P16, ADC_SYSclk_DIV_2);
+   20   1      }
+   21          
+   22          void ADC_GetValue(void)
+   23          {
+   24   1              float temp;
+   25   1              char i,j,k;
+   26   1              for(i=0;i<3;i++)
+   27   1              {
+   28   2                      ADC_Array_Original[0][i] = adc_once(ADC_P00, ADC_8BIT);         //左一路电感
+   29   2                      ADC_Array_Original[1][i] = adc_once(ADC_P05, ADC_8BIT);         //左二路电感
+   30   2      
+   31   2                      ADC_Array_Original[2][i] = adc_once(ADC_P10, ADC_8BIT);         //中间横电感
+   32   2      
+   33   2                      ADC_Array_Original[3][i] = adc_once(ADC_P06, ADC_8BIT);         //右三路电感
+   34   2                      ADC_Array_Original[4][i] = adc_once(ADC_P16, ADC_8BIT);         //右四路电感
+   35   2              }
+   36   1              for(k=0;k<5;k++) //电感值 最终取三次平均值
+   37   1              {
+   38   2                      temp = 0;
+   39   2                      for(j=0;j<3;j++)
+   40   2                      {
+   41   3                              temp += ADC_Array_Original[k][j];
+   42   3                      }
+   43   2                      ADC_proc[k] = temp/3;
+   44   2                      if(ADC_proc[k] >= 200)                  ADC_proc[k] = 200;      //对电感值进行限幅处理
+   45   2                      else if(ADC_proc[k] <= 2)               ADC_proc[k] = 2;        //对电感值进行限幅处理
+   46   2      
+   47   2                      ADC_proc[k] = 100*(ADC_proc[k]/200);            //归一化,将电感值限制在0~100之间                
+   48   2              }
+   49   1      }
+   50          
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =       374     ------
+  ecode size           =    ------     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+C251 COMPILER V5.60.0,  ADC                                                                26/02/24  19:56:50  PAGE 2   
+
+  pdata size           =    ------     ------
+  xdata size           =    ------     ------
+  xdata-const size     =    ------     ------
+  edata size           =        80     ------
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =    ------     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

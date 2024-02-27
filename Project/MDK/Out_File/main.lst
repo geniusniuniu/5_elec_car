@@ -1,0 +1,227 @@
+C251 COMPILER V5.60.0,  main                                                               27/02/24  21:49:36  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE main
+OBJECT MODULE PLACED IN .\Out_File\main.obj
+COMPILER INVOKED BY: D:\keil5\keil5_MDK\keil5_MDK_32\C251\BIN\C251.EXE ..\USER\src\main.c XSMALL INTR2 WARNINGLEVEL(3) B
+                    -ROWSE INCDIR(..\..\Libraries\libraries;..\..\Libraries\seekfree_libraries;..\..\Libraries\seekfree_peripheral;..\CODE;..
+                    -\USER\inc;..\USER\src) DEBUG PRINT(.\Out_File\main.lst) OBJECT(.\Out_File\main.obj) 
+
+stmt  level    source
+
+    1          #include "headfile.h"
+    2          #include "Motor.h"
+    3          #include "ADC.h"
+    4          #include "MPU6050.h"
+    5          #include "Element.h"
+    6          #include "ADC.h"
+    7          #include "math.h"
+    8          #include "TOF.h"
+    9          
+   10          short gx, gy, gz;
+   11          char Isr_flag_20 = 0; //�ж�2�δ���
+   12          char Isr_flag_10 = 0; 
+   13          
+   14          float Diff,Plus; // �� / ��
+   15          float Ratio;
+   16          float Ratio_Last;
+   17          float sum_L,sum_R,sum;
+   18          
+   19          
+   20          float Exp_Speed_L = 0;
+   21          float Exp_Speed_R = 0;
+   22          float Exp_Speed = 200;
+   23          extern uint8 vl53l0x_finsh_flag;
+   24          extern uint16 vl53l0x_distance_mm;
+   25          
+   26          void Init_all(void)
+   27          {
+   28   1              WTST = 0;                                               //���ó������ȴ���������ֵΪ0�ɽ�CPUִ�г��
+             -���ٶ�����Ϊ���  
+   29   1              DisableGlobalIRQ();                             //�ر����ж�
+   30   1              sys_clk = 35000000;                             //����ϵͳƵ��Ϊ35MHz
+   31   1      
+   32   1      //��ʼ���Ĵ���
+   33   1              board_init();                                   
+   34   1      
+   35   1      ////编码器方向引脚初始化
+   36   1              gpio_mode(P5_3, GPIO);          
+   37   1              gpio_mode(P3_5, GPIO);          
+   38   1      
+   39   1      ////测距模块初始化
+   40   1              //gpio_mode(P3_2, GPIO);
+   41   1              vl53l0x_init();
+   42   1              
+   43   1      ////OLED初始化
+   44   1              oled_init();                                    
+   45   1      //      
+   46   1      ////MPU6050初始化
+   47   1              MPU6050_DMP_Init();     
+   48   1      //      
+   49   1      ////定时器初始化
+   50   1              pit_timer_ms(TIM_4, 10);                //10ms定时器
+   51   1      //      
+   52   1      ////编码器初始化
+   53   1              ctimer_count_init(CTIM0_P34);   //编码器1计数
+   54   1              ctimer_count_init(CTIM3_P04);   //编码器2计数
+   55   1      //      
+   56   1      ////串口初始化
+C251 COMPILER V5.60.0,  main                                                               27/02/24  21:49:36  PAGE 2   
+
+   57   1      //      uart_init(UART_1, UART1_RX_P30, UART1_TX_P31, 115200, TIM_2);
+   58   1      //      
+   59   1      ////电机初始化
+   60   1              Motor_Init();
+   61   1              
+   62   1      ////初始化所有AD引脚
+   63   1              ADC_InitAll(); 
+   64   1              
+   65   1      ////pid初始化  PID_Init(结构体, KP, KI, KD, 输出限幅，积分限幅)
+   66   1              PID_Init(&Left_Wheel_PID , 20, 0.5, 0, 10000, 2000);
+   67   1              PID_Init(&Right_Wheel_PID, 20, 0.5, 0, 10000, 2000);
+   68   1              PID_Init(&Turn_PID , -2, 0, 0 ,10000, 0);
+   69   1      } 
+   70          
+   71          //对ADC值进行处理得到差比和
+   72          void Get_Ratio(void)
+   73          {
+   74   1              sum = ADC_proc[0]+ ADC_proc[1]+ADC_proc[2]+ADC_proc[3]+ADC_proc[4];
+   75   1              sum_L = sqrt((ADC_proc[0]*ADC_proc[0]+ADC_proc[1]*ADC_proc[1]));
+   76   1              sum_R = sqrt((ADC_proc[4]*ADC_proc[4]+ADC_proc[3]*ADC_proc[3]));
+   77   1              Diff = sum_L - sum_R;
+   78   1              Plus = sum_L + sum_R;
+   79   1              Ratio = Diff/Plus;
+   80   1              Ratio = 0.7*Ratio +0.3*Ratio_Last;
+   81   1              Ratio_Last = Ratio;
+   82   1      }
+   83          
+   84          void main(void) 
+   85          {
+   86   1              Init_all();
+   87   1              EnableGlobalIRQ();      //���ж������
+   88   1              while(1)
+   89   1              {
+   90   2                      oled_printf_float(0,0,vl53l0x_distance_mm,5,2);
+   91   2                      oled_printf_float(0,2,ADC_proc[1],5,2);
+   92   2                      oled_printf_float(0,4,Ratio,5,2);
+   93   2                      oled_printf_float(0,6,Pitch,5,2);
+   94   2      //              printf("%.2f,%.2f,%.2f,%.2f,%.2f\r\n",Exp_Speed_L,Exp_Speed_R,Speed_L,Speed_R,Turn_PID.PID_Out*0.09);
+   95   2      //              printf("%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\r\n",ADC_proc[0],ADC_proc[1],Sum_Angle,sum_L,sum_R,Ratio);
+   96   2                      if(Isr_flag_10 == 1)
+   97   2                      {
+   98   3                              ADC_GetValue();
+   99   3                              MPU6050_Refresh_DMP();
+  100   3                              MPU_Get_Gyroscope(&gx, &gy, &gz);
+  101   3                              Get_Ratio();
+  102   3                              
+  103   3                              ///////////////////////////////// 直道弯道判别 ///////////////////////////////////////
+  104   3                              if(Ratio >= -0.1 && Ratio <= 0.1) //直线
+  105   3                              {
+  106   4                                      Turn_PID.Kp = -15;
+  107   4                                      Turn_PID.Kd = -2.6;
+  108   4                                      Left_Wheel_PID.Kp = Right_Wheel_PID.Kp = 20;
+  109   4                                      Left_Wheel_PID.Ki = Right_Wheel_PID.Ki = 0.5;
+  110   4                                      Exp_Speed = 260;
+  111   4                              }
+  112   3                              else   // 拐弯
+  113   3                              {
+  114   4                                      Turn_PID.Kp = -138;
+  115   4                                      Turn_PID.Kd = -24.3;
+  116   4                                      Left_Wheel_PID.Kp = Right_Wheel_PID.Kp = 36;
+  117   4                                      Left_Wheel_PID.Ki = Right_Wheel_PID.Ki = 0.9; //i太大会出现矫正滞后，导致车反方向飘�
+             -��
+  118   4                                      Exp_Speed = 200;
+  119   4                              }
+  120   3                              
+  121   3                              Get_Speed();  //获取车速
+C251 COMPILER V5.60.0,  main                                                               27/02/24  21:49:36  PAGE 3   
+
+  122   3                              
+  123   3                              ///////////////////////////////// 避开路障 //////////////////////////////////////////
+  124   3                              vl53l0x_get_distance(); 
+  125   3                              if (vl53l0x_distance_mm < 650)          //      路障检测
+  126   3                                      Barrier_Flag1 = 1;
+  127   3                              Elem_Barrier(gz);
+  128   3                              if(Barrier_Flag4 > 0)
+  129   3                              {
+  130   4                                      Ratio = -0.4;
+  131   4                                      Barrier_Flag4 -= 1;
+  132   4                              }
+  133   3                              
+  134   3                              ////////////////////////////////// 圆环判别 ///////////////////////////////////////////////
+  135   3                              if(ADC_proc[2] > 80 && (ADC_proc[3] > 10 || ADC_proc[1] > 10))  //识别圆环
+  136   3                              {
+  137   4                                      if(ADC_proc[3] > ADC_proc[1])  //判断左右
+  138   4                                      {
+  139   5                                              circle_flag_R = 1;
+  140   5                                              Elem_Circle_R((Speed_L + Speed_R)/2,gz);        
+  141   5                                      }
+  142   4                                      else if(ADC_proc[3] < ADC_proc[1]) 
+  143   4                                      {
+  144   5                                              circle_flag_L = 1;
+  145   5                                              Elem_Circle_L((Speed_L + Speed_R)/2,gz);
+  146   5                                      }
+  147   4                              }
+  148   3                              
+  149   3                              ///////////////////////////// 转向环计算 //////////////////////////////////////////////////                                
+  150   3                              PID_Calculate(&Turn_PID,Ratio*100,gz/100); 
+  151   3                              Limit_Out(&Turn_PID.PID_Out,-2000,5000);
+  152   3                                      
+  153   3                              ////////////////////////////////上下坡道 ////////////////////////////////////////////////////
+  154   3                              Elem_Up_Down(Pitch,gy);         
+  155   3                                      
+  156   3                              ///////////////////////////// 特殊元素降速 ///////////////////////////////////////////////////
+  157   3                              if( circle_flag_L == 1 || circle_flag_R == 1 || Barrier_Flag2 == 1 || Barrier_Flag1 == 1)  
+  158   3                                      Exp_Speed = 160;
+  159   3                              Exp_Speed_L = Exp_Speed + Turn_PID.PID_Out*0.09;
+  160   3                              Exp_Speed_R = Exp_Speed - Turn_PID.PID_Out*0.09;
+  161   3                              
+  162   3      
+  163   3                              PID_Calculate(&Left_Wheel_PID,Exp_Speed_L,Speed_L);//速度环PID计算
+  164   3                              PID_Calculate(&Right_Wheel_PID,Exp_Speed_R,Speed_R);
+  165   3                              
+  166   3                              //////////////////////// // 驶离赛道，停车 /////////////////////////////////////////////////
+  167   3                              if(ADC_proc[2]<5 && Barrier_Executed == 1) 
+  168   3                              {
+  169   4                                      Left_Wheel_PID.PID_Out = 0;
+  170   4                                      Right_Wheel_PID.PID_Out = 0;
+  171   4                              }
+  172   3                              
+  173   3      //                      Left_SetSpeed(Left_Wheel_PID.PID_Out);
+  174   3      //                      Right_SetSpeed(Right_Wheel_PID.PID_Out);
+  175   3                              
+  176   3                              Left_SetSpeed(2000);
+  177   3                              Right_SetSpeed(-2000);
+  178   3                              Isr_flag_10 = 0;
+  179   3                      } 
+  180   2              }
+  181   1      }
+  182          
+  183          
+  184          
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+C251 COMPILER V5.60.0,  main                                                               27/02/24  21:49:36  PAGE 4   
+
+  code size            =      1178     ------
+  ecode size           =    ------     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+  xdata size           =    ------     ------
+  xdata-const size     =    ------     ------
+  edata size           =        48     ------
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =        34     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
