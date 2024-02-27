@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Element                                                            26/02/24  18:04:36  PAGE 1   
+C251 COMPILER V5.60.0,  Element                                                            27/02/24  23:08:54  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Element
@@ -66,7 +66,7 @@ stmt  level    source
    55   2                      Ratio = -0.45;                  //直接更改期望值
    56   2                      Sum_Angle += Gyro_Z*0.005;
    57   2                      
-C251 COMPILER V5.60.0,  Element                                                            26/02/24  18:04:36  PAGE 2   
+C251 COMPILER V5.60.0,  Element                                                            27/02/24  23:08:54  PAGE 2   
 
    58   2              }
    59   1              if(Sum_Angle < -22)     //右拐避障
@@ -134,7 +134,7 @@ stmt  level    source
   121   3                              else                    //出环结束，标志位清零
   122   3                              {
   123   4                                      Ratio = 0;
-C251 COMPILER V5.60.0,  Element                                                            26/02/24  18:04:36  PAGE 3   
+C251 COMPILER V5.60.0,  Element                                                            27/02/24  23:08:54  PAGE 3   
 
   124   4                                      circle_flag_R = 0;
   125   4                                      Sum_Dis1 = 0;
@@ -203,7 +203,7 @@ stmt  level    source
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =       882     ------
-C251 COMPILER V5.60.0,  Element                                                            26/02/24  18:04:36  PAGE 4   
+C251 COMPILER V5.60.0,  Element                                                            27/02/24  23:08:54  PAGE 4   
 
   ecode size           =    ------     ------
   data size            =    ------     ------

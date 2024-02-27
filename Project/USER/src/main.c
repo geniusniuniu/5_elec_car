@@ -11,17 +11,22 @@ short gx, gy, gz;
 char Isr_flag_20 = 0; //�ж�2�δ���
 char Isr_flag_10 = 0; 
 
-float Diff,Plus; // �� / ��
-float Ratio;
-float Ratio_Last;
-float sum_L,sum_R,sum;
+float KeyAdjust = 0;
 
+float Diff,Plus; // �� / ��
+float Ratio = 0;
+
+float Diff_Mid,Plus_Mid; // �� / ��
+float Ratio_Mid = 0;
+float sum;
+int dis = 2000;
 
 float Exp_Speed_L = 0;
 float Exp_Speed_R = 0;
 float Exp_Speed = 200;
-extern uint8 vl53l0x_finsh_flag;
+
 extern uint16 vl53l0x_distance_mm;
+extern uint8 vl53l0x_finsh_flag;
 
 void Init_all(void)
 {
@@ -36,13 +41,17 @@ void Init_all(void)
 	gpio_mode(P5_3, GPIO);          
 	gpio_mode(P3_5, GPIO);		
 
+//按键初始化
+	gpio_mode(P7_0, GPIO); //KEY1
+	gpio_mode(P7_1, GPIO); //KEY2
+	
 ////测距模块初始化
 	//gpio_mode(P3_2, GPIO);
 	vl53l0x_init();
 	
 ////OLED初始化
 	oled_init();					
-//	
+	
 ////MPU6050初始化
 	MPU6050_DMP_Init();	
 //	
@@ -52,14 +61,16 @@ void Init_all(void)
 ////编码器初始化
 	ctimer_count_init(CTIM0_P34);	//编码器1计数
 	ctimer_count_init(CTIM3_P04);	//编码器2计数
-//	
+	
 ////串口初始化
 //	uart_init(UART_1, UART1_RX_P30, UART1_TX_P31, 115200, TIM_2);
-//	
+	
 ////电机初始化
 	Motor_Init();
+	
 ////蜂鸣器初始化
-	pwm_init(PWMB_CH4_P77，100，1000);
+	pwm_init(PWMB_CH4_P77,100,0);
+	
 ////初始化所有AD引脚
 	ADC_InitAll(); 
 	
@@ -72,28 +83,57 @@ void Init_all(void)
 //对ADC值进行处理得到差比和
 void Get_Ratio(void)
 {
-	sum = ADC_proc[0]+ ADC_proc[1]+ADC_proc[2]+ADC_proc[3]+ADC_proc[4];
-	sum_L = sqrt((ADC_proc[0]*ADC_proc[0]+ADC_proc[1]*ADC_proc[1]));
-	sum_R = sqrt((ADC_proc[4]*ADC_proc[4]+ADC_proc[3]*ADC_proc[3]));
-	Diff = sum_L - sum_R;
-	Plus = sum_L + sum_R;
-	Ratio = Diff/Plus;
-	Ratio = 0.7*Ratio +0.3*Ratio_Last;
-	Ratio_Last = Ratio;
+	sum = ADC_proc[0]+ ADC_proc[1]+ADC_proc[2]+ADC_proc[3];
+//	sum_L = sqrt((ADC_proc[0]*ADC_proc[0]+ADC_proc[1]*ADC_proc[1]));
+//	sum_R = sqrt((ADC_proc[2]*ADC_proc[2]+ADC_proc[3]*ADC_proc[3]));
+
+	Diff = ADC_proc[0] - ADC_proc[3];
+	Plus = ADC_proc[0] + ADC_proc[3];
+	
+	Diff_Mid = ADC_proc[1] - ADC_proc[2];
+	Plus_Mid = ADC_proc[1] + ADC_proc[2];
+	
+//	if(sum > 35)  //边界保护
+//	{
+		Ratio = Diff/Plus;
+		Ratio_Mid = Diff_Mid/Plus_Mid;
+		if(Plus_Mid > 30 && Plus_Mid < 65)
+		{
+			Ratio = Ratio_Mid;
+		}
+//	}
+
 }
 
 void main(void)	
 {
 	Init_all();
 	EnableGlobalIRQ();	//���ж������
+	KeyAdjust = -180;
 	while(1)
 	{
-		oled_printf_float(0,0,vl53l0x_distance_mm,5,2);
+		oled_printf_float(0,0,ADC_proc[0],5,2);
 		oled_printf_float(0,2,ADC_proc[1],5,2);
-		oled_printf_float(0,4,Ratio,5,2);
-		oled_printf_float(0,6,Pitch,5,2);
+		oled_printf_float(0,4,ADC_proc[2],5,2);
+		oled_printf_float(0,6,ADC_proc[3],5,2);
+		
+		oled_printf_float(60,0,vl53l0x_distance_mm,5,2);
+		oled_printf_float(60,2,Ratio,1,2);
 //		printf("%.2f,%.2f,%.2f,%.2f,%.2f\r\n",Exp_Speed_L,Exp_Speed_R,Speed_L,Speed_R,Turn_PID.PID_Out*0.09);
 //		printf("%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\r\n",ADC_proc[0],ADC_proc[1],Sum_Angle,sum_L,sum_R,Ratio);
+		
+		//////////////////////////////////使用按键调参，暂时只初始化两个按键///////////////////////////////// 
+		if(P70 == 0)
+		{
+			while(P70 == 0);
+			KeyAdjust += 2;
+		}
+		if(P71 == 0)
+		{
+			while(P71 == 0);
+			KeyAdjust -= 2;
+		}
+		
 		if(Isr_flag_10 == 1)
 		{
 			ADC_GetValue();
@@ -101,7 +141,7 @@ void main(void)
 			MPU_Get_Gyroscope(&gx, &gy, &gz);
 			Get_Ratio();
 			
-			///////////////////////////////// 直道弯道判别 ///////////////////////////////////////
+			///////////////////////////////// 直道弯道判别 ///////////////////////////////// 
 			if(Ratio >= -0.1 && Ratio <= 0.1) //直线
 			{
 				Turn_PID.Kp = -15;
@@ -110,7 +150,7 @@ void main(void)
 				Left_Wheel_PID.Ki = Right_Wheel_PID.Ki = 0.5;
 				Exp_Speed = 260;
 			}
-			else   // 拐弯
+			else   // 弯道
 			{
 				Turn_PID.Kp = -138;
 				Turn_PID.Kd = -24.3;
@@ -119,21 +159,22 @@ void main(void)
 				Exp_Speed = 200;
 			}
 			
-			Get_Speed();  //获取车速
-			
-			///////////////////////////////// 避开路障 //////////////////////////////////////////
-			vl53l0x_get_distance(); 
-			if (vl53l0x_distance_mm < 650)		//	路障检测
-				Barrier_Flag1 = 1;
-			Elem_Barrier(gz);
-			if(Barrier_Flag4 > 0)
+			///////////////////////////////// 避开路障 //////////////////////////////////////////			
+			if(Barrier_Flag4 == 0) //避障只运行一次
 			{
-				Ratio = -0.4;
-				Barrier_Flag4 -= 1;
+				vl53l0x_get_distance();
+				if(vl53l0x_finsh_flag)  //测量完成
+				{
+					if (vl53l0x_distance_mm < 600)		//	检测到路障
+					{
+						Barrier_Flag1 = 1;
+					}
+				}
+				Elem_Barrier(gz);
 			}
 			
 			////////////////////////////////// 圆环判别 ///////////////////////////////////////////////
-			if(ADC_proc[2] > 80 && (ADC_proc[3] > 10 || ADC_proc[1] > 10))	//识别圆环
+			if(ADC_proc[2] > 75 && (ADC_proc[3] > 8 || ADC_proc[1] > 8))	//中间横电感识别圆环
 			{
 				if(ADC_proc[3] > ADC_proc[1])  //判断左右
 				{
@@ -146,7 +187,7 @@ void main(void)
 					Elem_Circle_L((Speed_L + Speed_R)/2,gz);
 				}
 			}
-			
+				
 			///////////////////////////// 转向环计算 //////////////////////////////////////////////////				
 			PID_Calculate(&Turn_PID,Ratio*100,gz/100); 
 			Limit_Out(&Turn_PID.PID_Out,-2000,5000);
@@ -160,6 +201,7 @@ void main(void)
 			Exp_Speed_L = Exp_Speed + Turn_PID.PID_Out*0.09;
 			Exp_Speed_R = Exp_Speed - Turn_PID.PID_Out*0.09;
 			
+			Get_Speed();  //获取车速
 
 			PID_Calculate(&Left_Wheel_PID,Exp_Speed_L,Speed_L);//速度环PID计算
 			PID_Calculate(&Right_Wheel_PID,Exp_Speed_R,Speed_R);
@@ -171,8 +213,8 @@ void main(void)
 				Right_Wheel_PID.PID_Out = 0;
 			}
 			
-//			Left_SetSpeed(Left_Wheel_PID.PID_Out);
-//			Right_SetSpeed(Right_Wheel_PID.PID_Out);
+	//			Left_SetSpeed(Left_Wheel_PID.PID_Out);
+	//			Right_SetSpeed(Right_Wheel_PID.PID_Out);
 			
 			Left_SetSpeed(2000);
 			Right_SetSpeed(-2000);
