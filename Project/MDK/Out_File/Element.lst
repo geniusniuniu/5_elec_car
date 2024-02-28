@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Element                                                            27/02/24  23:08:54  PAGE 1   
+C251 COMPILER V5.60.0,  Element                                                            28/02/24  16:21:57  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Element
@@ -16,80 +16,80 @@ stmt  level    source
     5          #include "Element.h"
     6          #include "Motor.h"
     7          #include "PID.h"
-    8          
-    9          #define ROUND -120  //车转一圈陀螺仪角度积分
-   10          
+    8          #include "Buzzer.h"
+    9          
+   10          #define ROUND -120  //车转一圈陀螺仪角度积分
    11          
-   12          extern float Exp_Speed;
-   13          extern float Ratio;
-   14          extern float ADC_proc[5];
-   15          
-   16          //上下坡标志位
-   17          char Up_Down_Flag;
-   18          
-   19          //环岛标志位
-   20          char circle_flag_L = 0;  // 左右环岛识别建立不同标志位
-   21          char circle_flag_R = 0;
-   22          char circle_In_Flag = 0;
-   23          char circle_Out_Flag = 0;
-   24          char circle_Force_Flag = 0;  //强迫出环标志位
-   25          
+   12          
+   13          extern float Exp_Speed;
+   14          extern float Ratio;
+   15          extern float ADC_proc[5];
+   16          
+   17          //上下坡标志位
+   18          char Up_Down_Flag;
+   19          
+   20          //环岛标志位
+   21          char circle_flag_L = 0;  // 左右环岛识别建立不同标志位
+   22          char circle_flag_R = 0;
+   23          char circle_In_Flag = 0;
+   24          char circle_Out_Flag = 0;
+   25          char circle_Force_Flag = 0;  //强迫出环标志位
    26          
-   27          //避障相关标志位
-   28          char Barrier_Flag1=0;
-   29          char Barrier_Flag2=0;
-   30          char Barrier_Flag3=0;
-   31          char Barrier_Executed = 0;
-   32          char Barrier_Flag4=0;
-   33          float Sum_Angle=0;
-   34          
-   35          void Elem_Up_Down(float Angle,float Gyro)  //上下坡
-   36          {
-   37   1              if(Num2Abs(Gyro)>400)
-   38   1              {
-   39   2                      if(Angle > 7)                   {Exp_Speed = 290;}
-   40   2              }
-   41   1              if(Angle < -4)     {Exp_Speed = 20;}
-   42   1      
-   43   1      }
-   44          
-   45          //障碍物识别    
-   46          void Elem_Barrier(float Gyro_Z)
-   47          {
-   48   1              if (Barrier_Executed == 1) 
-   49   1              {
-   50   2              return ;
-   51   2          }
-   52   1              Gyro_Z = (Gyro_Z*2000)/32768;   
-   53   1              if(Barrier_Flag1==1)
-   54   1              {
-   55   2                      Ratio = -0.45;                  //直接更改期望值
-   56   2                      Sum_Angle += Gyro_Z*0.005;
-   57   2                      
-C251 COMPILER V5.60.0,  Element                                                            27/02/24  23:08:54  PAGE 2   
+   27          
+   28          //避障相关标志位
+   29          char Barrier_Flag1=0;
+   30          char Barrier_Flag2=0;
+   31          char Barrier_Flag3=0;
+   32          char Barrier_Executed = 0;
+   33          char Barrier_Flag4=0;
+   34          float Sum_Angle=0;
+   35          
+   36          void Elem_Up_Down(float Angle,float Gyro)  //上下坡
+   37          {
+   38   1              if(Num2Abs(Gyro)>400)
+   39   1              {
+   40   2                      if(Angle > 7)                   {Exp_Speed = 290; Buzzer_ON();}
+   41   2              }
+   42   1              if(Angle < -4)     {Exp_Speed = 20; Buzzer_ON();}
+   43   1      
+   44   1      }
+   45          
+   46          //障碍物识别    
+   47          void Elem_Barrier(float Gyro_Z)
+   48          {
+   49   1      //      if (Barrier_Flag4 == 1) 
+   50   1      //      {
+   51   1      //        return ;
+   52   1      //    }
+   53   1              Gyro_Z = (Gyro_Z*2000)/32768;   
+   54   1              if(Barrier_Flag1==1)
+   55   1              {
+   56   2                      Ratio = -0.46;                  //直接更改期望值
+   57   2                      Sum_Angle += Gyro_Z*0.005;
+C251 COMPILER V5.60.0,  Element                                                            28/02/24  16:21:57  PAGE 2   
 
-   58   2              }
-   59   1              if(Sum_Angle < -22)     //右拐避障
-   60   1              {
-   61   2                      Barrier_Flag1 = 0;   //出赛道角度停止积分
-   62   2                      Barrier_Flag2 = 1;
-   63   2                      Sum_Angle = 0;          //积分清零
-   64   2              }
-   65   1          if(Barrier_Flag2==1)
-   66   1          {
-   67   2                      Sum_Angle += Gyro_Z*0.005;   
-   68   2              if(Sum_Angle < 35)  //左拐回正
-   69   2              {
-   70   3                              Ratio = 0.4;            
-   71   3                              Barrier_Flag3 = 0;  //尚未回正
-   72   3              }
-   73   2                      else
-   74   2                              Barrier_Flag3 = 1;  //回正
-   75   2               }
-   76   1              if(Barrier_Flag3==1)            //回正后标志位清零
-   77   1              {       
-   78   2                      Barrier_Flag4 = 25;
-   79   2                      Barrier_Executed = 1;
+   58   2                      
+   59   2              }
+   60   1              if(Sum_Angle < -27)     //右拐避障
+   61   1              {
+   62   2                      Barrier_Flag1 = 0;   //出赛道角度停止积分
+   63   2                      Barrier_Flag2 = 1;
+   64   2                      Sum_Angle = 0;          //积分清零
+   65   2              }
+   66   1          if(Barrier_Flag2==1)
+   67   1          {
+   68   2                      Sum_Angle += Gyro_Z*0.005;   
+   69   2              if(Sum_Angle < 30.5)  //左拐回正
+   70   2              {
+   71   3                              Ratio = 0.51;           
+   72   3                              Barrier_Flag3 = 0;  //尚未回正
+   73   3              }
+   74   2                      else
+   75   2                              Barrier_Flag3 = 1;  //回正
+   76   2               }
+   77   1              if(Barrier_Flag3==1)            //回正后标志位清零
+   78   1              {       
+   79   2                      Barrier_Flag4 = 1;
    80   2                      Barrier_Flag1 = 0;
    81   2                      Barrier_Flag2 = 0;
    82   2                      Barrier_Flag3 = 0;
@@ -134,7 +134,7 @@ stmt  level    source
   121   3                              else                    //出环结束，标志位清零
   122   3                              {
   123   4                                      Ratio = 0;
-C251 COMPILER V5.60.0,  Element                                                            27/02/24  23:08:54  PAGE 3   
+C251 COMPILER V5.60.0,  Element                                                            28/02/24  16:21:57  PAGE 3   
 
   124   4                                      circle_flag_R = 0;
   125   4                                      Sum_Dis1 = 0;
@@ -202,8 +202,8 @@ stmt  level    source
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =       882     ------
-C251 COMPILER V5.60.0,  Element                                                            27/02/24  23:08:54  PAGE 4   
+  code size            =       866     ------
+C251 COMPILER V5.60.0,  Element                                                            28/02/24  16:21:57  PAGE 4   
 
   ecode size           =    ------     ------
   data size            =    ------     ------

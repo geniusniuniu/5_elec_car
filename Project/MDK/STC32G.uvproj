@@ -729,6 +729,16 @@
               <FileType>5</FileType>
               <FilePath>..\CODE\Element.h</FilePath>
             </File>
+            <File>
+              <FileName>Buzzer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\CODE\Buzzer.c</FilePath>
+            </File>
+            <File>
+              <FileName>Buzzer.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\CODE\Buzzer.h</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

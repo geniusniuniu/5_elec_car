@@ -5,9 +5,10 @@
 #include "Element.h"
 #include "Motor.h"
 #include "PID.h"
+#include "Buzzer.h"
 
-#define ROUND -120  //车转一圈陀螺仪角度积分
-
+#define ROUND_R -120  //车转一圈陀螺仪角度积分
+#define ROUND_L 120  
 
 extern float Exp_Speed;
 extern float Ratio;
@@ -36,27 +37,27 @@ void Elem_Up_Down(float Angle,float Gyro)  //上下坡
 {
 	if(Num2Abs(Gyro)>400)
 	{
-		if(Angle > 7) 		  	{Exp_Speed = 290;}
+		if(Angle > 7) 		  	{Exp_Speed = 290; Buzzer_ON();}
 	}
-	if(Angle < -4)     {Exp_Speed = 20;}
+	if(Angle < -4)     {Exp_Speed = 20; Buzzer_ON();}
 
 }
 
 //障碍物识别	
 void Elem_Barrier(float Gyro_Z)
 {
-	if (Barrier_Executed == 1) 
-	{
-        return ;
-    }
+//	if (Barrier_Flag4 == 1) 
+//	{
+//        return ;
+//    }
 	Gyro_Z = (Gyro_Z*2000)/32768;	
 	if(Barrier_Flag1==1)
 	{
-		Ratio = -0.45;			//直接更改期望值
+		Ratio = -0.46;			//直接更改期望值
 		Sum_Angle += Gyro_Z*0.005;
 		
 	}
-	if(Sum_Angle < -22)   	//右拐避障
+	if(Sum_Angle < -27)   	//右拐避障
 	{
 		Barrier_Flag1 = 0;   //出赛道角度停止积分
 		Barrier_Flag2 = 1;
@@ -65,9 +66,9 @@ void Elem_Barrier(float Gyro_Z)
     if(Barrier_Flag2==1)
     {
 		Sum_Angle += Gyro_Z*0.005;   
-        if(Sum_Angle < 35)  //左拐回正
+        if(Sum_Angle < 30.5)  //左拐回正
         {
-			Ratio = 0.4; 		
+			Ratio = 0.51; 		
 			Barrier_Flag3 = 0;  //尚未回正
         }
 		else
@@ -75,8 +76,7 @@ void Elem_Barrier(float Gyro_Z)
 	 }
 	if(Barrier_Flag3==1)		//回正后标志位清零
 	{	
-		Barrier_Flag4 = 25;
-		Barrier_Executed = 1;
+		Barrier_Flag4 = 1;
 		Barrier_Flag1 = 0;
 		Barrier_Flag2 = 0;
 		Barrier_Flag3 = 0;
@@ -98,7 +98,7 @@ void Elem_Circle_R(float Speed,float Gyro_Z)
 			Gyro_Z = (Gyro_Z*2000)/32768;
 			Sum_Angle_C += Gyro_Z*0.005;
 			
-			if(Sum_Angle_C < -120) // 入环结束,正常循迹
+			if(Sum_Angle_C < -20) // 入环结束,正常循迹
 			{
 				Ratio = 0;
 				circle_In_Flag = 1;
@@ -110,7 +110,7 @@ void Elem_Circle_R(float Speed,float Gyro_Z)
 		{
 				Gyro_Z = (Gyro_Z*2000)/32768;
 				Sum_Angle_C += Gyro_Z*0.005;
-				if(Sum_Angle_C < ROUND) //左转角度积分是负值
+				if(Sum_Angle_C < ROUND_R) //右转角度积分是负值
 					circle_Out_Flag = 1;
 		}
 		if(circle_Out_Flag == 1 || ADC_proc[2] > 80)
@@ -150,7 +150,7 @@ void Elem_Circle_L(float Speed,float Gyro_Z)
 			Gyro_Z = (Gyro_Z*2000)/32768;
 			Sum_Angle_C += Gyro_Z*0.005;
 			
-			if(Sum_Angle_C > 120) // 入环结束,正常循迹
+			if(Sum_Angle_C > 20) // 入环结束,正常循迹
 			{
 				Ratio = 0;
 				circle_In_Flag = 1;
@@ -162,7 +162,7 @@ void Elem_Circle_L(float Speed,float Gyro_Z)
 		{
 				Gyro_Z = (Gyro_Z*2000)/32768;
 				Sum_Angle_C += Gyro_Z*0.005;
-				if(Sum_Angle_C > ROUND) //右转角度积分是正值
+				if(Sum_Angle_C > ROUND_L) //左转角度积分是正值
 					circle_Out_Flag = 1;
 		}
 		if(circle_Out_Flag == 1 || ADC_proc[2] > 80)

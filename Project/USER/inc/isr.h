@@ -21,7 +21,7 @@
 #define __ISR_H_
 
 
-
+extern char count;
 
 
 

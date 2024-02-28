@@ -6,9 +6,9 @@
 #include "ADC.h"
 #include "math.h"
 #include "TOF.h"
+#include "Buzzer.h"
 
 short gx, gy, gz;
-char Isr_flag_20 = 0; //�ж�2�δ���
 char Isr_flag_10 = 0; 
 
 float KeyAdjust = 0;
@@ -69,7 +69,7 @@ void Init_all(void)
 	Motor_Init();
 	
 ////蜂鸣器初始化
-	pwm_init(PWMB_CH4_P77,100,0);
+	Buzzer_Init();
 	
 ////初始化所有AD引脚
 	ADC_InitAll(); 
@@ -83,15 +83,15 @@ void Init_all(void)
 //对ADC值进行处理得到差比和
 void Get_Ratio(void)
 {
-	sum = ADC_proc[0]+ ADC_proc[1]+ADC_proc[2]+ADC_proc[3];
+	sum = ADC_proc[0]+ ADC_proc[1]+ADC_proc[4]+ADC_proc[3];
 //	sum_L = sqrt((ADC_proc[0]*ADC_proc[0]+ADC_proc[1]*ADC_proc[1]));
 //	sum_R = sqrt((ADC_proc[2]*ADC_proc[2]+ADC_proc[3]*ADC_proc[3]));
 
-	Diff = ADC_proc[0] - ADC_proc[3];
-	Plus = ADC_proc[0] + ADC_proc[3];
+	Diff = ADC_proc[0] - ADC_proc[4];
+	Plus = ADC_proc[0] + ADC_proc[4];
 	
-	Diff_Mid = ADC_proc[1] - ADC_proc[2];
-	Plus_Mid = ADC_proc[1] + ADC_proc[2];
+	Diff_Mid = ADC_proc[1] - ADC_proc[3];
+	Plus_Mid = ADC_proc[1] + ADC_proc[3];
 	
 //	if(sum > 35)  //边界保护
 //	{
@@ -116,13 +116,14 @@ void main(void)
 		oled_printf_float(0,2,ADC_proc[1],5,2);
 		oled_printf_float(0,4,ADC_proc[2],5,2);
 		oled_printf_float(0,6,ADC_proc[3],5,2);
+		oled_printf_float(60,0,ADC_proc[4],5,2);
 		
-		oled_printf_float(60,0,vl53l0x_distance_mm,5,2);
-		oled_printf_float(60,2,Ratio,1,2);
+		oled_printf_float(60,2,vl53l0x_distance_mm,5,2);
+		oled_printf_float(60,4,Ratio,1,2);
 //		printf("%.2f,%.2f,%.2f,%.2f,%.2f\r\n",Exp_Speed_L,Exp_Speed_R,Speed_L,Speed_R,Turn_PID.PID_Out*0.09);
 //		printf("%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\r\n",ADC_proc[0],ADC_proc[1],Sum_Angle,sum_L,sum_R,Ratio);
 		
-		//////////////////////////////////使用按键调参，暂时只初始化两个按键///////////////////////////////// 
+	//////////////////////////////////////使用按键调参，暂时只初始化了两个按键///////////////////////////////// 
 		if(P70 == 0)
 		{
 			while(P70 == 0);
@@ -141,7 +142,7 @@ void main(void)
 			MPU_Get_Gyroscope(&gx, &gy, &gz);
 			Get_Ratio();
 			
-			///////////////////////////////// 直道弯道判别 ///////////////////////////////// 
+	////////////////////////////////////////// 直道弯道判别 ////////////////////////////////////////// 
 			if(Ratio >= -0.1 && Ratio <= 0.1) //直线
 			{
 				Turn_PID.Kp = -15;
@@ -159,23 +160,25 @@ void main(void)
 				Exp_Speed = 200;
 			}
 			
-			///////////////////////////////// 避开路障 //////////////////////////////////////////			
-			if(Barrier_Flag4 == 0) //避障只运行一次
+	////////////////////////////////////////// 避开路障 ///////////////////////////////////////////////////			
+			if(Barrier_Flag4 == 0) //确保避障只运行一次
 			{
 				vl53l0x_get_distance();
-				if(vl53l0x_finsh_flag)  //测量完成
+				if(vl53l0x_finsh_flag)  //一次测距完成
 				{
 					if (vl53l0x_distance_mm < 600)		//	检测到路障
 					{
+						Buzzer_ON();
 						Barrier_Flag1 = 1;
 					}
 				}
 				Elem_Barrier(gz);
 			}
 			
-			////////////////////////////////// 圆环判别 ///////////////////////////////////////////////
+	/////////////////////////////////////////// 圆环判别 ///////////////////////////////////////////////
 			if(ADC_proc[2] > 75 && (ADC_proc[3] > 8 || ADC_proc[1] > 8))	//中间横电感识别圆环
 			{
+				Buzzer_ON();
 				if(ADC_proc[3] > ADC_proc[1])  //判断左右
 				{
 					circle_flag_R = 1;
@@ -188,14 +191,14 @@ void main(void)
 				}
 			}
 				
-			///////////////////////////// 转向环计算 //////////////////////////////////////////////////				
+	////////////////////////////////////// 转向环计算 //////////////////////////////////////////////////				
 			PID_Calculate(&Turn_PID,Ratio*100,gz/100); 
 			Limit_Out(&Turn_PID.PID_Out,-2000,5000);
 				
-			////////////////////////////////上下坡道 ////////////////////////////////////////////////////
+	/////////////////////////////////////////上下坡道 ////////////////////////////////////////////////////
 			Elem_Up_Down(Pitch,gy);		
 				
-			///////////////////////////// 特殊元素降速 ///////////////////////////////////////////////////
+	////////////////////////////////////// 特殊元素降速 ///////////////////////////////////////////////////
 			if( circle_flag_L == 1 || circle_flag_R == 1 || Barrier_Flag2 == 1 || Barrier_Flag1 == 1)  
 				Exp_Speed = 160;
 			Exp_Speed_L = Exp_Speed + Turn_PID.PID_Out*0.09;
@@ -206,7 +209,7 @@ void main(void)
 			PID_Calculate(&Left_Wheel_PID,Exp_Speed_L,Speed_L);//速度环PID计算
 			PID_Calculate(&Right_Wheel_PID,Exp_Speed_R,Speed_R);
 			
-			//////////////////////// // 驶离赛道，停车 /////////////////////////////////////////////////
+	///////////////////////////////// // 驶离赛道，停车 /////////////////////////////////////////////////
 			if(ADC_proc[2]<5 && Barrier_Executed == 1) 
 			{
 				Left_Wheel_PID.PID_Out = 0;

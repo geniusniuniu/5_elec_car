@@ -18,8 +18,10 @@
 // ********************************************************************************************************************/
 #include "headfile.h"
 #include "Motor.h"
+#include "Buzzer.h"
 
 extern char Isr_flag_10;
+
 
 //UART1中断
 void UART1_Isr() interrupt 4
@@ -157,7 +159,11 @@ void TM4_Isr() interrupt 20
 {
 	TIM4_CLEAR_FLAG; //清除中断标志
 	count++;
-		Isr_flag_10 = 1;
+	Isr_flag_10 = 1;
+	
+	if(x10_ms > 0)
+		x10_ms--;
+	
     if(count > 50)
     {
 		LED = !LED;
