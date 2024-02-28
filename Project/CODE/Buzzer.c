@@ -11,16 +11,7 @@ uint16 x10_ms;
 
 void Buzzer_Init(void)
 {
-	pwm_init(PWMB_CH4_P77,100,0);
-}
-
-void Buzzer_ON()
-{
-	if(x10_ms > 0)
-		pwm_duty(PWMB_CH4_P77,1000);
-	else
-		pwm_duty(PWMB_CH4_P77,0);
-	x10_ms = 25;  //250∫¡√Î
+	pwm_init(PWMB_CH4_P77,2000,0);
 }
 
 

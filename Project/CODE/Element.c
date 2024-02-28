@@ -37,9 +37,9 @@ void Elem_Up_Down(float Angle,float Gyro)  //ÉÏÏÂÆÂ
 {
 	if(Num2Abs(Gyro)>400)
 	{
-		if(Angle > 7) 		  	{Exp_Speed = 290; Buzzer_ON();}
+		if(Angle > 7) 		  	{Exp_Speed = 290; x10_ms = 13; }
 	}
-	if(Angle < -4)     {Exp_Speed = 20; Buzzer_ON();}
+	if(Angle < -4)     {Exp_Speed = 20; x10_ms = 13; }
 
 }
 

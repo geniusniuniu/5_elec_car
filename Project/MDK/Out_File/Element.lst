@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Element                                                            28/02/24  16:21:57  PAGE 1   
+C251 COMPILER V5.60.0,  Element                                                            28/02/24  20:16:01  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Element
@@ -18,8 +18,8 @@ stmt  level    source
     7          #include "PID.h"
     8          #include "Buzzer.h"
     9          
-   10          #define ROUND -120  //车转一圈陀螺仪角度积分
-   11          
+   10          #define ROUND_R -120  //车转一圈陀螺仪角度积分
+   11          #define ROUND_L 120  
    12          
    13          extern float Exp_Speed;
    14          extern float Ratio;
@@ -48,9 +48,9 @@ stmt  level    source
    37          {
    38   1              if(Num2Abs(Gyro)>400)
    39   1              {
-   40   2                      if(Angle > 7)                   {Exp_Speed = 290; Buzzer_ON();}
+   40   2                      if(Angle > 7)                   {Exp_Speed = 290; x10_ms = 13; }
    41   2              }
-   42   1              if(Angle < -4)     {Exp_Speed = 20; Buzzer_ON();}
+   42   1              if(Angle < -4)     {Exp_Speed = 20; x10_ms = 13; }
    43   1      
    44   1      }
    45          
@@ -66,7 +66,7 @@ stmt  level    source
    55   1              {
    56   2                      Ratio = -0.46;                  //直接更改期望值
    57   2                      Sum_Angle += Gyro_Z*0.005;
-C251 COMPILER V5.60.0,  Element                                                            28/02/24  16:21:57  PAGE 2   
+C251 COMPILER V5.60.0,  Element                                                            28/02/24  20:16:01  PAGE 2   
 
    58   2                      
    59   2              }
@@ -111,7 +111,7 @@ stmt  level    source
    98   3                              Gyro_Z = (Gyro_Z*2000)/32768;
    99   3                              Sum_Angle_C += Gyro_Z*0.005;
   100   3                              
-  101   3                              if(Sum_Angle_C < -120) // 入环结束,正常循迹
+  101   3                              if(Sum_Angle_C < -20) // 入环结束,正常循迹
   102   3                              {
   103   4                                      Ratio = 0;
   104   4                                      circle_In_Flag = 1;
@@ -123,7 +123,7 @@ stmt  level    source
   110   2                      {
   111   3                                      Gyro_Z = (Gyro_Z*2000)/32768;
   112   3                                      Sum_Angle_C += Gyro_Z*0.005;
-  113   3                                      if(Sum_Angle_C < ROUND) //左转角度积分是负值
+  113   3                                      if(Sum_Angle_C < ROUND_R) //右转角度积分是负值
   114   3                                              circle_Out_Flag = 1;
   115   3                      }
   116   2                      if(circle_Out_Flag == 1 || ADC_proc[2] > 80)
@@ -134,7 +134,7 @@ stmt  level    source
   121   3                              else                    //出环结束，标志位清零
   122   3                              {
   123   4                                      Ratio = 0;
-C251 COMPILER V5.60.0,  Element                                                            28/02/24  16:21:57  PAGE 3   
+C251 COMPILER V5.60.0,  Element                                                            28/02/24  20:16:01  PAGE 3   
 
   124   4                                      circle_flag_R = 0;
   125   4                                      Sum_Dis1 = 0;
@@ -165,7 +165,7 @@ stmt  level    source
   150   3                              Gyro_Z = (Gyro_Z*2000)/32768;
   151   3                              Sum_Angle_C += Gyro_Z*0.005;
   152   3                              
-  153   3                              if(Sum_Angle_C > 120) // 入环结束,正常循迹
+  153   3                              if(Sum_Angle_C > 20) // 入环结束,正常循迹
   154   3                              {
   155   4                                      Ratio = 0;
   156   4                                      circle_In_Flag = 1;
@@ -177,7 +177,7 @@ stmt  level    source
   162   2                      {
   163   3                                      Gyro_Z = (Gyro_Z*2000)/32768;
   164   3                                      Sum_Angle_C += Gyro_Z*0.005;
-  165   3                                      if(Sum_Angle_C > ROUND) //右转角度积分是正值
+  165   3                                      if(Sum_Angle_C > ROUND_L) //左转角度积分是正值
   166   3                                              circle_Out_Flag = 1;
   167   3                      }
   168   2                      if(circle_Out_Flag == 1 || ADC_proc[2] > 80)
@@ -202,8 +202,8 @@ stmt  level    source
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =       866     ------
-C251 COMPILER V5.60.0,  Element                                                            28/02/24  16:21:57  PAGE 4   
+  code size            =       876     ------
+C251 COMPILER V5.60.0,  Element                                                            28/02/24  20:16:01  PAGE 4   
 
   ecode size           =    ------     ------
   data size            =    ------     ------

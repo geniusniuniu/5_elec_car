@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Buzzer                                                             28/02/24  16:21:57  PAGE 1   
+C251 COMPILER V5.60.0,  Buzzer                                                             28/02/24  20:14:19  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Buzzer
@@ -22,30 +22,21 @@ stmt  level    source
    11          
    12          void Buzzer_Init(void)
    13          {
-   14   1              pwm_init(PWMB_CH4_P77,100,0);
+   14   1              pwm_init(PWMB_CH4_P77,2000,0);
    15   1      }
    16          
-   17          void Buzzer_ON()
-   18          {
-   19   1              if(x10_ms > 0)
-   20   1                      pwm_duty(PWMB_CH4_P77,1000);
-   21   1              else
-   22   1                      pwm_duty(PWMB_CH4_P77,0);
-   23   1              x10_ms = 25;  //250∫¡√Î
-   24   1      }
-   25          
-   26          
-   27          
-   28          
-   29          
-   30          
-   31          
-   32          
+   17          
+   18          
+   19          
+   20          
+   21          
+   22          
+   23          
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =        55     ------
+  code size            =        17     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------

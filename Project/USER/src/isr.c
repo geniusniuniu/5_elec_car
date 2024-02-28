@@ -162,7 +162,12 @@ void TM4_Isr() interrupt 20
 	Isr_flag_10 = 1;
 	
 	if(x10_ms > 0)
+	{
+		pwm_duty(PWMB_CH4_P77,3000);
 		x10_ms--;
+	}
+	else
+		pwm_duty(PWMB_CH4_P77,0);
 	
     if(count > 50)
     {

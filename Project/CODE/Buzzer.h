@@ -5,7 +5,4 @@ extern uint16 x10_ms;
 
 void Buzzer_Init(void);
 
-void Buzzer_ON();
-
-
 #endif

@@ -739,6 +739,16 @@
               <FileType>5</FileType>
               <FilePath>..\CODE\Buzzer.h</FilePath>
             </File>
+            <File>
+              <FileName>Key.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\CODE\Key.c</FilePath>
+            </File>
+            <File>
+              <FileName>Key.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\CODE\Key.h</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>
