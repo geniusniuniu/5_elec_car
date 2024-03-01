@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  main                                                               28/02/24  20:21:36  PAGE 1   
+C251 COMPILER V5.60.0,  main                                                               01/03/24  18:26:12  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE main
@@ -66,7 +66,7 @@ stmt  level    source
    55   2      //              printf("%.2f,%.2f,%.2f,%.2f,%.2f\r\n",Exp_Speed_L,Exp_Speed_R,Speed_L,Speed_R,Turn_PID.PID_Out*0.09);
    56   2      //              printf("%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\r\n",ADC_proc[0],ADC_proc[1],Sum_Angle,sum_L,sum_R,Ratio);
    57   2                      
-C251 COMPILER V5.60.0,  main                                                               28/02/24  20:21:36  PAGE 2   
+C251 COMPILER V5.60.0,  main                                                               01/03/24  18:26:12  PAGE 2   
 
    58   2      /******************************************** 按键读值***********************************************
              -***********************/       
@@ -134,7 +134,7 @@ stmt  level    source
   115   4                                      else if(ADC_proc[3] < ADC_proc[1]) 
   116   4                                      {
   117   5                                              circle_flag_L = 1;
-C251 COMPILER V5.60.0,  main                                                               28/02/24  20:21:36  PAGE 3   
+C251 COMPILER V5.60.0,  main                                                               01/03/24  18:26:12  PAGE 3   
 
   118   5                                              Elem_Circle_L((Speed_L + Speed_R)/2,gz);
   119   5                                      }
@@ -169,11 +169,11 @@ stmt  level    source
   144   4                                      Right_Wheel_PID.PID_Out = 0;
   145   4                              }
   146   3                              
-  147   3      //                      Left_SetSpeed(Left_Wheel_PID.PID_Out);
-  148   3      //                      Right_SetSpeed(Right_Wheel_PID.PID_Out);
+  147   3                              Left_SetSpeed(Left_Wheel_PID.PID_Out);
+  148   3                              Right_SetSpeed(Right_Wheel_PID.PID_Out);
   149   3      
-  150   3                              Left_SetSpeed(2000);
-  151   3                              Right_SetSpeed(-4000);
+  150   3      //                      Left_SetSpeed(2000);
+  151   3      //                      Right_SetSpeed(-4000);
   152   3                              Isr_flag_10 = 0;
   153   3                      } 
   154   2              }
@@ -202,7 +202,7 @@ stmt  level    source
   176   1              
   177   1      ////OLED初始化
   178   1              oled_init();                                    
-C251 COMPILER V5.60.0,  main                                                               28/02/24  20:21:36  PAGE 4   
+C251 COMPILER V5.60.0,  main                                                               01/03/24  18:26:12  PAGE 4   
 
   179   1              
   180   1      ////MPU6050初始化
@@ -222,7 +222,7 @@ stmt  level    source
   194   1              Motor_Init();
   195   1              
   196   1      ////蜂鸣器初始化
-  197   1              Buzzer_Init();
+  197   1              //Buzzer_Init();
   198   1              
   199   1      ////初始化所有AD引脚
   200   1              ADC_InitAll(); 
@@ -263,7 +263,7 @@ stmt  level    source
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =      1292     ------
+  code size            =      1285     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------
@@ -271,7 +271,7 @@ Module Information          Static   Overlayable
   xdata size           =    ------     ------
   xdata-const size     =    ------     ------
   edata size           =        54     ------
-C251 COMPILER V5.60.0,  main                                                               28/02/24  20:21:36  PAGE 5   
+C251 COMPILER V5.60.0,  main                                                               01/03/24  18:26:12  PAGE 5   
 
   bit size             =    ------     ------
   ebit size            =    ------     ------

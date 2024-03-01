@@ -7,8 +7,12 @@
 #include "PID.h"
 #include "Buzzer.h"
 
-#define ROUND_R -120  //车转一圈陀螺仪角度积分
-#define ROUND_L 120  
+#define ROUND_R 		-120  //车转一圈陀螺仪角度积分
+#define ROUND_L 		120  
+
+#define BARRIER_FIELD_STATUS	0	// 可以根据赛道状态改变，1表示赛道周围空旷，可以常开避障
+									// 0 表示赛道周围多干扰，只有经过障碍前
+									// 最后一个特殊元素在开启避障
 
 extern float Exp_Speed;
 extern float Ratio;
@@ -31,6 +35,7 @@ char Barrier_Flag2=0;
 char Barrier_Flag3=0;
 char Barrier_Executed = 0;
 char Barrier_Flag4=0;
+char Avoid_ON = 0;
 float Sum_Angle=0;
 
 void Elem_Up_Down(float Angle,float Gyro)  //上下坡
@@ -46,10 +51,13 @@ void Elem_Up_Down(float Angle,float Gyro)  //上下坡
 //障碍物识别	
 void Elem_Barrier(float Gyro_Z)
 {
-//	if (Barrier_Flag4 == 1) 
-//	{
-//        return ;
-//    }
+	#if BARRIER_FIELD_STATUS
+		if(Avoid_ON == 1)			/*接收到最后一个障碍物的标志位后再开启避障*/
+			Barrier_Flag4 = 0;
+		else  
+			Barrier_Flag4 = 1;
+	#endif
+	
 	Gyro_Z = (Gyro_Z*2000)/32768;	
 	if(Barrier_Flag1==1)
 	{
@@ -74,14 +82,20 @@ void Elem_Barrier(float Gyro_Z)
 		else
 			Barrier_Flag3 = 1;  //回正
 	 }
-	if(Barrier_Flag3==1)		//回正后标志位清零
-	{	
-		Barrier_Flag4 = 1;
-		Barrier_Flag1 = 0;
-		Barrier_Flag2 = 0;
-		Barrier_Flag3 = 0;
-		Sum_Angle = 0;
-	}
+	
+	 if(Barrier_Flag3==1)		//回正后标志位清零
+		{	
+			Barrier_Flag1 = 0;
+			Barrier_Flag2 = 0;
+			Barrier_Flag3 = 0;
+		#if (BARRIER_FIELD_STATUS == 0) //只避障一次
+			Barrier_Flag4 = 1;
+		#endif
+			Sum_Angle = 0;
+		}
+
+			
+	
 }
 
 //进行右环岛识别并进出右环岛
@@ -127,6 +141,13 @@ void Elem_Circle_R(float Speed,float Gyro_Z)
 				Sum_Angle_C = 0;
 				circle_In_Flag = 0;
 				circle_Out_Flag = 0;
+				
+				//实验室右环岛是最后一个特殊元素
+				//如果有多个重复元素，再置一个记数标志位
+				//Element_Num 
+				//if(Element_Num == x) //重复元素全部走完
+//				Avoid_ON == 1	
+				
 			}
 		}
 	}

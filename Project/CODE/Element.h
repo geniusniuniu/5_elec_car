@@ -7,6 +7,7 @@ extern char Barrier_Flag1;
 extern char Barrier_Flag2;
 extern char Barrier_Flag3;
 extern char Barrier_Flag4;
+extern char Avoid_ON;
 extern char Barrier_Executed;
 extern float Sum_Angle;
 

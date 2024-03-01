@@ -144,11 +144,11 @@ void main(void)
 				Right_Wheel_PID.PID_Out = 0;
 			}
 			
-//			Left_SetSpeed(Left_Wheel_PID.PID_Out);
-//			Right_SetSpeed(Right_Wheel_PID.PID_Out);
+			Left_SetSpeed(Left_Wheel_PID.PID_Out);
+			Right_SetSpeed(Right_Wheel_PID.PID_Out);
 
-			Left_SetSpeed(2000);
-			Right_SetSpeed(-4000);
+//			Left_SetSpeed(2000);
+//			Right_SetSpeed(-4000);
 			Isr_flag_10 = 0;
 		} 
 	}
@@ -194,7 +194,7 @@ void Init_all(void)
 	Motor_Init();
 	
 ////蜂鸣器初始化
-	Buzzer_Init();
+	//Buzzer_Init();
 	
 ////初始化所有AD引脚
 	ADC_InitAll(); 
