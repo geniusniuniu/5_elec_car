@@ -8,13 +8,15 @@
 #include "TOF.h"
 #include "Buzzer.h"
 #include "Key.h"
+#include "ui.h"
+
 extern uint16 vl53l0x_distance_mm;
 extern uint8 vl53l0x_finsh_flag;
 
 short gx, gy, gz;
 char Isr_flag_10 = 0; 
 
-float KeyAdjust = 0;
+char KeyValue = 0;
 
 float Diff,Plus;
 float Ratio = 0;
@@ -28,39 +30,54 @@ float Exp_Speed_L = 0;
 float Exp_Speed_R = 0;
 float Exp_Speed = 200;
 
-uint8 KeyVal;
 void Init_all(void);
 void Get_Ratio(void);
 
-void OLED_Printf(void)
-{
-	oled_printf_float(0,0,ADC_proc[0],5,2);
-	oled_printf_float(0,2,ADC_proc[1],5,2);
-	oled_printf_float(0,4,ADC_proc[2],5,2);
-	oled_printf_float(0,6,ADC_proc[3],5,2);
-	oled_printf_float(60,0,ADC_proc[4],5,2);
-	
-	oled_printf_float(60,2,vl53l0x_distance_mm,5,2);
-	oled_printf_float(60,4,Ratio,1,2);
-}
+//void OLED_Printf(void)
+//{
+//	oled_printf_float(0,0,ADC_proc[0],5,2);
+//	oled_printf_float(0,2,ADC_proc[1],5,2);
+//	oled_printf_float(0,0,KeyAdjust_PID,5,2);
+//	oled_printf_float(0,2,Exp_Speed,5,2);
+//	oled_printf_float(0,4,ADC_proc[2],5,2);
+//	oled_printf_float(0,6,ADC_proc[3],5,2);
+//	oled_printf_float(60,0,ADC_proc[4],5,2);
+//	
+//	oled_printf_float(60,2,vl53l0x_distance_mm,5,2);
+//	oled_printf_float(60,4,Ratio,1,2);
+//}
 
 void main(void)	
 {
 	Init_all();
-	EnableGlobalIRQ();	//
-	KeyAdjust = -180;
+	EnableGlobalIRQ();	
 	while(1)
-	{
-		OLED_Printf();
+	{		
 //		printf("%.2f,%.2f,%.2f,%.2f,%.2f\r\n",Exp_Speed_L,Exp_Speed_R,Speed_L,Speed_R,Turn_PID.PID_Out*0.09);
 //		printf("%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\r\n",ADC_proc[0],ADC_proc[1],Sum_Angle,sum_L,sum_R,Ratio);
 		
 /******************************************** 按键读值**********************************************************************/ 	
-		KeyVal = GetKey_Val(0);
-		if(KeyVal == KEY0_PRES)
-			KeyAdjust -= 2;
-		else if(KeyVal == KEY0_PRES)
-			KeyAdjust += 2;
+	Adjust_Mode();
+	if (Mode == 1) 		//显示模式
+	{
+		ui_show();
+		KeyValue = GetKey_Value(0);
+		if (KeyValue == KEY2_PRES) 		{page++; oled_all_static_state();}		
+		else if (KeyValue == KEY3_PRES) {page--; oled_all_static_state();}	
+		if(page >= 3)  page = 0;
+		if(page < 0)   page = 2;
+	}
+	else if (Mode == 0) //调参模式
+//	{
+		oled_fill(0x00);  //初始清屏
+		KeyValue = GetKey_Value(0);
+//		if (KeyValue == KEY1_PRES) 
+//			Turn_PID.Kp += 1;
+//		else if (KeyValue == KEY2_PRES) 
+//			Turn_PID.Kp -= 1;
+//	} 
+//	else 
+//		Mode = 1; // 默认为显示模式
 		
 /******************************************** 类似中断服务处理 **************************************************************/ 
 		if(Isr_flag_10 == 1)  
@@ -77,15 +94,15 @@ void main(void)
 				Turn_PID.Kd = -3.5;
 				Left_Wheel_PID.Kp = Right_Wheel_PID.Kp = 20;
 				Left_Wheel_PID.Ki = Right_Wheel_PID.Ki = 0.6;
-				Exp_Speed = 220;
+				//Exp_Speed = 220;
 			}
 			else   // 拐弯
 			{
-				Turn_PID.Kp = KeyAdjust;
+				Turn_PID.Kp = -180;
 				Turn_PID.Kd = -32;
 				Left_Wheel_PID.Kp = Right_Wheel_PID.Kp = 28;
 				Left_Wheel_PID.Ki = Right_Wheel_PID.Ki = 1.28; //i太大会出现矫正滞后，导致车反方向飘逸
-				Exp_Speed = 180;
+				Exp_Speed -= 40;
 			}
 			
 		/************************************************ 避开路障 ***********************************************/ 			
@@ -128,7 +145,7 @@ void main(void)
 				
 		/************************************************ 特殊元素降速 ********************************************/ 
 			if( circle_flag_L == 1 || circle_flag_R == 1 || Barrier_Flag2 == 1 || Barrier_Flag1 == 1)  
-				Exp_Speed = 160;
+				//Exp_Speed = 160;
 			Exp_Speed_L = Exp_Speed + Turn_PID.PID_Out*0.09;
 			Exp_Speed_R = Exp_Speed - Turn_PID.PID_Out*0.09;
 			
@@ -172,10 +189,10 @@ void Init_all(void)
 	
 ////测距模块初始化
 	//gpio_mode(P3_2, GPIO);
-	vl53l0x_init();
+//	vl53l0x_init();
 	
 ////OLED初始化
-	oled_init();					
+	ui_init();					
 	
 ////MPU6050初始化
 	MPU6050_DMP_Init();	

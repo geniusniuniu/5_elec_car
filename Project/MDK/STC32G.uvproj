@@ -749,6 +749,16 @@
               <FileType>5</FileType>
               <FilePath>..\CODE\Key.h</FilePath>
             </File>
+            <File>
+              <FileName>UI.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\CODE\UI.c</FilePath>
+            </File>
+            <File>
+              <FileName>UI.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\CODE\UI.h</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

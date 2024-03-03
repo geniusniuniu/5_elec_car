@@ -1,0 +1,154 @@
+C251 COMPILER V5.60.0,  UI                                                                 03/03/24  23:10:29  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE UI
+OBJECT MODULE PLACED IN .\Out_File\UI.obj
+COMPILER INVOKED BY: D:\keil5\keil5_MDK\keil5_MDK_32\C251\BIN\C251.EXE ..\CODE\UI.c XSMALL INTR2 WARNINGLEVEL(3) BROWSE 
+                    -INCDIR(..\..\Libraries\libraries;..\..\Libraries\seekfree_libraries;..\..\Libraries\seekfree_peripheral;..\CODE;..\USER\
+                    -inc;..\USER\src) DEBUG PRINT(.\Out_File\UI.lst) OBJECT(.\Out_File\UI.obj) 
+
+stmt  level    source
+
+    1          #include "ui.h"
+    2          #include <string.h>
+    3          #include <stdio.h>
+    4          #include "common.h"
+    5          #include "headfile.h"
+    6          #include "ADC.h"
+    7          #include "Motor.h"
+    8          
+    9          float value[4][7];
+   10          char value_name[4][7][6];
+   11          
+   12          uint8 page=0;
+   13          
+   14          ///////////////////////////////////////////////////待显示参数
+   15          
+   16          
+   17          
+   18          
+   19          void value_name_init(void)//将name改为想要的参数名，但“ ”中的总长度不要变
+   20          {
+   21   1              //page=0
+   22   1              strcpy(value_name[0][0],"ADC0 ");
+   23   1              strcpy(value_name[0][1],"ADC1 ");
+   24   1              strcpy(value_name[0][2],"ADC2 ");
+   25   1              strcpy(value_name[0][3],"ADC3 ");
+   26   1      
+   27   1      
+   28   1              //page=1        
+   29   1              strcpy(value_name[1][0],"nam4 ");
+   30   1              strcpy(value_name[1][1],"nam5 ");
+   31   1              strcpy(value_name[1][2],"nam6 ");
+   32   1              strcpy(value_name[1][3],"nam7 ");
+   33   1      
+   34   1              
+   35   1              //page=2
+   36   1              strcpy(value_name[2][0],"nam8 ");
+   37   1              strcpy(value_name[2][1],"nam9 ");
+   38   1              strcpy(value_name[2][2],"na10 ");
+   39   1              strcpy(value_name[2][3],"na11 ");
+   40   1      
+   41   1      }
+   42          
+   43          void refresh_value()//value=填入变量名
+   44          {
+   45   1              //page=0
+   46   1          value[0][0]= 0;
+   47   1              value[0][1]= 1;
+   48   1              value[0][2]= 2;
+   49   1              value[0][3]= 3;
+   50   1              
+   51   1              //page=1
+   52   1              value[1][0]= 4;
+   53   1              value[1][1]= 5;
+   54   1              value[1][2]= 6;
+   55   1              value[1][3]= 7;
+   56   1              
+   57   1              //page=2
+C251 COMPILER V5.60.0,  UI                                                                 03/03/24  23:10:29  PAGE 2   
+
+   58   1              value[2][0]= 8;
+   59   1              value[2][1]= 9;
+   60   1              value[2][2]= 0;
+   61   1              value[2][3]= 1;
+   62   1                      
+   63   1      }
+   64          //                         oled显示函数
+   65          ///////////////////////////////////////////////////////////////////////
+   66          
+   67          void oled_change_value(int pages,int y,float value_new)
+   68          {
+   69   1          value[pages][y]=value_new;
+   70   1          oled_printf_float(40,y,value[pages][y],4,4);
+   71   1      }
+   72          
+   73          void oled_all_static_state()  //静态显示部分
+   74          {
+   75   1          uint8 j;
+   76   1      //    oled_p8x16str(0, 0,"page");
+   77   1      //    oled_p8x16str(40, 0,"=");
+   78   1      //    oled_int16(60,0,Mode_Num);
+   79   1      
+   80   1      //    oled_p8x16str(70, 0,"mode");
+   81   1      //    oled_int16(120, 0,page);
+   82   1              for(j=0;j<=6;j+=2)
+   83   1              {
+   84   2                      oled_p8x16str(0 ,j,value_name[page][j/2]);
+   85   2                      oled_p8x16str(40,j,"=");
+   86   2              }
+   87   1      }
+   88          
+   89          
+   90          void oled_show(void)
+   91          {
+   92   1          uint8 j;
+   93   1              refresh_value();
+   94   1              for(j=0;j<=6;j+=2)
+   95   1              {
+   96   2                      oled_printf_float(45,j,value[page][j/2],5,3);
+   97   2              }
+   98   1      }
+   99          
+  100          //////////////////////////////////////////////////////////////
+  101          void ui_init(void)
+  102          {
+  103   1              oled_init();
+  104   1              value_name_init();
+  105   1              oled_all_static_state();
+  106   1      }
+  107          
+  108          void ui_show(void)
+  109          {
+  110   1          refresh_value();
+  111   1          oled_show();
+  112   1      }
+  113          
+  114          
+  115          
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =       454     ------
+  ecode size           =    ------     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+C251 COMPILER V5.60.0,  UI                                                                 03/03/24  23:10:29  PAGE 3   
+
+  xdata size           =    ------     ------
+  xdata-const size     =    ------     ------
+  edata size           =       281     ------
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =        79     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
