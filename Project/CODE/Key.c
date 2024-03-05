@@ -7,6 +7,7 @@
 #include "zf_delay.h"
 
 char Mode = 1;
+char clear_Num = 0;
 
 void Key_Init(void)
 {
@@ -31,7 +32,7 @@ uint8 GetKey_Value(uint8 mode)
 	static uint8 key_up=1;//按键松开标志
 	if(mode)
 		key_up=1;  //支持连按		  
-	if(key_up&&(P70==0 || P71==0 ||P72==0||P73==0))  //注意此函数有响应优先级,KEY0>KEY1!!
+	if(key_up&&(P73==0 || P72==0 ||P71==0||P70==0))  //注意此函数有响应优先级,KEY0>KEY1!!
 	{
 //		delay_ms(10);//去抖动 /////////////////////////////////
 		key_up=0;
@@ -46,13 +47,16 @@ uint8 GetKey_Value(uint8 mode)
 }
 
 
-void Adjust_Mode(void)
-{
-	int KeyVal ;
-	KeyVal= GetKey_Value(0);
-	if(KeyVal == KEY0_PRES)
-		Mode -= 1;
-	else if(KeyVal == KEY1_PRES)
-		Mode += 1;
-}
+//void Adjust_Mode(void)
+//{
+//	int KeyVal ;
+//	KeyVal= GetKey_Value(0);
+//	if(KeyVal == KEY0_PRES)
+//	{
+//		Mode = DISPLAY_MODE;
+//		clear_Num++;
+//	}
+//	else if(KeyVal == KEY1_PRES)
+//		Mode = ADJUST_PARAM_MODE;
+//}
 

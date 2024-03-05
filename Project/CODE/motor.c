@@ -38,8 +38,8 @@ void Motor_Init(void)
 
 
 void Left_SetSpeed(float speed){
-    if(speed > Speed_Max)			speed = Speed_Max; 
-	else if(speed < -Speed_Max)		speed = -Speed_Max;
+    if(speed > SPEED_MAX)			speed = SPEED_MAX; 
+	else if(speed < -SPEED_MAX)		speed = -SPEED_MAX;
     if(speed > 0)
 	{
         pwm_duty(PWMA_CH2P_P62, (int)speed);
@@ -58,8 +58,8 @@ void Left_SetSpeed(float speed){
 }
 
 void Right_SetSpeed(float speed){
-    if(speed > Speed_Max) 			speed = Speed_Max; 
-	else if(speed < -Speed_Max)		speed = -Speed_Max;
+    if(speed > SPEED_MAX) 			speed = SPEED_MAX; 
+	else if(speed < -SPEED_MAX)		speed = -SPEED_MAX;
     if(speed > 0)
 	{
         pwm_duty(PWMA_CH3P_P64, (int)speed);

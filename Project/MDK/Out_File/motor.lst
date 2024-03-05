@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  motor                                                              28/02/24  17:22:24  PAGE 1   
+C251 COMPILER V5.60.0,  motor                                                              05/03/24  18:02:48  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE motor
@@ -49,8 +49,8 @@ stmt  level    source
    38          
    39          
    40          void Left_SetSpeed(float speed){
-   41   1          if(speed > Speed_Max)                       speed = Speed_Max; 
-   42   1              else if(speed < -Speed_Max)             speed = -Speed_Max;
+   41   1          if(speed > SPEED_MAX)                       speed = SPEED_MAX; 
+   42   1              else if(speed < -SPEED_MAX)             speed = -SPEED_MAX;
    43   1          if(speed > 0)
    44   1              {
    45   2              pwm_duty(PWMA_CH2P_P62, (int)speed);
@@ -66,13 +66,13 @@ stmt  level    source
    55   2              pwm_duty(PWMA_CH2P_P62, 0);
    56   2              pwm_duty(PWMA_CH1P_P60, 0);
    57   2          }
-C251 COMPILER V5.60.0,  motor                                                              28/02/24  17:22:24  PAGE 2   
+C251 COMPILER V5.60.0,  motor                                                              05/03/24  18:02:48  PAGE 2   
 
    58   1      }
    59          
    60          void Right_SetSpeed(float speed){
-   61   1          if(speed > Speed_Max)                       speed = Speed_Max; 
-   62   1              else if(speed < -Speed_Max)             speed = -Speed_Max;
+   61   1          if(speed > SPEED_MAX)                       speed = SPEED_MAX; 
+   62   1              else if(speed < -SPEED_MAX)             speed = -SPEED_MAX;
    63   1          if(speed > 0)
    64   1              {
    65   2              pwm_duty(PWMA_CH3P_P64, (int)speed);

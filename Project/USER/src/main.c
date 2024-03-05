@@ -24,60 +24,32 @@ float Ratio = 0;
 float Diff_Mid,Plus_Mid;
 float Ratio_Mid = 0;
 float sum;
-int dis = 2000;
 
 float Exp_Speed_L = 0;
 float Exp_Speed_R = 0;
 float Exp_Speed = 200;
-
+float Adjust_Val = 0;
 void Init_all(void);
 void Get_Ratio(void);
-
-//void OLED_Printf(void)
-//{
-//	oled_printf_float(0,0,ADC_proc[0],5,2);
-//	oled_printf_float(0,2,ADC_proc[1],5,2);
-//	oled_printf_float(0,0,KeyAdjust_PID,5,2);
-//	oled_printf_float(0,2,Exp_Speed,5,2);
-//	oled_printf_float(0,4,ADC_proc[2],5,2);
-//	oled_printf_float(0,6,ADC_proc[3],5,2);
-//	oled_printf_float(60,0,ADC_proc[4],5,2);
-//	
-//	oled_printf_float(60,2,vl53l0x_distance_mm,5,2);
-//	oled_printf_float(60,4,Ratio,1,2);
-//}
 
 void main(void)	
 {
 	Init_all();
 	EnableGlobalIRQ();	
+	Adjust_Val = -180;
 	while(1)
 	{		
 //		printf("%.2f,%.2f,%.2f,%.2f,%.2f\r\n",Exp_Speed_L,Exp_Speed_R,Speed_L,Speed_R,Turn_PID.PID_Out*0.09);
 //		printf("%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\r\n",ADC_proc[0],ADC_proc[1],Sum_Angle,sum_L,sum_R,Ratio);
 		
 /******************************************** 按键读值**********************************************************************/ 	
-	Adjust_Mode();
-	if (Mode == 1) 		//显示模式
-	{
-		ui_show();
-		KeyValue = GetKey_Value(0);
-		if (KeyValue == KEY2_PRES) 		{page++; oled_all_static_state();}		
-		else if (KeyValue == KEY3_PRES) {page--; oled_all_static_state();}	
-		if(page >= 3)  page = 0;
-		if(page < 0)   page = 2;
-	}
-	else if (Mode == 0) //调参模式
-//	{
-		oled_fill(0x00);  //初始清屏
-		KeyValue = GetKey_Value(0);
-//		if (KeyValue == KEY1_PRES) 
-//			Turn_PID.Kp += 1;
-//		else if (KeyValue == KEY2_PRES) 
-//			Turn_PID.Kp -= 1;
-//	} 
-//	else 
-//		Mode = 1; // 默认为显示模式
+	ui_show();
+	KeyValue = GetKey_Value(0);
+	if 		(KeyValue == KEY2_PRES) 	{page++; if(page >= 3)  page = 3;oled_all_static_state();}		
+	else if (KeyValue == KEY3_PRES) 	{page--; if(page <= 0)  page = 0;oled_all_static_state();}			
+	else if (KeyValue == KEY0_PRES) 	Adjust_Val += 1;
+	else if (KeyValue == KEY1_PRES) 	Adjust_Val -= 1;
+	
 		
 /******************************************** 类似中断服务处理 **************************************************************/ 
 		if(Isr_flag_10 == 1)  
@@ -94,15 +66,15 @@ void main(void)
 				Turn_PID.Kd = -3.5;
 				Left_Wheel_PID.Kp = Right_Wheel_PID.Kp = 20;
 				Left_Wheel_PID.Ki = Right_Wheel_PID.Ki = 0.6;
-				//Exp_Speed = 220;
+				Exp_Speed = 220;
 			}
 			else   // 拐弯
 			{
-				Turn_PID.Kp = -180;
+				Turn_PID.Kp = Adjust_Val;
 				Turn_PID.Kd = -32;
 				Left_Wheel_PID.Kp = Right_Wheel_PID.Kp = 28;
 				Left_Wheel_PID.Ki = Right_Wheel_PID.Ki = 1.28; //i太大会出现矫正滞后，导致车反方向飘逸
-				Exp_Speed -= 40;
+				Exp_Speed = 180;
 			}
 			
 		/************************************************ 避开路障 ***********************************************/ 			
@@ -161,11 +133,11 @@ void main(void)
 				Right_Wheel_PID.PID_Out = 0;
 			}
 			
-			Left_SetSpeed(Left_Wheel_PID.PID_Out);
-			Right_SetSpeed(Right_Wheel_PID.PID_Out);
+//			Left_SetSpeed(Left_Wheel_PID.PID_Out);
+//			Right_SetSpeed(Right_Wheel_PID.PID_Out);
 
-//			Left_SetSpeed(2000);
-//			Right_SetSpeed(-4000);
+			Left_SetSpeed(2500);
+			Right_SetSpeed(-3000);
 			Isr_flag_10 = 0;
 		} 
 	}

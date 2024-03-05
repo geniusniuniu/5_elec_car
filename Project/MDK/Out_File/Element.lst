@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Element                                                            03/03/24  18:21:49  PAGE 1   
+C251 COMPILER V5.60.0,  Element                                                            05/03/24  18:02:49  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Element
@@ -66,7 +66,7 @@ stmt  level    source
                                if(Avoid_ON == 1)                       /*接收到最后一个障碍物的标志位后再开启避障*/
                                        Barrier_Flag4 = 0;
                                else  
-C251 COMPILER V5.60.0,  Element                                                            03/03/24  18:21:49  PAGE 2   
+C251 COMPILER V5.60.0,  Element                                                            05/03/24  18:02:49  PAGE 2   
 
                                        Barrier_Flag4 = 1;
                        #endif
@@ -134,7 +134,7 @@ stmt  level    source
   121   3                              Ratio = 0.4;
   122   3                      }
   123   2                      if(circle_In_Flag == 1) //如果已经进环，判断出环条件，角度积满出环
-C251 COMPILER V5.60.0,  Element                                                            03/03/24  18:21:49  PAGE 3   
+C251 COMPILER V5.60.0,  Element                                                            05/03/24  18:02:49  PAGE 3   
 
   124   2                      {
   125   3                                      Gyro_Z = (Gyro_Z*2000)/32768;
@@ -202,7 +202,7 @@ stmt  level    source
   187   3                                              circle_Out_Flag = 1;
   188   3                      }
   189   2                      if(circle_Out_Flag == 1 || ADC_proc[2] > 80)
-C251 COMPILER V5.60.0,  Element                                                            03/03/24  18:21:49  PAGE 4   
+C251 COMPILER V5.60.0,  Element                                                            05/03/24  18:02:49  PAGE 4   
 
   190   2                      {
   191   3                              Sum_Dis2 += Speed; //出环路程积分
