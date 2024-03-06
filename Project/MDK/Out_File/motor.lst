@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  motor                                                              05/03/24  18:02:48  PAGE 1   
+C251 COMPILER V5.60.0,  motor                                                              06/03/24  20:52:11  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE motor
@@ -66,7 +66,7 @@ stmt  level    source
    55   2              pwm_duty(PWMA_CH2P_P62, 0);
    56   2              pwm_duty(PWMA_CH1P_P60, 0);
    57   2          }
-C251 COMPILER V5.60.0,  motor                                                              05/03/24  18:02:48  PAGE 2   
+C251 COMPILER V5.60.0,  motor                                                              06/03/24  20:52:11  PAGE 2   
 
    58   1      }
    59          
@@ -106,7 +106,7 @@ stmt  level    source
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =       495     ------
+  code size            =       487     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------

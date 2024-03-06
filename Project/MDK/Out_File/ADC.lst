@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  ADC                                                                05/03/24  18:02:48  PAGE 1   
+C251 COMPILER V5.60.0,  ADC                                                                06/03/24  20:52:11  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE ADC
@@ -21,13 +21,13 @@ stmt  level    source
    10          
    11          void ADC_InitAll(void)
    12          {
-   13   1              adc_init(ADC_P00, ADC_SYSclk_DIV_2);
-   14   1              adc_init(ADC_P05, ADC_SYSclk_DIV_2);
+   13   1              adc_init(ADC_P10, ADC_SYSclk_DIV_2);
+   14   1              adc_init(ADC_P00, ADC_SYSclk_DIV_2);
    15   1              
-   16   1              adc_init(ADC_P10, ADC_SYSclk_DIV_2);
+   16   1              adc_init(ADC_P16, ADC_SYSclk_DIV_2);
    17   1      
-   18   1              adc_init(ADC_P06, ADC_SYSclk_DIV_2);
-   19   1              adc_init(ADC_P16, ADC_SYSclk_DIV_2);
+   18   1              adc_init(ADC_P05, ADC_SYSclk_DIV_2);
+   19   1              adc_init(ADC_P06, ADC_SYSclk_DIV_2);
    20   1      }
    21          
    22          void ADC_GetValue(void)
@@ -36,13 +36,13 @@ stmt  level    source
    25   1              char i,j,k;
    26   1              for(i=0;i<3;i++)
    27   1              {
-   28   2                      ADC_Array_Original[0][i] = adc_once(ADC_P00, ADC_8BIT);         //左一路电感
-   29   2                      ADC_Array_Original[1][i] = adc_once(ADC_P05, ADC_8BIT);         //左二路电感
+   28   2                      ADC_Array_Original[0][i] = adc_once(ADC_P10, ADC_8BIT);         //左一路电感
+   29   2                      ADC_Array_Original[1][i] = adc_once(ADC_P00, ADC_8BIT);         //左二路电感
    30   2      
-   31   2                      ADC_Array_Original[2][i] = adc_once(ADC_P10, ADC_8BIT);         //中间横电感
+   31   2                      ADC_Array_Original[2][i] = adc_once(ADC_P16, ADC_8BIT);         //中间横电感
    32   2      
-   33   2                      ADC_Array_Original[3][i] = adc_once(ADC_P06, ADC_8BIT);         //右三路电感
-   34   2                      ADC_Array_Original[4][i] = adc_once(ADC_P16, ADC_8BIT);         //右四路电感
+   33   2                      ADC_Array_Original[3][i] = adc_once(ADC_P05, ADC_8BIT);         //右三路电感
+   34   2                      ADC_Array_Original[4][i] = adc_once(ADC_P06, ADC_8BIT);         //右四路电感
    35   2              }
    36   1              for(k=0;k<5;k++) //电感值 最终取三次平均值
    37   1              {
@@ -56,19 +56,23 @@ stmt  level    source
    45   2                      else if(ADC_proc[k] <= 2)               ADC_proc[k] = 2;        //对电感值进行限幅处理
    46   2      
    47   2                      ADC_proc[k] = 100*(ADC_proc[k]/200);            //归一化,将电感值限制在0~100之间                
-   48   2              }
-   49   1      }
-   50          
+   48   2                      if(ADC_proc[0] >= 55 )
+   49   2                              ADC_proc[0] = 55;
+   50   2                      if(ADC_proc[4] >= 55)
+   51   2                              ADC_proc[4] = 55;
+   52   2              }
+   53   1      }
+   54          
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =       374     ------
+C251 COMPILER V5.60.0,  ADC                                                                06/03/24  20:52:11  PAGE 2   
+
+  code size            =       410     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------
-C251 COMPILER V5.60.0,  ADC                                                                05/03/24  18:02:48  PAGE 2   
-
   pdata size           =    ------     ------
   xdata size           =    ------     ------
   xdata-const size     =    ------     ------

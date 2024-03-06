@@ -4,7 +4,7 @@
 #include "zf_tim.h"
 #include "PID.h"
 
-#define SPEED_MAX 6000
+#define SPEED_MAX 8000
 
 extern float Speed_L;
 extern float Speed_R;

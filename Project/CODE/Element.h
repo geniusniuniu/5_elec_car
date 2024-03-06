@@ -11,6 +11,8 @@ extern char Avoid_ON;
 extern char Barrier_Executed;
 extern float Sum_Angle;
 
+extern float Sum_Angle_C;
+
 extern char circle_flag_L;
 extern char circle_flag_R;
 extern char circle_In_Flag;

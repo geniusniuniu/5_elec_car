@@ -40,15 +40,15 @@ void main(void)
 	while(1)
 	{		
 //		printf("%.2f,%.2f,%.2f,%.2f,%.2f\r\n",Exp_Speed_L,Exp_Speed_R,Speed_L,Speed_R,Turn_PID.PID_Out*0.09);
-//		printf("%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\r\n",ADC_proc[0],ADC_proc[1],Sum_Angle,sum_L,sum_R,Ratio);
+		printf("%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\r\n",Sum_Angle_C,ADC_proc[2],ADC_proc[1],ADC_proc[3],Ratio_Mid,Ratio);
 		
 /******************************************** 按键读值**********************************************************************/ 	
-	ui_show();
-	KeyValue = GetKey_Value(0);
-	if 		(KeyValue == KEY2_PRES) 	{page++; if(page >= 3)  page = 3;oled_all_static_state();}		
-	else if (KeyValue == KEY3_PRES) 	{page--; if(page <= 0)  page = 0;oled_all_static_state();}			
-	else if (KeyValue == KEY0_PRES) 	Adjust_Val += 1;
-	else if (KeyValue == KEY1_PRES) 	Adjust_Val -= 1;
+		ui_show();
+		KeyValue = GetKey_Value(0);
+		if 		(KeyValue == KEY2_PRES) 	{page++; if(page >= 3)  page = 3;oled_all_static_state();}		
+		else if (KeyValue == KEY3_PRES) 	{page--; if(page <= 0)  page = 0;oled_all_static_state();}			
+		else if (KeyValue == KEY0_PRES) 	Adjust_Val += 1;
+		else if (KeyValue == KEY1_PRES) 	Adjust_Val -= 1;
 	
 		
 /******************************************** 类似中断服务处理 **************************************************************/ 
@@ -66,48 +66,44 @@ void main(void)
 				Turn_PID.Kd = -3.5;
 				Left_Wheel_PID.Kp = Right_Wheel_PID.Kp = 20;
 				Left_Wheel_PID.Ki = Right_Wheel_PID.Ki = 0.6;
-				Exp_Speed = 220;
-			}
+				Exp_Speed = 230;
+			} 
 			else   // 拐弯
 			{
-				Turn_PID.Kp = Adjust_Val;
+				Turn_PID.Kp = Adjust_Val ;
 				Turn_PID.Kd = -32;
-				Left_Wheel_PID.Kp = Right_Wheel_PID.Kp = 28;
-				Left_Wheel_PID.Ki = Right_Wheel_PID.Ki = 1.28; //i太大会出现矫正滞后，导致车反方向飘逸
+				Left_Wheel_PID.Kp = Right_Wheel_PID.Kp = 27;
+				Left_Wheel_PID.Ki = Right_Wheel_PID.Ki = 1.25; //i太大会出现矫正滞后，导致车反方向飘逸
 				Exp_Speed = 180;
 			}
 			
 		/************************************************ 避开路障 ***********************************************/ 			
-			if(Barrier_Flag4 == 0) //确保避障只运行一次
-			{
-				vl53l0x_get_distance();
-				if(vl53l0x_finsh_flag)  //一次测距完成
-				{
-					if (vl53l0x_distance_mm < 600)		//	检测到路障
-					{
-						x10_ms = 13;  
-						Barrier_Flag1 = 1;
-					}
-				}
-				Elem_Barrier(gz);
-			}
+//			if(Barrier_Flag4 == 0) //确保避障只运行一次
+//			{
+//				vl53l0x_get_distance();
+//				if(vl53l0x_finsh_flag)  //一次测距完成
+//				{
+//					if (vl53l0x_distance_mm < 700)		//	检测到路障
+//					{
+//						x10_ms = 13;  
+//						Barrier_Flag1 = 1;
+//					}
+//				}
+//				Elem_Barrier(gz);
+//			}
 			
-		/************************************************ 圆环判别 ***********************************************/ 
-			if(ADC_proc[2] > 75 && (ADC_proc[3] > 8 || ADC_proc[1] > 8))	//中间横电感识别圆环
+//		/************************************************ 圆环判别 ***********************************************/ 
+			if(ADC_proc[2] > 70 && (ADC_proc[3] > 9 || ADC_proc[1] > 9))	//中间横电感识别圆环
 			{
 				x10_ms = 13; 
 				if(ADC_proc[3] > ADC_proc[1])  //判断左右
-				{
 					circle_flag_R = 1;
-					Elem_Circle_R((Speed_L + Speed_R)/2,gz);	
-				}
 				else if(ADC_proc[3] < ADC_proc[1]) 
-				{
 					circle_flag_L = 1;
-					Elem_Circle_L((Speed_L + Speed_R)/2,gz);
-				}
+					
 			}
-				
+			Elem_Circle_L((Speed_L + Speed_R)/2,gz);
+			Elem_Circle_R((Speed_L + Speed_R)/2,gz);		
 		/************************************************ 转向环计算 **********************************************/ 			
 			PID_Calculate(&Turn_PID,Ratio*100,gz/100); 
 			Limit_Out(&Turn_PID.PID_Out,-2000,5000);
@@ -117,7 +113,7 @@ void main(void)
 				
 		/************************************************ 特殊元素降速 ********************************************/ 
 			if( circle_flag_L == 1 || circle_flag_R == 1 || Barrier_Flag2 == 1 || Barrier_Flag1 == 1)  
-				//Exp_Speed = 160;
+			Exp_Speed = 170;
 			Exp_Speed_L = Exp_Speed + Turn_PID.PID_Out*0.09;
 			Exp_Speed_R = Exp_Speed - Turn_PID.PID_Out*0.09;
 			
@@ -133,11 +129,9 @@ void main(void)
 				Right_Wheel_PID.PID_Out = 0;
 			}
 			
-//			Left_SetSpeed(Left_Wheel_PID.PID_Out);
-//			Right_SetSpeed(Right_Wheel_PID.PID_Out);
+			Left_SetSpeed(Left_Wheel_PID.PID_Out);
+			Right_SetSpeed(Right_Wheel_PID.PID_Out);
 
-			Left_SetSpeed(2500);
-			Right_SetSpeed(-3000);
 			Isr_flag_10 = 0;
 		} 
 	}
@@ -161,7 +155,7 @@ void Init_all(void)
 	
 ////测距模块初始化
 	//gpio_mode(P3_2, GPIO);
-//	vl53l0x_init();
+    vl53l0x_init();
 	
 ////OLED初始化
 	ui_init();					
@@ -183,7 +177,7 @@ void Init_all(void)
 	Motor_Init();
 	
 ////蜂鸣器初始化
-	//Buzzer_Init();
+//	Buzzer_Init();
 	
 ////初始化所有AD引脚
 	ADC_InitAll(); 
@@ -197,7 +191,7 @@ void Init_all(void)
 //对ADC值进行处理得到差比和
 void Get_Ratio(void)
 {
-	sum = ADC_proc[0]+ ADC_proc[1]+ADC_proc[4]+ADC_proc[3];
+//	sum = ADC_proc[0]+ ADC_proc[1]+ADC_proc[4]+ADC_proc[3];
 //	sum_L = sqrt((ADC_proc[0]*ADC_proc[0]+ADC_proc[1]*ADC_proc[1]));
 //	sum_R = sqrt((ADC_proc[2]*ADC_proc[2]+ADC_proc[3]*ADC_proc[3]));
 
@@ -207,15 +201,15 @@ void Get_Ratio(void)
 	Diff_Mid = ADC_proc[1] - ADC_proc[3];
 	Plus_Mid = ADC_proc[1] + ADC_proc[3];
 	
-	if(sum > 20)  //边界保护
-	{
+//	if(sum > 20)  //边界保护
+//	{
 		Ratio = Diff/Plus;
 		Ratio_Mid = Diff_Mid/Plus_Mid;
-		if(Plus_Mid > 30 && Plus_Mid < 65)
+		if(Plus_Mid > 30 && Plus_Mid < 70)
 		{
 			Ratio = Ratio_Mid;
 		}
-	}
+//	}
 
 }
 
