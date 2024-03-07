@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Buzzer                                                             28/02/24  20:14:19  PAGE 1   
+C251 COMPILER V5.60.0,  Buzzer                                                             07/03/24  16:10:00  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Buzzer
@@ -18,7 +18,7 @@ stmt  level    source
     7          #include <STC32Gxx.H>
     8          #include "Buzzer.h"
     9          
-   10          uint16 x10_ms;
+   10          uint16 x10_ms = 0;
    11          
    12          void Buzzer_Init(void)
    13          {
@@ -51,7 +51,7 @@ Module Information          Static   Overlayable
   far data size        =    ------     ------
   huge data size       =    ------     ------
   const size           =    ------     ------
-  hconst size          =    ------     ------
+  hconst size          =         6     ------
 End of Module Information.
 
 

@@ -163,7 +163,7 @@ void TM4_Isr() interrupt 20
 	
 	if(x10_ms > 0)
 	{
-		pwm_duty(PWMB_CH4_P77,3000);
+		pwm_duty(PWMB_CH4_P77,2000);
 		x10_ms--;
 	}
 	else

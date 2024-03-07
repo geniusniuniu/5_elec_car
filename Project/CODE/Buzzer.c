@@ -7,7 +7,7 @@
 #include <STC32Gxx.H>
 #include "Buzzer.h"
 
-uint16 x10_ms;
+uint16 x10_ms = 0;
 
 void Buzzer_Init(void)
 {

@@ -29,6 +29,8 @@ float Exp_Speed_L = 0;
 float Exp_Speed_R = 0;
 float Exp_Speed = 200;
 float Adjust_Val = 0;
+
+
 void Init_all(void);
 void Get_Ratio(void);
 
@@ -39,8 +41,8 @@ void main(void)
 	Adjust_Val = -180;
 	while(1)
 	{		
-//		printf("%.2f,%.2f,%.2f,%.2f,%.2f\r\n",Exp_Speed_L,Exp_Speed_R,Speed_L,Speed_R,Turn_PID.PID_Out*0.09);
-		printf("%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\r\n",Sum_Angle_C,ADC_proc[2],ADC_proc[1],ADC_proc[3],Ratio_Mid,Ratio);
+		printf("%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\r\n",Exp_Speed_L,Exp_Speed_R,Speed_L,Speed_R,Turn_PID.PID_Out*0.09,Left_Wheel_PID.PID_Out);
+//		printf("%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\r\n",ADC_proc[0],ADC_proc[4],ADC_proc[1],ADC_proc[3],Ratio_Mid,Ratio);
 		
 /******************************************** 按键读值**********************************************************************/ 	
 		ui_show();
@@ -64,16 +66,20 @@ void main(void)
 			{
 				Turn_PID.Kp = -20;
 				Turn_PID.Kd = -3.5;
-				Left_Wheel_PID.Kp = Right_Wheel_PID.Kp = 20;
-				Left_Wheel_PID.Ki = Right_Wheel_PID.Ki = 0.6;
-				Exp_Speed = 230;
+				Left_Wheel_PID.Kp  = 20;
+				Right_Wheel_PID.Kp = 20;
+				Left_Wheel_PID.Ki  = 0.6;
+				Right_Wheel_PID.Ki = 0.6;
+				Exp_Speed = 220;
 			} 
 			else   // 拐弯
 			{
 				Turn_PID.Kp = Adjust_Val ;
 				Turn_PID.Kd = -32;
-				Left_Wheel_PID.Kp = Right_Wheel_PID.Kp = 27;
-				Left_Wheel_PID.Ki = Right_Wheel_PID.Ki = 1.25; //i太大会出现矫正滞后，导致车反方向飘逸
+				Left_Wheel_PID.Kp  = 27;
+				Right_Wheel_PID.Kp = 30;
+				Left_Wheel_PID.Ki  = 1.30;
+				Right_Wheel_PID.Ki = 1.25; //i太大会出现矫正滞后，导致车反方向飘逸
 				Exp_Speed = 180;
 			}
 			
@@ -113,7 +119,7 @@ void main(void)
 				
 		/************************************************ 特殊元素降速 ********************************************/ 
 			if( circle_flag_L == 1 || circle_flag_R == 1 || Barrier_Flag2 == 1 || Barrier_Flag1 == 1)  
-			Exp_Speed = 170;
+				Exp_Speed = 180;
 			Exp_Speed_L = Exp_Speed + Turn_PID.PID_Out*0.09;
 			Exp_Speed_R = Exp_Speed - Turn_PID.PID_Out*0.09;
 			
@@ -123,15 +129,17 @@ void main(void)
 			PID_Calculate(&Right_Wheel_PID,Exp_Speed_R,Speed_R);
 			
 	   /********************************************* 驶离赛道，停车 *********************************************/ 
-			if(ADC_proc[2]<5 && Barrier_Executed == 1) 
+			if(ADC_proc[2]<10 && Barrier_Executed == 0) 
 			{
 				Left_Wheel_PID.PID_Out = 0;
 				Right_Wheel_PID.PID_Out = 0;
 			}
 			
-			Left_SetSpeed(Left_Wheel_PID.PID_Out);
-			Right_SetSpeed(Right_Wheel_PID.PID_Out);
+//			Left_SetSpeed(Left_Wheel_PID.PID_Out);
+//			Right_SetSpeed(Right_Wheel_PID.PID_Out);
 
+			Left_SetSpeed(2450);
+			Right_SetSpeed(-2450);
 			Isr_flag_10 = 0;
 		} 
 	}
@@ -177,14 +185,14 @@ void Init_all(void)
 	Motor_Init();
 	
 ////蜂鸣器初始化
-//	Buzzer_Init();
+	Buzzer_Init();
 	
 ////初始化所有AD引脚
 	ADC_InitAll(); 
 	
 ////pid初始化  PID_Init(结构体, KP, KI, KD, 输出限幅，积分限幅)
-	PID_Init(&Left_Wheel_PID , 20, 0.5, 0, 10000, 2000);
-	PID_Init(&Right_Wheel_PID, 20, 0.5, 0, 10000, 2000);
+	PID_Init(&Left_Wheel_PID , 20, 0.5, 0, 9000, 2000);
+	PID_Init(&Right_Wheel_PID, 20, 0.5, 0, 9000, 2000);
 	PID_Init(&Turn_PID , -2, 0, 0 ,10000, 0);
 } 
 
@@ -205,10 +213,8 @@ void Get_Ratio(void)
 //	{
 		Ratio = Diff/Plus;
 		Ratio_Mid = Diff_Mid/Plus_Mid;
-		if(Plus_Mid > 30 && Plus_Mid < 70)
-		{
+		if((Plus_Mid > 36 && Plus_Mid < 70)||(Plus < 45))
 			Ratio = Ratio_Mid;
-		}
 //	}
 
 }
