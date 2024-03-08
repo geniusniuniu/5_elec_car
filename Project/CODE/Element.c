@@ -51,55 +51,56 @@ void Elem_Up_Down(float Angle,float Gyro)  //上下坡
 //障碍物识别	
 void Elem_Barrier(float Gyro_Z)
 {
-	
 	#if BARRIER_FIELD_STATUS
 		if(Avoid_ON == 1)			/*接收到最后一个障碍物的标志位后再开启避障*/
-			Barrier_Flag4 = 0;
+			Barrier_Executed = 0;
 		else  
-			Barrier_Flag4 = 1;
+			Barrier_Executed = 1;
 	#endif
-	
-	Gyro_Z = (Gyro_Z*2000)/32768;	
-	if(Barrier_Flag1==1)
-	{
-		Ratio = -0.48 ;			//直接更改期望值
-		Sum_Angle += Gyro_Z*0.005;
+	if(Barrier_Executed == 0)
+	{	
+		Gyro_Z = (Gyro_Z*2000)/32768;	
+		if(Barrier_Flag1==1)
+		{
+			Ratio = -0.48 ;			//直接更改期望值
+			Sum_Angle += Gyro_Z*0.005;
+			
+		}
+		if(Sum_Angle < -27)   	//右拐避障
+		{
+			Ratio = 0;
+			Barrier_Flag1 = 0;   //出赛道角度停止积分
+			Barrier_Flag2 = 1;
+			Sum_Angle = 0;		//积分清零
+		}
+		if(Barrier_Flag2==1)
+		{
+			Sum_Angle += Gyro_Z*0.005;   
+			if(Sum_Angle < 30.5)  //左拐回正
+			{
+				Ratio = 0.52; 		
+				Barrier_Flag3 = 0;  //尚未回正
+			}
+			else
+				Barrier_Flag3 = 1;  //回正
+		 }
 		
-	}
-	if(Sum_Angle < -27)   	//右拐避障
-	{
-		Ratio = 0;
-		Barrier_Flag1 = 0;   //出赛道角度停止积分
-		Barrier_Flag2 = 1;
-		Sum_Angle = 0;		//积分清零
-	}
-    if(Barrier_Flag2==1)
-    {
-		Sum_Angle += Gyro_Z*0.005;   
-        if(Sum_Angle < 30.5)  //左拐回正
-        {
-			Ratio = 0.52; 		
-			Barrier_Flag3 = 0;  //尚未回正
-        }
-		else
-			Barrier_Flag3 = 1;  //回正
-	 }
-	
-	 if(Barrier_Flag3==1)		//回正后标志位清零
+		 if(Barrier_Flag3==1)		//回正后标志位清零
 		{	
 			Barrier_Flag1 = 0;
 			Barrier_Flag2 = 0;
 			Barrier_Flag3 = 0;
-			
+			Sum_Angle = 0;
 		#if BARRIER_FIELD_STATUS == 0 //只避障一次
-			Barrier_Flag4 = 1;
+			Barrier_Executed = 1;
+		#endif
+		
+		#if TRACE_METHOD2
+			Barrier_Flag4 == 30;
 		#endif
 			
-			Sum_Angle = 0;
-		}
-
-			
-	
+		}			
+	}
 }
 
 //进行右环岛识别并进出右环岛

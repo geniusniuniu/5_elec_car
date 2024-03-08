@@ -14,6 +14,8 @@ PID_InitTypeDef Left_Wheel_PID;
 PID_InitTypeDef Right_Wheel_PID;
 PID_InitTypeDef Turn_PID;
 
+char A = 0; 
+char A1 = 0;
 float Speed_L,Speed_R;
 
 void Limit_Out(float *Output,float Limit_Min,float Limit_Max)
@@ -41,19 +43,17 @@ void Motor_Init(void)
 void Left_SetSpeed(float speed)
 {
 	static char Special_NumL = 0;  //异常情况记数
-	
 	if(abs(speed) >= (SPEED_MAX-100))  //连续50次都逼近最大速度，异常情况直接置零
 		Special_NumL++;
-	else
+	else 
 		Special_NumL = 0;
-	if(Special_NumL == 50)   //出现异常
+	if(Special_NumL >= 50)   //出现异常
 	{
 		pwm_duty(PWMA_CH2P_P62, 0);
-        pwm_duty(PWMA_CH1P_P60, 0);
-//		x10_ms = 10;
-		return ;
+		pwm_duty(PWMA_CH1P_P60, 0);
+		A = 1;
 	}
-    else				 //没有出现异常
+	else				 //没有出现异常
 	{
 		if(speed >= SPEED_MAX)			speed = SPEED_MAX; 
 		else if(speed <= -SPEED_MAX)	speed = -SPEED_MAX;
@@ -79,7 +79,6 @@ void Left_SetSpeed(float speed)
 void Right_SetSpeed(float speed)	
 {
 	static char  Special_NumR = 0; //异常情况记数
-	
     if(speed >= SPEED_MAX) 			speed = SPEED_MAX;  
 	else if(speed <= -SPEED_MAX)	speed = -SPEED_MAX;
 	
@@ -87,12 +86,11 @@ void Right_SetSpeed(float speed)
 		Special_NumR++;
 	else
 		Special_NumR = 0;
-	if(Special_NumR == 50)
+	if(Special_NumR >= 50)
 	{
+		A1 = 1;
 		pwm_duty(PWMA_CH3P_P64, 0);
         pwm_duty(PWMA_CH4P_P66, 0);
-		
-		return ;
 	}
     else
 	{

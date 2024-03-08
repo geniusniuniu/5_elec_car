@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  UI                                                                 07/03/24  20:32:49  PAGE 1   
+C251 COMPILER V5.60.0,  UI                                                                 08/03/24  13:24:34  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE UI
@@ -66,7 +66,7 @@ stmt  level    source
    55          {
    56   1              //page=0
    57   1          value[0][0]= ADC_proc[0];
-C251 COMPILER V5.60.0,  UI                                                                 07/03/24  20:32:49  PAGE 2   
+C251 COMPILER V5.60.0,  UI                                                                 08/03/24  13:24:34  PAGE 2   
 
    58   1              value[0][1]= ADC_proc[1];
    59   1              value[0][2]= ADC_proc[2];
@@ -134,7 +134,7 @@ stmt  level    source
   121          {
   122   1              oled_init();
   123   1              value_name_init();
-C251 COMPILER V5.60.0,  UI                                                                 07/03/24  20:32:49  PAGE 3   
+C251 COMPILER V5.60.0,  UI                                                                 08/03/24  13:24:34  PAGE 3   
 
   124   1              oled_all_static_state();
   125   1      }

@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Element                                                            07/03/24  21:02:41  PAGE 1   
+C251 COMPILER V5.60.0,  Element                                                            08/03/24  13:24:41  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Element
@@ -62,173 +62,174 @@ stmt  level    source
    51          //障碍物识别    
    52          void Elem_Barrier(float Gyro_Z)
    53          {
-   54   1              
-   55   1              #if BARRIER_FIELD_STATUS
+   54   1              #if BARRIER_FIELD_STATUS
                                if(Avoid_ON == 1)                       /*接收到最后一个障碍物的标志位后再开启避障*/
-                                       Barrier_Flag4 = 0;
-C251 COMPILER V5.60.0,  Element                                                            07/03/24  21:02:41  PAGE 2   
-
+                                       Barrier_Executed = 0;
                                else  
-                                       Barrier_Flag4 = 1;
-                       #endif
-   61   1              
-   62   1              Gyro_Z = (Gyro_Z*2000)/32768;   
-   63   1              if(Barrier_Flag1==1)
-   64   1              {
-   65   2                      Ratio = -0.48 ;                 //直接更改期望值
-   66   2                      Sum_Angle += Gyro_Z*0.005;
-   67   2                      
-   68   2              }
-   69   1              if(Sum_Angle < -27)     //右拐避障
-   70   1              {
-   71   2                      Ratio = 0;
-   72   2                      Barrier_Flag1 = 0;   //出赛道角度停止积分
-   73   2                      Barrier_Flag2 = 1;
-   74   2                      Sum_Angle = 0;          //积分清零
-   75   2              }
-   76   1          if(Barrier_Flag2==1)
-   77   1          {
-   78   2                      Sum_Angle += Gyro_Z*0.005;   
-   79   2              if(Sum_Angle < 30.5)  //左拐回正
-   80   2              {
-   81   3                              Ratio = 0.52;           
-   82   3                              Barrier_Flag3 = 0;  //尚未回正
-   83   3              }
-   84   2                      else
-   85   2                              Barrier_Flag3 = 1;  //回正
-   86   2               }
-   87   1              
-   88   1               if(Barrier_Flag3==1)           //回正后标志位清零
-   89   1                      {       
-   90   2                              Barrier_Flag1 = 0;
-   91   2                              Barrier_Flag2 = 0;
-   92   2                              Barrier_Flag3 = 0;
-   93   2                              
-   94   2                      #if BARRIER_FIELD_STATUS == 0 //只避障一次
-   95   2                              Barrier_Flag4 = 1;
-   96   2                      #endif
-   97   2                              
-   98   2                              Sum_Angle = 0;
-   99   2                      }
-  100   1      
-  101   1                              
-  102   1              
-  103   1      }
-  104          
-  105          //进行右环岛识别并进出右环岛
-  106          void Elem_Circle_R(float Speed,float Gyro_Z)
-  107          {
-  108   1              static float Sum_Dis1 = 0;
-  109   1              static float Sum_Dis2 = 0;
-  110   1              static float Sum_Angle_C = 0;
-  111   1              if(circle_flag_R == 1)  //识别圆环标志位
-  112   1              {
-  113   2                      Sum_Dis1 += Speed ;
-  114   2                      if(Sum_Dis1 > 4000) //路程积满入环，开始角度积分
-  115   2                      {
-  116   3                              Gyro_Z = (Gyro_Z*2000)/32768;
-  117   3                              Sum_Angle_C += Gyro_Z*0.005;
-  118   3                              
-  119   3                              if(Sum_Angle_C < -20) // 入环结束,正常循迹
-  120   3                              {
-  121   4                                      circle_In_Flag = 1;
-  122   4                              }
-  123   3                              else
-C251 COMPILER V5.60.0,  Element                                                            07/03/24  21:02:41  PAGE 3   
+C251 COMPILER V5.60.0,  Element                                                            08/03/24  13:24:41  PAGE 2   
 
-  124   3                              Ratio = -0.4;
-  125   3                      }
-  126   2                      if(circle_In_Flag == 1) //如果已经进环，判断出环条件，角度积满出环
-  127   2                      {
-  128   3                                      Gyro_Z = (Gyro_Z*2000)/32768;
-  129   3                                      Sum_Angle_C += Gyro_Z*0.005;
-  130   3                                      if(Sum_Angle_C < ROUND_R) //右转角度积分是负值
-  131   3                                              circle_Out_Flag = 1;
-  132   3                      }
-  133   2                      if(circle_Out_Flag == 1 && ADC_proc[2] > 70)
-  134   2                      {
-  135   3                              Sum_Dis2 += Speed; //出环路程积分
-  136   3                              if(Sum_Dis2 < 4000)
-  137   3                                      Ratio += 0.3;
-  138   3                              else                    //出环结束，标志位清零
-  139   3                              {
-  140   4                                      Ratio = 0;
-  141   4                                      circle_flag_R = 0;
-  142   4                                      Sum_Dis1 = 0;
-  143   4                                      Sum_Dis2 = 0;
-  144   4                                      Sum_Angle_C = 0;
-  145   4                                      circle_In_Flag = 0;
-  146   4                                      circle_Out_Flag = 0;
-  147   4                                      
-  148   4                                      //实验室右环岛是最后一个特殊元素
-  149   4                                      //如果有多个重复元素，再置一个记数标志位
-  150   4                                      //Element_Num 
-  151   4                                      //if(Element_Num == x) //重复元素全部走完
-  152   4      //                              Avoid_ON == 1   
-  153   4                                      
-  154   4                              }
-  155   3                      }
-  156   2              }
-  157   1      }
-  158          
+                                       Barrier_Executed = 1;
+                       #endif
+   60   1              if(Barrier_Executed == 0)
+   61   1              {       
+   62   2                      Gyro_Z = (Gyro_Z*2000)/32768;   
+   63   2                      if(Barrier_Flag1==1)
+   64   2                      {
+   65   3                              Ratio = -0.48 ;                 //直接更改期望值
+   66   3                              Sum_Angle += Gyro_Z*0.005;
+   67   3                              
+   68   3                      }
+   69   2                      if(Sum_Angle < -27)     //右拐避障
+   70   2                      {
+   71   3                              Ratio = 0;
+   72   3                              Barrier_Flag1 = 0;   //出赛道角度停止积分
+   73   3                              Barrier_Flag2 = 1;
+   74   3                              Sum_Angle = 0;          //积分清零
+   75   3                      }
+   76   2                      if(Barrier_Flag2==1)
+   77   2                      {
+   78   3                              Sum_Angle += Gyro_Z*0.005;   
+   79   3                              if(Sum_Angle < 30.5)  //左拐回正
+   80   3                              {
+   81   4                                      Ratio = 0.52;           
+   82   4                                      Barrier_Flag3 = 0;  //尚未回正
+   83   4                              }
+   84   3                              else
+   85   3                                      Barrier_Flag3 = 1;  //回正
+   86   3                       }
+   87   2                      
+   88   2                       if(Barrier_Flag3==1)           //回正后标志位清零
+   89   2                      {       
+   90   3                              Barrier_Flag1 = 0;
+   91   3                              Barrier_Flag2 = 0;
+   92   3                              Barrier_Flag3 = 0;
+   93   3                              Sum_Angle = 0;
+   94   3                      #if BARRIER_FIELD_STATUS == 0 //只避障一次
+   95   3                              Barrier_Executed = 1;
+   96   3                      #endif
+   97   3                      
+   98   3                      #if TRACE_METHOD2
+                                       Barrier_Flag4 == 30;
+                               #endif
+  101   3                              
+  102   3                      }                       
+  103   2              }
+  104   1      }
+  105          
+  106          //进行右环岛识别并进出右环岛
+  107          void Elem_Circle_R(float Speed,float Gyro_Z)
+  108          {
+  109   1              static float Sum_Dis1 = 0;
+  110   1              static float Sum_Dis2 = 0;
+  111   1              static float Sum_Angle_C = 0;
+  112   1              if(circle_flag_R == 1)  //识别圆环标志位
+  113   1              {
+  114   2                      Sum_Dis1 += Speed ;
+  115   2                      if(Sum_Dis1 > 4000) //路程积满入环，开始角度积分
+  116   2                      {
+  117   3                              Gyro_Z = (Gyro_Z*2000)/32768;
+  118   3                              Sum_Angle_C += Gyro_Z*0.005;
+  119   3                              
+  120   3                              if(Sum_Angle_C < -20) // 入环结束,正常循迹
+  121   3                              {
+  122   4                                      circle_In_Flag = 1;
+  123   4                              }
+C251 COMPILER V5.60.0,  Element                                                            08/03/24  13:24:41  PAGE 3   
+
+  124   3                              else
+  125   3                              Ratio = -0.4;
+  126   3                      }
+  127   2                      if(circle_In_Flag == 1) //如果已经进环，判断出环条件，角度积满出环
+  128   2                      {
+  129   3                                      Gyro_Z = (Gyro_Z*2000)/32768;
+  130   3                                      Sum_Angle_C += Gyro_Z*0.005;
+  131   3                                      if(Sum_Angle_C < ROUND_R) //右转角度积分是负值
+  132   3                                              circle_Out_Flag = 1;
+  133   3                      }
+  134   2                      if(circle_Out_Flag == 1 && ADC_proc[2] > 70)
+  135   2                      {
+  136   3                              Sum_Dis2 += Speed; //出环路程积分
+  137   3                              if(Sum_Dis2 < 4000)
+  138   3                                      Ratio += 0.3;
+  139   3                              else                    //出环结束，标志位清零
+  140   3                              {
+  141   4                                      Ratio = 0;
+  142   4                                      circle_flag_R = 0;
+  143   4                                      Sum_Dis1 = 0;
+  144   4                                      Sum_Dis2 = 0;
+  145   4                                      Sum_Angle_C = 0;
+  146   4                                      circle_In_Flag = 0;
+  147   4                                      circle_Out_Flag = 0;
+  148   4                                      
+  149   4                                      //实验室右环岛是最后一个特殊元素
+  150   4                                      //如果有多个重复元素，再置一个记数标志位
+  151   4                                      //Element_Num 
+  152   4                                      //if(Element_Num == x) //重复元素全部走完
+  153   4      //                              Avoid_ON == 1   
+  154   4                                      
+  155   4                              }
+  156   3                      }
+  157   2              }
+  158   1      }
   159          
   160          
   161          
   162          
-  163          //进行左环岛识别并进出左环岛
-  164          void Elem_Circle_L(float Speed,float Gyro_Z)
-  165          {
-  166   1              static float Sum_Dis1 = 0;
-  167   1              static float Sum_Dis2 = 0;
-  168   1              static float Sum_Angle_C = 0;;
-  169   1              if(circle_flag_L == 1)  //识别圆环标志位
-  170   1              {
-  171   2                      Sum_Dis1 += Speed ;
-  172   2                      if(Sum_Dis1 > 3700) //路程积满开始入环，开始角度积分
-  173   2                      {
-  174   3                              Gyro_Z = (Gyro_Z*2000)/32768;
-  175   3                              Sum_Angle_C += Gyro_Z*0.005;
-  176   3                              if(Sum_Angle_C > 20) // 入环结束,正常循迹
-  177   3                              {
-  178   4                                      circle_In_Flag = 1;
-  179   4                                      //x10_ms = 10;
-  180   4                              }
-  181   3                              else
-  182   3                              Ratio = 0.4;
-  183   3                      }
-  184   2                      if(circle_In_Flag == 1) //如果已经进环，判断出环条件，角度积满出环
-  185   2                      {
-  186   3                                      Gyro_Z = (Gyro_Z*2000)/32768;
-  187   3                                      Sum_Angle_C += Gyro_Z*0.005;
-  188   3                                      if(Sum_Angle_C > ROUND_L) //左转角度积分是正值
-  189   3                                              circle_Out_Flag = 1;
-C251 COMPILER V5.60.0,  Element                                                            07/03/24  21:02:41  PAGE 4   
+  163          
+  164          //进行左环岛识别并进出左环岛
+  165          void Elem_Circle_L(float Speed,float Gyro_Z)
+  166          {
+  167   1              static float Sum_Dis1 = 0;
+  168   1              static float Sum_Dis2 = 0;
+  169   1              static float Sum_Angle_C = 0;;
+  170   1              if(circle_flag_L == 1)  //识别圆环标志位
+  171   1              {
+  172   2                      Sum_Dis1 += Speed ;
+  173   2                      if(Sum_Dis1 > 3700) //路程积满开始入环，开始角度积分
+  174   2                      {
+  175   3                              Gyro_Z = (Gyro_Z*2000)/32768;
+  176   3                              Sum_Angle_C += Gyro_Z*0.005;
+  177   3                              if(Sum_Angle_C > 20) // 入环结束,正常循迹
+  178   3                              {
+  179   4                                      circle_In_Flag = 1;
+  180   4                                      //x10_ms = 10;
+  181   4                              }
+  182   3                              else
+  183   3                              Ratio = 0.4;
+  184   3                      }
+  185   2                      if(circle_In_Flag == 1) //如果已经进环，判断出环条件，角度积满出环
+  186   2                      {
+  187   3                                      Gyro_Z = (Gyro_Z*2000)/32768;
+  188   3                                      Sum_Angle_C += Gyro_Z*0.005;
+  189   3                                      if(Sum_Angle_C > ROUND_L) //左转角度积分是正值
+C251 COMPILER V5.60.0,  Element                                                            08/03/24  13:24:41  PAGE 4   
 
-  190   3                      }
-  191   2                      if(circle_Out_Flag == 1 && ADC_proc[2] > 70)
-  192   2                      {
-  193   3                              //x10_ms = 10;
-  194   3                              Sum_Dis2 += Speed; //出环路程积分
-  195   3                              if(Sum_Dis2 < 4000)
-  196   3                                      Ratio -= 0.3;   
-  197   3                              else                    //出环结束，标志位清零
-  198   3                              {
-  199   4                                      Ratio = 0;
-  200   4                                      circle_flag_L = 0;
-  201   4                                      Sum_Dis1 = 0;
-  202   4                                      Sum_Dis2 = 0;
-  203   4                                      Sum_Angle_C = 0;
-  204   4                                      circle_In_Flag = 0;
-  205   4                                      circle_Out_Flag = 0;
-  206   4                              }
-  207   3                      }
-  208   2              }
-  209   1      }
+  190   3                                              circle_Out_Flag = 1;
+  191   3                      }
+  192   2                      if(circle_Out_Flag == 1 && ADC_proc[2] > 70)
+  193   2                      {
+  194   3                              //x10_ms = 10;
+  195   3                              Sum_Dis2 += Speed; //出环路程积分
+  196   3                              if(Sum_Dis2 < 4000)
+  197   3                                      Ratio -= 0.3;   
+  198   3                              else                    //出环结束，标志位清零
+  199   3                              {
+  200   4                                      Ratio = 0;
+  201   4                                      circle_flag_L = 0;
+  202   4                                      Sum_Dis1 = 0;
+  203   4                                      Sum_Dis2 = 0;
+  204   4                                      Sum_Angle_C = 0;
+  205   4                                      circle_In_Flag = 0;
+  206   4                                      circle_Out_Flag = 0;
+  207   4                              }
+  208   3                      }
+  209   2              }
+  210   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =       854     ------
+  code size            =       867     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------

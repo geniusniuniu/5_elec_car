@@ -2,6 +2,9 @@
 #define __Element_H
 #include "PID.h"
 
+#define TRACE_METHOD1 1  //单向巡线
+#define TRACE_METHOD2 0  //向量法巡线
+
 extern char Up_Down_Flag;
 extern char Barrier_Flag1;
 extern char Barrier_Flag2;

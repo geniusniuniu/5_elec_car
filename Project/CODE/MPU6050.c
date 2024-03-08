@@ -854,7 +854,7 @@ uint8 loadcfgupd(void)	//DMP设置
 }
 
 /*最后更新DMP*/
-uint8 xdmpUpdates(uint8 datacounts)
+uint8 xdmpUpdates(uint8 volatile datacounts)
 {
     static uint8 writingcounts; // 删除未使用的静态变量声明
     uint8 bank, offset;

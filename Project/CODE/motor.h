@@ -4,10 +4,13 @@
 #include "zf_tim.h"
 #include "PID.h"
 
-#define SPEED_MAX 2500
+#define SPEED_MAX 8000
 
 extern float Speed_L;
 extern float Speed_R;
+
+extern char A;
+extern char A1;
 
 extern PID_InitTypeDef Left_Wheel_PID;
 extern PID_InitTypeDef Right_Wheel_PID;
