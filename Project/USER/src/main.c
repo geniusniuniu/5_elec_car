@@ -10,8 +10,11 @@
 #include "Key.h"
 #include "ui.h"
 
+#if TRACE_METHOD2
+	float sum_L,sum_R;
+#endif
 
-
+extern char Up_Down_Flag;
 extern uint16 vl53l0x_distance_mm;
 extern uint8 vl53l0x_finsh_flag;
 
@@ -43,7 +46,7 @@ void main(void)
 	Adjust_Val = -180;
 	while(1)
 	{		
-		printf("%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\r\n",Exp_Speed_L,Exp_Speed_R,Speed_L,Speed_R,Turn_PID.PID_Out*0.09,Left_Wheel_PID.PID_Out);
+		printf("%f,%f,%d,%.2f,%.2f,%.2f\r\n",Speed_L,Speed_R,gz,Speed_R,Turn_PID.PID_Out*0.09,Left_Wheel_PID.PID_Out);
 //		printf("%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\r\n",ADC_proc[0],ADC_proc[4],ADC_proc[1],ADC_proc[3],Ratio_Mid,Ratio);
 		
 /******************************************** 按键读值**********************************************************************/ 	
@@ -65,7 +68,7 @@ void main(void)
 			
 		/************************************************ 直道弯道判别 ********************************************/ 
 			#if TRACE_METHOD1  //单向巡线
-				if(Ratio > -0.1 && Ratio < 0.1) //直线
+				if(Ratio > -0.16 && Ratio < 0.16) //直线
 				{
 					Turn_PID.Kp = -20;
 					Turn_PID.Kd = -3.5;
@@ -80,74 +83,90 @@ void main(void)
 				{
 					Turn_PID.Kp = Adjust_Val ;
 					Turn_PID.Kd = -32;
-					Left_Wheel_PID.Kp  = 27;
-					Left_Wheel_PID.Ki  = 1.25;
+					Left_Wheel_PID.Kp  = 26;
+					Left_Wheel_PID.Ki  = 1.26;
 					
-					Right_Wheel_PID.Kp = 29;
-					Right_Wheel_PID.Ki = 1.28; //i太大会出现矫正滞后，导致车反方向飘逸
-					Exp_Speed = 180;
+					Right_Wheel_PID.Kp = 45;
+					Right_Wheel_PID.Ki = 1.35; //i太大会出现矫正滞后，导致车反方向飘逸
+					Exp_Speed = 200;
 				}
 			#elif TRACE_METHOD2  //向量法
-				if(Ratio >= -0.1 && Ratio <= 0.1) //直线
+				if(Ratio >= -0.13 && Ratio <= 0.13) //直线
 				{
 					Turn_PID.Kp = -15;
 					Turn_PID.Kd = -2.6;
 					Left_Wheel_PID.Kp = Right_Wheel_PID.Kp = 20;
 					Left_Wheel_PID.Ki = Right_Wheel_PID.Ki = 0.6;
-					Exp_Speed = 240;
+					Exp_Speed = 310;
 				}
 				else   // 拐弯
 				{
 					Turn_PID.Kp = -160;
-					Turn_PID.Kd = -27;
-					Left_Wheel_PID.Kp = Right_Wheel_PID.Kp = 33;
-					Left_Wheel_PID.Ki = Right_Wheel_PID.Ki = 1.32;
-					Exp_Speed = 180;
+					Turn_PID.Kd = -27.0;
+					Left_Wheel_PID.Kp = 28;
+					Left_Wheel_PID.Ki = 1.28;
+					Right_Wheel_PID.Kp = 32;
+					Right_Wheel_PID.Ki = 1.30;
+					Exp_Speed = 260;
 				}
 			#endif	
-		/************************************************ 避开路障 ***********************************************/ 			
-			if(Barrier_Executed == 0)
-			{	
-				vl53l0x_get_distance();
-				if(vl53l0x_finsh_flag)  //一次测距完成
-				{
-					if (vl53l0x_distance_mm < 700)		//	检测到路障
-					{
-						x10_ms = 13;  
-						Barrier_Flag1 = 1;
-					}
-				}
-			}
-			Elem_Barrier(gz);
-			#if TRACE_METHOD2  //弥补向量法检测缺陷导致车身反偏
-				if(Barrier_Flag4 > 0)
-				{
-					Ratio = -0.4;
-					Barrier_Flag4 -= 1;
-				}	
-			#endif
-//		/************************************************ 圆环判别 ***********************************************/ 
-			if(ADC_proc[2] > 70 && (ADC_proc[3] > 9 || ADC_proc[1] > 9))	//中间横电感识别圆环
+		/************************************************ 避开路障 ***********************************************/ 	
+//			#if BARRIER_FIELD_STATUS
+//				if(Avoid_ON == 1)			/*接收到最后一个障碍物的标志位后再开启避障*/
+//					Barrier_Executed = 0;
+//				else  
+//					Barrier_Executed = 1;
+//			#endif				
+//			if(Barrier_Executed == 0)
+//			{	
+//				vl53l0x_get_distance();
+//				if(vl53l0x_finsh_flag)  //一次测距完成
+//				{
+//					if (vl53l0x_distance_mm < 800)		//	检测到路障
+//					{
+//						x10_ms = 13;  
+//						Barrier_Flag1 = 1;
+//					}
+//				}
+//				Elem_Barrier(gz);
+//			}
+
+//			#if TRACE_METHOD2  //弥补向量法检测缺陷导致车身反偏
+//				if(Barrier_Flag4 > 0)
+//				{
+//					Ratio = -0.4;
+//					Barrier_Flag4 -= 1;
+//				}	
+//			#endif
+
+		/************************************************ 上下坡道 ************************************************/ 
+			if(ADC_proc[2] > 70 && ADC_proc[0] > 40 && ADC_proc[4] > 40)
 			{
-//				x10_ms = 13; 
-				if(ADC_proc[3] > ADC_proc[1])  //判断左右
-					circle_flag_R = 1;
-				else if(ADC_proc[3] < ADC_proc[1]) 
-					circle_flag_L = 1;
-					
+				Elem_Up_Down(Pitch,gy);
 			}
-			Elem_Circle_L((Speed_L + Speed_R)/2,gz);
-			Elem_Circle_R((Speed_L + Speed_R)/2,gz);		
+//		/************************************************ 圆环判别 ***********************************************/ 
+			if(ADC_proc[2] > 65 && ADC_proc[0] > 50 && ADC_proc[4] > 50)	//中间横电感识别圆环
+			{
+				x10_ms = 13; 
+				if(ADC_proc[3]/ADC_proc[1]>=1.8)  //判断左右
+					circle_flag_R = 1;
+				else if(ADC_proc[1]/ADC_proc[3]>=1.8 ) 
+					circle_flag_L = 1;	
+			}
+			if(Pitch >=  0 || Pitch <=  -10)	
+			{
+				circle_flag_R = 0;
+				circle_flag_L = 0;
+			}
+			Elem_Circle_L((Speed_L + Speed_R)/2,gz);	
+			Elem_Circle_R((Speed_L + Speed_R)/2,gz);
 		/************************************************ 转向环计算 **********************************************/ 			
 			PID_Calculate(&Turn_PID,Ratio*100,gz/100); 
 			Limit_Out(&Turn_PID.PID_Out,-2000,5000);
 				
-		/************************************************ 上下坡道 ************************************************/ 
-			Elem_Up_Down(Pitch,gy);		
-				
 		/************************************************ 特殊元素降速 ********************************************/ 
 			if( circle_flag_L == 1 || circle_flag_R == 1 || Barrier_Flag2 == 1 || Barrier_Flag1 == 1)  
-				Exp_Speed = 180;
+				Exp_Speed = 260;
 			Exp_Speed_L = Exp_Speed + Turn_PID.PID_Out*0.09;
 			Exp_Speed_R = Exp_Speed - Turn_PID.PID_Out*0.09;
 			
@@ -157,14 +176,24 @@ void main(void)
 			PID_Calculate(&Right_Wheel_PID,Exp_Speed_R,Speed_R);
 			
 	   /********************************************* 驶离赛道，停车 *********************************************/ 
-			if(ADC_proc[2]<10 && Barrier_Executed == 0) 
+			if(ADC_proc[2] && Barrier_Executed == 1) 
 			{
 				Left_Wheel_PID.PID_Out = 0;
 				Right_Wheel_PID.PID_Out = 0;
 			}
-			
-			if(A == 0 ) Left_SetSpeed(Left_Wheel_PID.PID_Out);
-			if(A1 == 0) Right_SetSpeed(Right_Wheel_PID.PID_Out);
+		/******************************************** 设置左右PWM *********************************************/ 	
+			if(ADC_proc[1]>ADC_proc[3] && ADC_proc[2] > 35 && ADC_proc[2] <54)  //专门用来向左拐直角弯
+			{
+				Left_SetSpeed(-5000);
+				Right_SetSpeed(4000);
+			}
+			else
+			{
+				if(A == 0 )
+					Left_SetSpeed(Left_Wheel_PID.PID_Out);
+				if(A1 == 0) 
+					Right_SetSpeed(Right_Wheel_PID.PID_Out);
+			}					
 			Isr_flag_10 = 0;
 		} 
 	}
@@ -187,15 +216,18 @@ void Get_Ratio(void)
 		
 		Diff_Mid = ADC_proc[1] - ADC_proc[3];
 		Plus_Mid = ADC_proc[1] + ADC_proc[3];
-	//	if(sum > 20)  //边界保护
-	//	{
-			Ratio = Diff/Plus;
-			Ratio_Mid = Diff_Mid/Plus_Mid;
-			if((Plus_Mid > 36 && Plus_Mid < 70)||(Plus < 45))
-				Ratio = Ratio_Mid;
-	//	}
-	#endif
 
+		Ratio = Diff/Plus;
+		Ratio_Mid = Diff_Mid/Plus_Mid;
+		if(Plus_Mid > 36 && Plus_Mid < 70 || (Plus <45))
+			Ratio = Ratio_Mid;
+
+	#endif
+		//边界保护
+		if((ADC_proc[0] + ADC_proc[1] < 10) && (ADC_proc[0] + ADC_proc[1] > ADC_proc[3] + ADC_proc[4]))
+			Ratio = 0.6;
+		else if((ADC_proc[3] + ADC_proc[4] < 10) && (ADC_proc[0] + ADC_proc[1] < ADC_proc[3] + ADC_proc[4]))
+			Ratio = -0.6;
 }
 
 void Init_all(void)
@@ -216,7 +248,7 @@ void Init_all(void)
 	
 ////测距模块初始化
 	//gpio_mode(P3_2, GPIO);
-    vl53l0x_init();
+//   vl53l0x_init();
 	
 ////OLED初始化
 	ui_init();					
@@ -238,14 +270,14 @@ void Init_all(void)
 	Motor_Init();
 	
 ////蜂鸣器初始化
-//	Buzzer_Init();
+	 Buzzer_Init();
 	
 ////初始化所有AD引脚
 	ADC_InitAll(); 
 	
 ////pid初始化  PID_Init(结构体, KP, KI, KD, 输出限幅，积分限幅)
 	PID_Init(&Left_Wheel_PID , 20, 0.5, 0, 9000, 2000);
-	PID_Init(&Right_Wheel_PID, 20, 0.5, 0, 9000, 2000);
+	PID_Init(&Right_Wheel_PID, 20, 0.5, 0, 9000, 4000);
 	PID_Init(&Turn_PID , -2, 0, 0 ,10000, 0);
 } 
 

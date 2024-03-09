@@ -6,6 +6,7 @@
 #include "ADC.h"
 #include "Motor.h"
 #include "Element.h"
+#include "MPU6050.h"
 
 extern uint16 vl53l0x_distance_mm;
 extern float Ratio;

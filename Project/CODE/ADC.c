@@ -32,6 +32,14 @@ void ADC_GetValue(void)
 
 		ADC_Array_Original[3][i] = adc_once(ADC_P05, ADC_8BIT);		//右三路电感
 		ADC_Array_Original[4][i] = adc_once(ADC_P06, ADC_8BIT);		//右四路电感
+		
+//		ADC_Array_Original[0][i] = adc_once(ADC_P10, ADC_8BIT);		//左一路电感
+//		ADC_Array_Original[1][i] = adc_once(ADC_P00, ADC_8BIT);		//左二路电感
+
+//		ADC_Array_Original[2][i] = adc_once(ADC_P05, ADC_8BIT);		//中间横电感
+
+//		ADC_Array_Original[3][i] = adc_once(ADC_P06, ADC_8BIT);		//右三路电感
+//		ADC_Array_Original[4][i] = adc_once(ADC_P16, ADC_8BIT);		//右四路电感
 	}
 	for(k=0;k<5;k++) //电感值 最终取三次平均值
 	{
