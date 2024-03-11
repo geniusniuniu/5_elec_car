@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  ADC                                                                09/03/24  18:49:19  PAGE 1   
+C251 COMPILER V5.60.0,  ADC                                                                12/03/24  05:54:33  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE ADC
@@ -36,21 +36,21 @@ stmt  level    source
    25   1              char i,j,k;
    26   1              for(i=0;i<3;i++)
    27   1              {
-   28   2                      ADC_Array_Original[0][i] = adc_once(ADC_P10, ADC_8BIT);         //左一路电感
-   29   2                      ADC_Array_Original[1][i] = adc_once(ADC_P00, ADC_8BIT);         //左二路电感
+   28   2      //              ADC_Array_Original[0][i] = adc_once(ADC_P10, ADC_8BIT);         //左一路电感
+   29   2      //              ADC_Array_Original[1][i] = adc_once(ADC_P00, ADC_8BIT);         //左二路电感
    30   2      
-   31   2                      ADC_Array_Original[2][i] = adc_once(ADC_P16, ADC_8BIT);         //中间横电感
+   31   2      //              ADC_Array_Original[2][i] = adc_once(ADC_P16, ADC_8BIT);         //中间横电感
    32   2      
-   33   2                      ADC_Array_Original[3][i] = adc_once(ADC_P05, ADC_8BIT);         //右三路电感
-   34   2                      ADC_Array_Original[4][i] = adc_once(ADC_P06, ADC_8BIT);         //右四路电感
+   33   2      //              ADC_Array_Original[3][i] = adc_once(ADC_P05, ADC_8BIT);         //右三路电感
+   34   2      //              ADC_Array_Original[4][i] = adc_once(ADC_P06, ADC_8BIT);         //右四路电感
    35   2                      
-   36   2      //              ADC_Array_Original[0][i] = adc_once(ADC_P10, ADC_8BIT);         //左一路电感
-   37   2      //              ADC_Array_Original[1][i] = adc_once(ADC_P00, ADC_8BIT);         //左二路电感
+   36   2                      ADC_Array_Original[0][i] = adc_once(ADC_P10, ADC_8BIT);         //左一路电感
+   37   2                      ADC_Array_Original[1][i] = adc_once(ADC_P00, ADC_8BIT);         //左二路电感
    38   2      
-   39   2      //              ADC_Array_Original[2][i] = adc_once(ADC_P05, ADC_8BIT);         //中间横电感
+   39   2                      ADC_Array_Original[2][i] = adc_once(ADC_P05, ADC_8BIT);         //中间横电感
    40   2      
-   41   2      //              ADC_Array_Original[3][i] = adc_once(ADC_P06, ADC_8BIT);         //右三路电感
-   42   2      //              ADC_Array_Original[4][i] = adc_once(ADC_P16, ADC_8BIT);         //右四路电感
+   41   2                      ADC_Array_Original[3][i] = adc_once(ADC_P06, ADC_8BIT);         //右三路电感
+   42   2                      ADC_Array_Original[4][i] = adc_once(ADC_P16, ADC_8BIT);         //右四路电感
    43   2              }
    44   1              for(k=0;k<5;k++) //电感值 最终取三次平均值
    45   1              {
@@ -64,12 +64,12 @@ stmt  level    source
    53   2                      else if(ADC_proc[k] <= 2)               ADC_proc[k] = 2;        //对电感值进行限幅处理
    54   2      
    55   2                      ADC_proc[k] = 100*(ADC_proc[k]/200);            //归一化,将电感值限制在0~100之间                
-   56   2                      if(ADC_proc[0] >= 55 )
-   57   2                              ADC_proc[0] = 55;
-C251 COMPILER V5.60.0,  ADC                                                                09/03/24  18:49:19  PAGE 2   
+   56   2                      if(ADC_proc[0] >= 58 )
+   57   2                              ADC_proc[0] = 58;
+C251 COMPILER V5.60.0,  ADC                                                                12/03/24  05:54:33  PAGE 2   
 
-   58   2                      if(ADC_proc[4] >= 55)
-   59   2                              ADC_proc[4] = 55;
+   58   2                      if(ADC_proc[4] >= 58)
+   59   2                              ADC_proc[4] = 58;
    60   2              }
    61   1      }
    62          

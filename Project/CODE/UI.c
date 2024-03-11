@@ -47,7 +47,7 @@ void value_name_init(void)//将name改为想要的参数名，但“ ”中的总长度不要变
 	//page=3
 	strcpy(value_name[3][0],"Vl_Dis");
 	strcpy(value_name[3][1],"Ratio ");
-	strcpy(value_name[3][2],"Ra_Mid");
+	strcpy(value_name[3][2],"Pitch ");
 	strcpy(value_name[3][3],"Ra_Sum");
 
 }
@@ -75,8 +75,8 @@ void refresh_value()//value=填入变量名
 	//page=3
 	value[3][0]= vl53l0x_distance_mm;
 	value[3][1]= Ratio;
-	value[3][2]= Ratio_Mid;
-	value[3][3]= sum;
+	value[3][2]= Pitch;
+	value[3][3]= 0;
 		
 }
 //                         oled显示函数

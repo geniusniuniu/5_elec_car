@@ -25,21 +25,21 @@ void ADC_GetValue(void)
 	char i,j,k;
 	for(i=0;i<3;i++)
 	{
-		ADC_Array_Original[0][i] = adc_once(ADC_P10, ADC_8BIT);		//左一路电感
-		ADC_Array_Original[1][i] = adc_once(ADC_P00, ADC_8BIT);		//左二路电感
-
-		ADC_Array_Original[2][i] = adc_once(ADC_P16, ADC_8BIT);		//中间横电感
-
-		ADC_Array_Original[3][i] = adc_once(ADC_P05, ADC_8BIT);		//右三路电感
-		ADC_Array_Original[4][i] = adc_once(ADC_P06, ADC_8BIT);		//右四路电感
-		
 //		ADC_Array_Original[0][i] = adc_once(ADC_P10, ADC_8BIT);		//左一路电感
 //		ADC_Array_Original[1][i] = adc_once(ADC_P00, ADC_8BIT);		//左二路电感
 
-//		ADC_Array_Original[2][i] = adc_once(ADC_P05, ADC_8BIT);		//中间横电感
+//		ADC_Array_Original[2][i] = adc_once(ADC_P16, ADC_8BIT);		//中间横电感
 
-//		ADC_Array_Original[3][i] = adc_once(ADC_P06, ADC_8BIT);		//右三路电感
-//		ADC_Array_Original[4][i] = adc_once(ADC_P16, ADC_8BIT);		//右四路电感
+//		ADC_Array_Original[3][i] = adc_once(ADC_P05, ADC_8BIT);		//右三路电感
+//		ADC_Array_Original[4][i] = adc_once(ADC_P06, ADC_8BIT);		//右四路电感
+		
+		ADC_Array_Original[0][i] = adc_once(ADC_P10, ADC_8BIT);		//左一路电感
+		ADC_Array_Original[1][i] = adc_once(ADC_P00, ADC_8BIT);		//左二路电感
+
+		ADC_Array_Original[2][i] = adc_once(ADC_P05, ADC_8BIT);		//中间横电感
+
+		ADC_Array_Original[3][i] = adc_once(ADC_P06, ADC_8BIT);		//右三路电感
+		ADC_Array_Original[4][i] = adc_once(ADC_P16, ADC_8BIT);		//右四路电感
 	}
 	for(k=0;k<5;k++) //电感值 最终取三次平均值
 	{
@@ -53,10 +53,10 @@ void ADC_GetValue(void)
 		else if(ADC_proc[k] <= 2)		ADC_proc[k] = 2;	//对电感值进行限幅处理
 
 		ADC_proc[k] = 100*(ADC_proc[k]/200);		//归一化,将电感值限制在0~100之间		
-		if(ADC_proc[0] >= 55 )
-			ADC_proc[0] = 55;
-		if(ADC_proc[4] >= 55)
-			ADC_proc[4] = 55;
+		if(ADC_proc[0] >= 58 )
+			ADC_proc[0] = 58;
+		if(ADC_proc[4] >= 58)
+			ADC_proc[4] = 58;
 	}
 }
 
