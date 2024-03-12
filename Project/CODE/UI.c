@@ -75,8 +75,8 @@ void refresh_value()//value=填入变量名
 	//page=3
 	value[3][0]= vl53l0x_distance_mm;
 	value[3][1]= Ratio;
-	value[3][2]= Pitch;
-	value[3][3]= 0;
+	value[3][2]= 0;
+	value[3][3]= circle_Out_Flag;
 		
 }
 //                         oled显示函数

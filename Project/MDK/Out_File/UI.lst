@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  UI                                                                 12/03/24  05:54:34  PAGE 1   
+C251 COMPILER V5.60.0,  UI                                                                 12/03/24  22:14:56  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE UI
@@ -66,7 +66,7 @@ stmt  level    source
    55          void refresh_value()//value=填入变量名
    56          {
    57   1              //page=0
-C251 COMPILER V5.60.0,  UI                                                                 12/03/24  05:54:34  PAGE 2   
+C251 COMPILER V5.60.0,  UI                                                                 12/03/24  22:14:56  PAGE 2   
 
    58   1          value[0][0]= ADC_proc[0];
    59   1              value[0][1]= ADC_proc[1];
@@ -88,8 +88,8 @@ stmt  level    source
    75   1              //page=3
    76   1              value[3][0]= vl53l0x_distance_mm;
    77   1              value[3][1]= Ratio;
-   78   1              value[3][2]= Pitch;
-   79   1              value[3][3]= 0;
+   78   1              value[3][2]= 0;
+   79   1              value[3][3]= circle_Out_Flag;
    80   1                      
    81   1      }
    82          //                         oled显示函数
@@ -134,7 +134,7 @@ stmt  level    source
   121          void ui_init(void)
   122          {
   123   1              oled_init();
-C251 COMPILER V5.60.0,  UI                                                                 12/03/24  05:54:34  PAGE 3   
+C251 COMPILER V5.60.0,  UI                                                                 12/03/24  22:14:56  PAGE 3   
 
   124   1              value_name_init();
   125   1              oled_all_static_state();
@@ -152,7 +152,7 @@ stmt  level    source
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =       558     ------
+  code size            =       563     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------

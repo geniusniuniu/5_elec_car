@@ -103,16 +103,16 @@ void main(void)
 				{
 					Turn_PID.Kp = -160;
 					Turn_PID.Kd = -27;
-					Left_Wheel_PID.Kp = 28;
-					Left_Wheel_PID.Ki = 0.77;
-					Right_Wheel_PID.Kp = 28;
-					Right_Wheel_PID.Ki = 0.77;
+					Left_Wheel_PID.Kp = 30;
+					Left_Wheel_PID.Ki = 1.20;
+					Right_Wheel_PID.Kp = 30;
+					Right_Wheel_PID.Ki = 1.20;
 					Exp_Speed = 240;
 				}
 			#endif	
 		/************************************************ 避开路障 ***********************************************/ 	
 //			#if BARRIER_FIELD_STATUS
-//				if(Avoid_ON == 1)			/*接收到最后一个障碍物的标志位后再开启避障*/
+//				if(Avoid_ON == 1)			/*接收到最后一个元素的标志位后再开启避障*/
 //					Barrier_Executed = 0;
 //				else  
 //					Barrier_Executed = 1;
@@ -183,9 +183,9 @@ void main(void)
 				Right_Wheel_PID.PID_Out = 0;
 			}
 		/******************************************** 设置左右PWM *********************************************/ 	
-			if(A == 0 )
+//			if(A == 0 )
 				Left_SetSpeed(Left_Wheel_PID.PID_Out);
-			if(A1 == 0)			
+//			if(A1 == 0)			
 				Right_SetSpeed(Right_Wheel_PID.PID_Out);				
 			Isr_flag_10 = 0;
 		} 
@@ -218,14 +218,14 @@ void Get_Ratio(void)
 	#endif
 		//边界保护
 		if((ADC_proc[0] + ADC_proc[1] < 10) && (ADC_proc[0] + ADC_proc[1] > ADC_proc[3] + ADC_proc[4]))
-			Ratio = 0.4;
+			Ratio = 0.6;
 		if(ADC_proc[0]< 20 && ADC_proc[4] < 5)
-			Ratio = 0.4;
+			Ratio = 0.6;
 		
 		if((ADC_proc[3] + ADC_proc[4] < 10) && (ADC_proc[0] + ADC_proc[1] < ADC_proc[3] + ADC_proc[4]))
-			Ratio = -0.4;
+			Ratio = -0.6;
 		if(ADC_proc[4]< 20 && ADC_proc[0] < 5)
-			Ratio = -0.4;
+			Ratio = -0.6;
 }
 
 void Init_all(void)

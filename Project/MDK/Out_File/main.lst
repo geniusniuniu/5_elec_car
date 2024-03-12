@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  main                                                               12/03/24  06:15:45  PAGE 1   
+C251 COMPILER V5.60.0,  main                                                               12/03/24  22:14:54  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE main
@@ -66,7 +66,7 @@ stmt  level    source
              -***********************/       
    53   2                      ui_show();
    54   2                      KeyValue = GetKey_Value(0);
-C251 COMPILER V5.60.0,  main                                                               12/03/24  06:15:45  PAGE 2   
+C251 COMPILER V5.60.0,  main                                                               12/03/24  22:14:54  PAGE 2   
 
    55   2                      if              (KeyValue == KEY2_PRES)         {page++; if(page >= 3)  page = 3;oled_all_static_state();}              
    56   2                      else if (KeyValue == KEY3_PRES)         {page--; if(page <= 0)  page = 0;oled_all_static_state();}                      
@@ -121,20 +121,20 @@ stmt  level    source
   103   3                                      {
   104   4                                              Turn_PID.Kp = -160;
   105   4                                              Turn_PID.Kd = -27;
-  106   4                                              Left_Wheel_PID.Kp = 28;
-  107   4                                              Left_Wheel_PID.Ki = 0.77;
-  108   4                                              Right_Wheel_PID.Kp = 28;
-  109   4                                              Right_Wheel_PID.Ki = 0.77;
+  106   4                                              Left_Wheel_PID.Kp = 30;
+  107   4                                              Left_Wheel_PID.Ki = 1.20;
+  108   4                                              Right_Wheel_PID.Kp = 30;
+  109   4                                              Right_Wheel_PID.Ki = 1.20;
   110   4                                              Exp_Speed = 240;
   111   4                                      }
   112   3                              #endif  
   113   3                      /************************************************ 避开路障 ****************************************
              -*******/         
   114   3      //                      #if BARRIER_FIELD_STATUS
-  115   3      //                              if(Avoid_ON == 1)                       /*接收到最后一个障碍物的标志位后再开启避障*/
+  115   3      //                              if(Avoid_ON == 1)                       /*接收到最后一个元素的标志位后再开启避障*/
   116   3      //                                      Barrier_Executed = 0;
   117   3      //                              else  
-C251 COMPILER V5.60.0,  main                                                               12/03/24  06:15:45  PAGE 3   
+C251 COMPILER V5.60.0,  main                                                               12/03/24  22:14:54  PAGE 3   
 
   118   3      //                                      Barrier_Executed = 1;
   119   3      //                      #endif                          
@@ -202,7 +202,7 @@ stmt  level    source
   177   3                              PID_Calculate(&Right_Wheel_PID,Exp_Speed_R,Speed_R);
   178   3                              
   179   3                 /********************************************* 驶离赛道，停车 ********************************
-C251 COMPILER V5.60.0,  main                                                               12/03/24  06:15:45  PAGE 4   
+C251 COMPILER V5.60.0,  main                                                               12/03/24  22:14:54  PAGE 4   
 
              -*************/ 
   180   3                              if(ADC_proc[2] && Barrier_Executed == 1) 
@@ -212,9 +212,9 @@ stmt  level    source
   184   4                              }
   185   3                      /******************************************** 设置左右PWM *****************************************
              -****/         
-  186   3                              if(A == 0 )
+  186   3      //                      if(A == 0 )
   187   3                                      Left_SetSpeed(Left_Wheel_PID.PID_Out);
-  188   3                              if(A1 == 0)                     
+  188   3      //                      if(A1 == 0)                     
   189   3                                      Right_SetSpeed(Right_Wheel_PID.PID_Out);                                
   190   3                              Isr_flag_10 = 0;
   191   3                      } 
@@ -247,14 +247,14 @@ stmt  level    source
                        #endif
   219   1                      //边界保护
   220   1                      if((ADC_proc[0] + ADC_proc[1] < 10) && (ADC_proc[0] + ADC_proc[1] > ADC_proc[3] + ADC_proc[4]))
-  221   1                              Ratio = 0.4;
+  221   1                              Ratio = 0.6;
   222   1                      if(ADC_proc[0]< 20 && ADC_proc[4] < 5)
-  223   1                              Ratio = 0.4;
+  223   1                              Ratio = 0.6;
   224   1                      
   225   1                      if((ADC_proc[3] + ADC_proc[4] < 10) && (ADC_proc[0] + ADC_proc[1] < ADC_proc[3] + ADC_proc[4]))
-  226   1                              Ratio = -0.4;
+  226   1                              Ratio = -0.6;
   227   1                      if(ADC_proc[4]< 20 && ADC_proc[0] < 5)
-  228   1                              Ratio = -0.4;
+  228   1                              Ratio = -0.6;
   229   1      }
   230          
   231          void Init_all(void)
@@ -270,7 +270,7 @@ stmt  level    source
   240   1      ////编码器方向引脚初始化
   241   1              gpio_mode(P5_3, GPIO);          
   242   1              gpio_mode(P3_5, GPIO);  
-C251 COMPILER V5.60.0,  main                                                               12/03/24  06:15:45  PAGE 5   
+C251 COMPILER V5.60.0,  main                                                               12/03/24  22:14:54  PAGE 5   
 
   243   1              
   244   1      ////按键引脚初始化
@@ -318,7 +318,7 @@ stmt  level    source
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =      1454     ------
+  code size            =      1442     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------
