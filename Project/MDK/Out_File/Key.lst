@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Key                                                                12/03/24  22:14:56  PAGE 1   
+C251 COMPILER V5.60.0,  Key                                                                13/03/24  22:32:51  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Key
@@ -66,7 +66,7 @@ stmt  level    source
    55          //      {
    56          //              Mode = DISPLAY_MODE;
    57          //              clear_Num++;
-C251 COMPILER V5.60.0,  Key                                                                12/03/24  22:14:56  PAGE 2   
+C251 COMPILER V5.60.0,  Key                                                                13/03/24  22:32:51  PAGE 2   
 
    58          //      }
    59          //      else if(KeyVal == KEY1_PRES)
