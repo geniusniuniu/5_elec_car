@@ -69,14 +69,14 @@ void refresh_value()//value=填入变量名
 	//page=2
 	value[2][0]= Left_Wheel_PID.Kp;
 	value[2][1]= Left_Wheel_PID.Ki;
-	value[2][2]= Left_Wheel_PID.PID_Out;
-	value[2][3]= Right_Wheel_PID.PID_Out;
+	value[2][2]= circle_flag_L;
+	value[2][3]= circle_flag_R;
 	
 	//page=3
 	value[3][0]= vl53l0x_distance_mm;
-	value[3][1]= Ratio;
-	value[3][2]= circle_flag_R;
-	value[3][3]= circle_flag_L;
+	value[3][1]= Sum_Dis1;
+	value[3][2]= Sum_Dis2;
+	value[3][3]= Sum_Angle_C1;
 		
 }
 //                         oled显示函数

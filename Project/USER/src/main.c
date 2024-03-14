@@ -47,7 +47,7 @@ void main(void)
 	Adjust_Val = -180;
 	while(1)
 	{		
-		printf("%.2f,%d,%.2f,%.2f,%.2f,%.2f,%.2f\r\n",Pitch,circle_flag_L,Ratio,0.00,ADC_proc[1],ADC_proc[2],ADC_proc[3]);
+		printf("%.2f,%.2f,%.2f,%.2f,%d,%.2f,%.2f\r\n",Sum_Dis1,Sum_Dis2,Sum_Angle_C1,Ratio,circle_flag_R,ADC_proc[2],ADC_proc[3]);
 //		printf("%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\r\n",ADC_proc[0],ADC_proc[4],ADC_proc[1],ADC_proc[3],Ratio_Mid,Ratio);
 		
 /******************************************** 按键读值**********************************************************************/ 	
@@ -98,17 +98,17 @@ void main(void)
 					Turn_PID.Kd = -2.6;
 					Left_Wheel_PID.Kp = Right_Wheel_PID.Kp = 20;
 					Left_Wheel_PID.Ki = Right_Wheel_PID.Ki = 0.55;
-					Exp_Speed = 330;
+					Exp_Speed = 280;
 				}
 				else   // 拐弯    
 				{
-					Turn_PID.Kp = -180;
-					Turn_PID.Kd = -30;
-					Left_Wheel_PID.Kp = 34;
-					Left_Wheel_PID.Ki = 1.2;
-					Right_Wheel_PID.Kp = 34;
-					Right_Wheel_PID.Ki = 1.2;
-					Exp_Speed = 270;
+					Turn_PID.Kp = -220;  // 5.4
+					Turn_PID.Kd = -32;  // 1.6
+					Left_Wheel_PID.Kp = 40;  // 4
+					Left_Wheel_PID.Ki = 0.8;
+					Right_Wheel_PID.Kp = 40;
+					Right_Wheel_PID.Ki = 0.8;
+					Exp_Speed = 250;
 				}
 			#endif	
 		/************************************************ 避开路障 ***********************************************/ 	
@@ -140,20 +140,25 @@ void main(void)
 //			#endif
 
 //		/************************************************ 圆环判别 ***********************************************/ 
-			if(ADC_proc[2] > 65 && (ADC_proc[3] > 6 || ADC_proc[1] > 6))	//中间横电感识别圆环
+			if(ADC_proc[2] > 67 && (ADC_proc[3] > 6 || ADC_proc[1] > 6))	//中间横电感识别圆环
 			{
 				//x10_ms = 13;  
-				if(ADC_proc[3]-ADC_proc[1] > 3 && circle_flag_L == 0)  //判断左右
+				if(ADC_proc[3] > ADC_proc[1] && circle_flag_L == 0)  //判断左右
 				{ 
+					
 					circle_flag_R = 1;
 				}
-				else if(ADC_proc[1]-ADC_proc[3] > 3 && circle_flag_R == 0)	 					
+				else if(ADC_proc[1] > ADC_proc[3] && circle_flag_R == 0)	 					
 				{
+					x10_ms = 13; 
 					circle_flag_L = 1;
 				}
 			}
-			if(vl53l0x_distance_mm < 400)	
-				Num = 30;
+			if(vl53l0x_finsh_flag)  //一次测距完成
+			{
+				if(vl53l0x_distance_mm < 400)	
+					Num = 50;
+			}
 			if(Num > 0)
 			{
 				circle_flag_R = 0;
@@ -181,7 +186,7 @@ void main(void)
 		
 		/************************************************ 特殊元素降速 ********************************************/ 
 			if( circle_flag_L == 1 || circle_flag_R == 1 || Barrier_Flag2 == 1 || Barrier_Flag1 == 1)  
-				Exp_Speed = 265;
+				Exp_Speed = 260;
 			Exp_Speed_L = Exp_Speed + Turn_PID.PID_Out*0.09;
 			Exp_Speed_R = Exp_Speed - Turn_PID.PID_Out*0.09;
 			
@@ -191,7 +196,7 @@ void main(void)
 			PID_Calculate(&Right_Wheel_PID,Exp_Speed_R,Speed_R);
 			
 	   /********************************************* 驶离赛道，停车 *********************************************/ 
-			if(ADC_proc[0]<5 && ADC_proc[4]<5 && Barrier_Executed == 0) 
+			if(ADC_proc[0]<2 && ADC_proc[4]<2 && Barrier_Executed == 0) 
 			{
 				Left_Wheel_PID.PID_Out = 0;
 				Right_Wheel_PID.PID_Out = 0;

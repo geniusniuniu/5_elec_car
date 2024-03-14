@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  motor                                                              13/03/24  22:32:50  PAGE 1   
+C251 COMPILER V5.60.0,  motor                                                              14/03/24  22:55:17  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE motor
@@ -66,7 +66,7 @@ stmt  level    source
    55   2              }
    56   1              else                             //没有出现异常
    57   1              {
-C251 COMPILER V5.60.0,  motor                                                              13/03/24  22:32:50  PAGE 2   
+C251 COMPILER V5.60.0,  motor                                                              14/03/24  22:55:17  PAGE 2   
 
    58   2                      if(speed >= SPEED_MAX)                  speed = SPEED_MAX; 
    59   2                      else if(speed <= -SPEED_MAX)    speed = -SPEED_MAX;
@@ -134,7 +134,7 @@ stmt  level    source
   121   1      
   122   1              
   123   1              if(P35 == 1)             Speed_R = ctimer_count_read(CTIM0_P34);                //右轮方向读取数值
-C251 COMPILER V5.60.0,  motor                                                              13/03/24  22:32:50  PAGE 3   
+C251 COMPILER V5.60.0,  motor                                                              14/03/24  22:55:17  PAGE 3   
 
   124   1              else                            {Speed_R = ctimer_count_read(CTIM0_P34); Speed_R = -Speed_R;}
   125   1              ctimer_count_clean(CTIM0_P34);                                                                  //清除计数值，开始下一轮计数
@@ -144,7 +144,7 @@ stmt  level    source
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =       589     ------
+  code size            =       598     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------
