@@ -51,12 +51,12 @@ void main(void)
 //		printf("%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\r\n",ADC_proc[0],ADC_proc[4],ADC_proc[1],ADC_proc[3],Ratio_Mid,Ratio);
 		
 /******************************************** 按键读值**********************************************************************/ 	
-		ui_show();
-		KeyValue = GetKey_Value(0);
-		if 		(KeyValue == KEY2_PRES) 	{page++; if(page >= 3)  page = 3;oled_all_static_state();}		
-		else if (KeyValue == KEY3_PRES) 	{page--; if(page <= 0)  page = 0;oled_all_static_state();}			
-		else if (KeyValue == KEY0_PRES) 	Adjust_Val += 1;
-		else if (KeyValue == KEY1_PRES) 	Adjust_Val -= 1;
+//		ui_show();
+//		KeyValue = GetKey_Value(0);
+//		if 		(KeyValue == KEY2_PRES) 	{page++; if(page >= 3)  page = 3;oled_all_static_state();}		
+//		else if (KeyValue == KEY3_PRES) 	{page--; if(page <= 0)  page = 0;oled_all_static_state();}			
+//		else if (KeyValue == KEY0_PRES) 	Adjust_Val += 1;
+//		else if (KeyValue == KEY1_PRES) 	Adjust_Val -= 1;
 	
 		
 /******************************************** 类似中断服务处理 **************************************************************/ 
@@ -102,7 +102,7 @@ void main(void)
 				}
 				else   // 拐弯    
 				{
-					Turn_PID.Kp = -220;  // 5.4
+					Turn_PID.Kp = -210;  // 5.4
 					Turn_PID.Kd = -32;  // 1.6
 					Left_Wheel_PID.Kp = 40;  // 4
 					Left_Wheel_PID.Ki = 0.8;
@@ -140,17 +140,15 @@ void main(void)
 //			#endif
 
 //		/************************************************ 圆环判别 ***********************************************/ 
-			if(ADC_proc[2] > 67 && (ADC_proc[3] > 6 || ADC_proc[1] > 6))	//中间横电感识别圆环
-			{
-				//x10_ms = 13;  
+			if(ADC_proc[2] > 70)	//中间横电感识别圆环
+			{  
 				if(ADC_proc[3] > ADC_proc[1] && circle_flag_L == 0)  //判断左右
 				{ 
-					
 					circle_flag_R = 1;
 				}
 				else if(ADC_proc[1] > ADC_proc[3] && circle_flag_R == 0)	 					
 				{
-					x10_ms = 13; 
+				//    	 x10_ms = 13;
 					circle_flag_L = 1;
 				}
 			}

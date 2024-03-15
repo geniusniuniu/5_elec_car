@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  main                                                               15/03/24  07:44:01  PAGE 1   
+C251 COMPILER V5.60.0,  main                                                               15/03/24  13:16:34  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE main
@@ -66,7 +66,7 @@ stmt  level    source
    53   2      /******************************************** 按键读值***********************************************
              -***********************/       
    54   2                      ui_show();
-C251 COMPILER V5.60.0,  main                                                               15/03/24  07:44:01  PAGE 2   
+C251 COMPILER V5.60.0,  main                                                               15/03/24  13:16:34  PAGE 2   
 
    55   2                      KeyValue = GetKey_Value(0);
    56   2                      if              (KeyValue == KEY2_PRES)         {page++; if(page >= 3)  page = 3;oled_all_static_state();}              
@@ -134,7 +134,7 @@ stmt  level    source
   115   3      //                      #if BARRIER_FIELD_STATUS
   116   3      //                              if(Avoid_ON == 1)                       /*接收到最后一个元素的标志位后再开启避障*/
   117   3      //                                      Barrier_Executed = 0;
-C251 COMPILER V5.60.0,  main                                                               15/03/24  07:44:01  PAGE 3   
+C251 COMPILER V5.60.0,  main                                                               15/03/24  13:16:34  PAGE 3   
 
   118   3      //                              else  
   119   3      //                                      Barrier_Executed = 1;
@@ -162,17 +162,17 @@ stmt  level    source
   141   3      
   142   3      //              /************************************************ 圆环判别 **************************************
              -*********/ 
-  143   3                              if(ADC_proc[2] > 67 && (ADC_proc[3] > 6 || ADC_proc[1] > 6))    //中间横电感识别圆环
+  143   3                              if(ADC_proc[2] > 67 && (ADC_proc[3] > 6|| ADC_proc[1] > 6))     //中间横电感识别圆环
   144   3                              {
-  145   4                                      //x10_ms = 13;  
-  146   4                                      if(ADC_proc[3] > ADC_proc[1] && circle_flag_L == 0)  //判断左右
+  145   4                                      x10_ms = 13;  
+  146   4                                      if(ADC_proc[3] > ADC_proc[1]+1 && circle_flag_L == 0)  //判断左右
   147   4                                      { 
   148   5                                              
   149   5                                              circle_flag_R = 1;
   150   5                                      }
-  151   4                                      else if(ADC_proc[1] > ADC_proc[3] && circle_flag_R == 0)                                                
+  151   4                                      else if(ADC_proc[1] > ADC_proc[3]+1 && circle_flag_R == 0)                                              
   152   4                                      {
-  153   5                                              x10_ms = 13; 
+  153   5                                      //       x10_ms = 13;
   154   5                                              circle_flag_L = 1;
   155   5                                      }
   156   4                              }
@@ -202,7 +202,7 @@ stmt  level    source
   179   3      //                              Ratio = -0.8;
   180   3      //                      }
   181   3                      /************************************************ 转向环计算 *************************************
-C251 COMPILER V5.60.0,  main                                                               15/03/24  07:44:01  PAGE 4   
+C251 COMPILER V5.60.0,  main                                                               15/03/24  13:16:34  PAGE 4   
 
              -*********/         
   182   3                              PID_Calculate(&Turn_PID,Ratio*100,gz/100); 
@@ -270,7 +270,7 @@ stmt  level    source
   240   1                      //边界保护
   241   1      //              if((ADC_proc[0] + ADC_proc[1] < 10) && (ADC_proc[0] + ADC_proc[1] > ADC_proc[3] + ADC_proc[4]))
   242   1      //                      Ratio = 0.6;            
-C251 COMPILER V5.60.0,  main                                                               15/03/24  07:44:01  PAGE 5   
+C251 COMPILER V5.60.0,  main                                                               15/03/24  13:16:34  PAGE 5   
 
   243   1      //              if((ADC_proc[3] + ADC_proc[4] < 10) && (ADC_proc[0] + ADC_proc[1] < ADC_proc[3] + ADC_proc[4]))
   244   1      //                      Ratio = -0.6;
@@ -337,9 +337,9 @@ stmt  level    source
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =      1278     ------
+  code size            =      1294     ------
   ecode size           =    ------     ------
-C251 COMPILER V5.60.0,  main                                                               15/03/24  07:44:01  PAGE 6   
+C251 COMPILER V5.60.0,  main                                                               15/03/24  13:16:34  PAGE 6   
 
   data size            =    ------     ------
   idata size           =    ------     ------

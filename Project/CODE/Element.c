@@ -130,10 +130,17 @@ void Elem_Circle_L(float Speed,float Gyro_Z)
 	static float Sum_Dis1 = 0;
 	static float Sum_Dis2 = 0;
 	static float Sum_Angle_C1 = 0;
+	
+	if(Delay_10Ms > 0)
+	{
+		circle_flag_L = 0;
+		Delay_10Ms--;
+		return;        //发生误判，强制退出
+	}
 	if(circle_flag_L == 1)  //识别圆环标志位
 	{	
 		Gyro_Z = (Gyro_Z*2000)/32768;
-		if(Sum_Dis2>3500)
+		if(Sum_Dis2>3000)
 		{
 			Sum_Angle_C1 += Gyro_Z*0.005;
 			if(Sum_Angle_C1 < 60)
@@ -148,15 +155,18 @@ void Elem_Circle_L(float Speed,float Gyro_Z)
 		if(Sum_Angle_C1 > ROUND_L)
 		{
 			Sum_Dis1+=Speed;
-			if(Sum_Dis1 > 8000 && Sum_Dis1 <= 12000)		
-				Ratio = -0.12;
-			else if(Sum_Dis1 > 12000)
+			if(Sum_Dis1 > 5500 && Sum_Dis1 <= 10000)
+				Ratio = -0.2;
+			else if(Sum_Dis1 > 10000)
 			{
-//				x10_ms = 13;
 				Sum_Dis1=0;
 				Sum_Dis2=0;
 				Sum_Angle_C1=0;
 				circle_flag_L=0;
+			}
+			if(ADC_proc[2] > 65)   //预出环 防止再次误判
+			{
+				Delay_10Ms = 50;   //延时500ms
 			}
 		}
 		
@@ -181,10 +191,17 @@ void Elem_Circle_R(float Speed,float Gyro_Z)
 //	static float Sum_Dis1 = 0;
 //	static float Sum_Dis2 = 0;
 //	static float Sum_Angle_C1 = 0;
+	static char Delay_10Ms;
+	if(Delay_10Ms > 0)
+	{
+		circle_flag_R = 0;
+		Delay_10Ms--;
+		return;
+	}
 	if(circle_flag_R == 1)  //识别圆环标志位
 	{	
 		Gyro_Z = (Gyro_Z*2000)/32768;
-		if(Sum_Dis2>3500)
+		if(Sum_Dis2>3000)
 		{
 			Sum_Angle_C1 += Gyro_Z*0.005;
 			if(Sum_Angle_C1 > -40)
@@ -197,16 +214,18 @@ void Elem_Circle_R(float Speed,float Gyro_Z)
 		if(Sum_Angle_C1 < ROUND_R)   //预出环
 		{
 			Sum_Dis1 += Speed;
-			if(Sum_Dis1 > 3500 && Sum_Dis1 <= 8000)
-				Ratio = -0.2;
-			else if(Sum_Dis1 > 8000 && Sum_Dis1 <= 12500)		
-				Ratio = 0.09;
+			if(Sum_Dis1 > 5500 && Sum_Dis1 <= 12500)
+				Ratio = 0.2;
 			else if(Sum_Dis1 > 12500)
 			{
 				Sum_Dis1=0;
 				Sum_Dis2=0;
 				Sum_Angle_C1=0;
 				circle_flag_R=0;
+			}
+			if(ADC_proc[2] > 65)   //预出环 防止再次误判
+			{
+				Delay_10Ms = 50;   //延时500ms
 			}
 		}
 	}
