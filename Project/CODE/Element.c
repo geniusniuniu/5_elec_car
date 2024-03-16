@@ -19,9 +19,6 @@ char delay_10ms = 0;
 //环岛标志位
 char circle_flag_L = 0;  // 左右环岛识别建立不同标志位
 char circle_flag_R = 0;
-char circle_In_Flag = 0;
-char circle_Out_Flag = 0;
-char circle_Force_Flag = 0;  //强迫出环标志位
 
 //避障相关标志位
 char Barrier_Flag1=0;
@@ -89,7 +86,7 @@ void Elem_Barrier(float Gyro_Z)
 		Gyro_Z = (Gyro_Z*2000)/32768;	
 		if(Barrier_Flag1==1)
 		{
-			Ratio = 0.48 ;			//直接更改期望值
+			Ratio = 0.48;			//直接更改期望值
 			Sum_Angle += Gyro_Z*0.005;
 			
 		}
@@ -130,44 +127,37 @@ void Elem_Circle_L(float Speed,float Gyro_Z)
 	static float Sum_Dis1 = 0;
 	static float Sum_Dis2 = 0;
 	static float Sum_Angle_C1 = 0;
-	
+	static char Delay_10Ms = 0;
 	if(Delay_10Ms > 0)
 	{
 		circle_flag_L = 0;
-		Delay_10Ms--;
+		circle_flag_R = 0;
+		Ratio -= 0.2;
+		Delay_10Ms --;
 		return;        //发生误判，强制退出
 	}
 	if(circle_flag_L == 1)  //识别圆环标志位
 	{	
 		Gyro_Z = (Gyro_Z*2000)/32768;
-		if(Sum_Dis2>3000)
+		if(Sum_Dis2>DIS_ROUND_IN)
 		{
 			Sum_Angle_C1 += Gyro_Z*0.005;
-			if(Sum_Angle_C1 < 60)
-			{
+			if(Sum_Angle_C1 < 80)
 				Ratio = 0.52;
-			}
 		}
 		else
-		{
 			Sum_Dis2+=Speed;
-		}
-		if(Sum_Angle_C1 > ROUND_L)
+		if(ADC_proc[2] > 66)   //预出环 防止再次误判
 		{
-			Sum_Dis1+=Speed;
-			if(Sum_Dis1 > 5500 && Sum_Dis1 <= 10000)
-				Ratio = -0.2;
-			else if(Sum_Dis1 > 10000)
+			Sum_Dis1 += Speed;
+			if(Sum_Dis1 > DIS_ROUND_OUT)
 			{
 				Sum_Dis1=0;
 				Sum_Dis2=0;
 				Sum_Angle_C1=0;
-				circle_flag_L=0;
+				circle_flag_R=0;
 			}
-			if(ADC_proc[2] > 65)   //预出环 防止再次误判
-			{
-				Delay_10Ms = 50;   //延时500ms
-			}
+			Delay_10Ms = 100;   //延时1000ms
 		}
 		
 				//实验室右环岛是最后一个特殊元素
@@ -191,42 +181,37 @@ void Elem_Circle_R(float Speed,float Gyro_Z)
 //	static float Sum_Dis1 = 0;
 //	static float Sum_Dis2 = 0;
 //	static float Sum_Angle_C1 = 0;
-	static char Delay_10Ms;
+	static char Delay_10Ms = 0;
 	if(Delay_10Ms > 0)
 	{
 		circle_flag_R = 0;
+		circle_flag_L = 0;
+		Ratio += 0.2;
 		Delay_10Ms--;
 		return;
 	}
 	if(circle_flag_R == 1)  //识别圆环标志位
 	{	
 		Gyro_Z = (Gyro_Z*2000)/32768;
-		if(Sum_Dis2>3000)
+		if(Sum_Dis2>DIS_ROUND_IN)
 		{
 			Sum_Angle_C1 += Gyro_Z*0.005;
-			if(Sum_Angle_C1 > -40)
-			{
-				Ratio = -0.47;
-			}
+			if(Sum_Angle_C1 > -80)
+				Ratio = -0.52;
 		}
 		else
 			Sum_Dis2 += Speed;
-		if(Sum_Angle_C1 < ROUND_R)   //预出环
+		if(ADC_proc[2] > 66)   //预出环 防止再次误判
 		{
 			Sum_Dis1 += Speed;
-			if(Sum_Dis1 > 5500 && Sum_Dis1 <= 12500)
-				Ratio = 0.2;
-			else if(Sum_Dis1 > 12500)
+			if(Sum_Dis1 > DIS_ROUND_OUT)
 			{
 				Sum_Dis1=0;
 				Sum_Dis2=0;
 				Sum_Angle_C1=0;
 				circle_flag_R=0;
 			}
-			if(ADC_proc[2] > 65)   //预出环 防止再次误判
-			{
-				Delay_10Ms = 50;   //延时500ms
-			}
+			Delay_10Ms = 100;   //延时1000ms
 		}
 	}
 }

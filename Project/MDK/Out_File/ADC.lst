@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  ADC                                                                14/03/24  22:55:17  PAGE 1   
+C251 COMPILER V5.60.0,  ADC                                                                16/03/24  22:11:05  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE ADC
@@ -64,20 +64,16 @@ stmt  level    source
    53   2                      else if(ADC_proc[k] <= 2)               ADC_proc[k] = 2;        //对电感值进行限幅处理
    54   2      
    55   2                      ADC_proc[k] = 100*(ADC_proc[k]/200);            //归一化,将电感值限制在0~100之间                
-   56   2                      if(ADC_proc[0] >= 58 )
-   57   2                              ADC_proc[0] = 58;
-C251 COMPILER V5.60.0,  ADC                                                                14/03/24  22:55:17  PAGE 2   
+   56   2              }
+   57   1      }
+C251 COMPILER V5.60.0,  ADC                                                                16/03/24  22:11:05  PAGE 2   
 
-   58   2                      if(ADC_proc[4] >= 58)
-   59   2                              ADC_proc[4] = 58;
-   60   2              }
-   61   1      }
-   62          
+   58          
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =       410     ------
+  code size            =       374     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------

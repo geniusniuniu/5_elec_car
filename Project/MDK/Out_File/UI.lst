@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  UI                                                                 15/03/24  02:54:32  PAGE 1   
+C251 COMPILER V5.60.0,  UI                                                                 16/03/24  22:58:12  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE UI
@@ -24,7 +24,7 @@ stmt  level    source
    13          extern float Ratio_Mid;
    14          extern float Exp_Speed;
    15          extern float sum;
-   16          
+   16          extern float Diff;
    17          uint8 page=0;
    18          float value[4][7];
    19          char value_name[4][7][7];
@@ -66,9 +66,9 @@ stmt  level    source
    55          void refresh_value()//value=填入变量名
    56          {
    57   1              //page=0
-C251 COMPILER V5.60.0,  UI                                                                 15/03/24  02:54:32  PAGE 2   
+C251 COMPILER V5.60.0,  UI                                                                 16/03/24  22:58:12  PAGE 2   
 
-   58   1          value[0][0]= ADC_proc[0];
+   58   1          value[0][0]= Diff;//ADC_proc[0];
    59   1              value[0][1]= ADC_proc[1];
    60   1              value[0][2]= ADC_proc[2];
    61   1              value[0][3]= ADC_proc[3];
@@ -134,7 +134,7 @@ stmt  level    source
   121          void ui_init(void)
   122          {
   123   1              oled_init();
-C251 COMPILER V5.60.0,  UI                                                                 15/03/24  02:54:32  PAGE 3   
+C251 COMPILER V5.60.0,  UI                                                                 16/03/24  22:58:12  PAGE 3   
 
   124   1              value_name_init();
   125   1              oled_all_static_state();

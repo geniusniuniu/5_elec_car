@@ -13,7 +13,7 @@ extern float Ratio;
 extern float Ratio_Mid;
 extern float Exp_Speed;
 extern float sum;
-
+extern float Diff;
 uint8 page=0;
 float value[4][7];
 char value_name[4][7][7];
@@ -55,7 +55,7 @@ void value_name_init(void)//将name改为想要的参数名，但“ ”中的总长度不要变
 void refresh_value()//value=填入变量名
 {
 	//page=0
-    value[0][0]= ADC_proc[0];
+    value[0][0]= Diff;//ADC_proc[0];
 	value[0][1]= ADC_proc[1];
 	value[0][2]= ADC_proc[2];
 	value[0][3]= ADC_proc[3];

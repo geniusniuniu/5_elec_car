@@ -53,10 +53,6 @@ void ADC_GetValue(void)
 		else if(ADC_proc[k] <= 2)		ADC_proc[k] = 2;	//对电感值进行限幅处理
 
 		ADC_proc[k] = 100*(ADC_proc[k]/200);		//归一化,将电感值限制在0~100之间		
-		if(ADC_proc[0] >= 58 )
-			ADC_proc[0] = 58;
-		if(ADC_proc[4] >= 58)
-			ADC_proc[4] = 58;
 	}
 }
 

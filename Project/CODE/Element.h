@@ -2,18 +2,21 @@
 #define __Element_H
 #include "PID.h"
 
-#define TRACE_METHOD1 0  //单向巡线
-#define TRACE_METHOD2 1  //向量法巡线
+#define TRACE_METHOD1 		0  		//单向巡线
+#define TRACE_METHOD2 		1  		//向量法巡线
 
 
 
-#define ROUND_R 		-128  //车转一圈陀螺仪角度积分
-#define ROUND_L 		 128  
+#define ROUND_R 			-128  	//车转一圈陀螺仪角度积分
+#define ROUND_L 		 	128  
+
+#define DIS_ROUND_IN        3000
+#define DIS_ROUND_OUT       6000
 
 #define BARRIER_FIELD_STATUS	0	// 可以根据赛道状态改变，1表示赛道周围空旷，可以常开避障
 									// 0 表示赛道周围多干扰，只有经过障碍前
 									// 最后一个特殊元素在开启避障
-#define BARRIER_DIR 1 //0表示向左避障，1表示向右避障
+#define BARRIER_DIR 		1 		//0表示向左避障，1表示向右避障
 									
 									
 extern char Up_Down_Flag;
