@@ -41,14 +41,14 @@ void value_name_init(void)//将name改为想要的参数名，但“ ”中的总长度不要变
 	//page=2
 	strcpy(value_name[2][0],"Sp_Kp3");
 	strcpy(value_name[2][1],"Sp_Ki ");
-	strcpy(value_name[2][2],"Lpwm  ");
-	strcpy(value_name[2][3],"Rpwm  ");
+	strcpy(value_name[2][2],"Circle");
+	strcpy(value_name[2][3],"Vl_Dis");
 	
 	//page=3
-	strcpy(value_name[3][0],"Vl_Dis");
-	strcpy(value_name[3][1],"Ratio ");
-	strcpy(value_name[3][2],"Pitch ");
-	strcpy(value_name[3][3],"Ra_Sum");
+	strcpy(value_name[3][0],"Ratio ");
+	strcpy(value_name[3][1],"Dis1  ");
+	strcpy(value_name[3][2],"Dis2  ");
+	strcpy(value_name[3][3],"An_Sum");
 
 }
 
@@ -69,11 +69,11 @@ void refresh_value()//value=填入变量名
 	//page=2
 	value[2][0]= Left_Wheel_PID.Kp;
 	value[2][1]= Left_Wheel_PID.Ki;
-	value[2][2]= circle_flag_L;
-	value[2][3]= circle_flag_R;
+	value[2][2]= Circle_Flag;
+	value[2][3]= vl53l0x_distance_mm;
 	
 	//page=3
-	value[3][0]= vl53l0x_distance_mm;
+	value[3][0]= Ratio;
 	value[3][1]= Sum_Dis1;
 	value[3][2]= Sum_Dis2;
 	value[3][3]= Sum_Angle_C1;

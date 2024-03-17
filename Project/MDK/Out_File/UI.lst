@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  UI                                                                 16/03/24  22:58:12  PAGE 1   
+C251 COMPILER V5.60.0,  UI                                                                 17/03/24  15:02:53  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE UI
@@ -52,21 +52,21 @@ stmt  level    source
    41   1              //page=2
    42   1              strcpy(value_name[2][0],"Sp_Kp3");
    43   1              strcpy(value_name[2][1],"Sp_Ki ");
-   44   1              strcpy(value_name[2][2],"Lpwm  ");
-   45   1              strcpy(value_name[2][3],"Rpwm  ");
+   44   1              strcpy(value_name[2][2],"Circle");
+   45   1              strcpy(value_name[2][3],"Vl_Dis");
    46   1              
    47   1              //page=3
-   48   1              strcpy(value_name[3][0],"Vl_Dis");
-   49   1              strcpy(value_name[3][1],"Ratio ");
-   50   1              strcpy(value_name[3][2],"Pitch ");
-   51   1              strcpy(value_name[3][3],"Ra_Sum");
+   48   1              strcpy(value_name[3][0],"Ratio ");
+   49   1              strcpy(value_name[3][1],"Dis1  ");
+   50   1              strcpy(value_name[3][2],"Dis2  ");
+   51   1              strcpy(value_name[3][3],"An_Sum");
    52   1      
    53   1      }
    54          
    55          void refresh_value()//value=填入变量名
    56          {
    57   1              //page=0
-C251 COMPILER V5.60.0,  UI                                                                 16/03/24  22:58:12  PAGE 2   
+C251 COMPILER V5.60.0,  UI                                                                 17/03/24  15:02:53  PAGE 2   
 
    58   1          value[0][0]= Diff;//ADC_proc[0];
    59   1              value[0][1]= ADC_proc[1];
@@ -82,11 +82,11 @@ stmt  level    source
    69   1              //page=2
    70   1              value[2][0]= Left_Wheel_PID.Kp;
    71   1              value[2][1]= Left_Wheel_PID.Ki;
-   72   1              value[2][2]= circle_flag_L;
-   73   1              value[2][3]= circle_flag_R;
+   72   1              value[2][2]= Circle_Flag;
+   73   1              value[2][3]= vl53l0x_distance_mm;
    74   1              
    75   1              //page=3
-   76   1              value[3][0]= vl53l0x_distance_mm;
+   76   1              value[3][0]= Ratio;
    77   1              value[3][1]= Sum_Dis1;
    78   1              value[3][2]= Sum_Dis2;
    79   1              value[3][3]= Sum_Angle_C1;
@@ -134,7 +134,7 @@ stmt  level    source
   121          void ui_init(void)
   122          {
   123   1              oled_init();
-C251 COMPILER V5.60.0,  UI                                                                 16/03/24  22:58:12  PAGE 3   
+C251 COMPILER V5.60.0,  UI                                                                 17/03/24  15:02:53  PAGE 3   
 
   124   1              value_name_init();
   125   1              oled_all_static_state();
@@ -152,7 +152,7 @@ stmt  level    source
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =       570     ------
+  code size            =       560     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------

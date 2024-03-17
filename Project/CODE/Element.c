@@ -17,8 +17,8 @@ char Up_Down_Flag = 0;
 char delay_10ms = 0;
 
 //环岛标志位
-char circle_flag_L = 0;  // 左右环岛识别建立不同标志位
-char circle_flag_R = 0;
+float Circle_Flag = 0;  // 左右环岛标志位
+
 
 //避障相关标志位
 char Barrier_Flag1=0;
@@ -120,63 +120,10 @@ void Elem_Barrier(float Gyro_Z)
 }
 
 
-
-//进行左环岛识别并进出左环岛
-void Elem_Circle_L(float Speed,float Gyro_Z)
-{
-	static float Sum_Dis1 = 0;
-	static float Sum_Dis2 = 0;
-	static float Sum_Angle_C1 = 0;
-	static char Delay_10Ms = 0;
-	if(Delay_10Ms > 0)
-	{
-		circle_flag_L = 0;
-		circle_flag_R = 0;
-		Ratio -= 0.2;
-		Delay_10Ms --;
-		return;        //发生误判，强制退出
-	}
-	if(circle_flag_L == 1)  //识别圆环标志位
-	{	
-		Gyro_Z = (Gyro_Z*2000)/32768;
-		if(Sum_Dis2>DIS_ROUND_IN)
-		{
-			Sum_Angle_C1 += Gyro_Z*0.005;
-			if(Sum_Angle_C1 < 80)
-				Ratio = 0.52;
-		}
-		else
-			Sum_Dis2+=Speed;
-		if(ADC_proc[2] > 66)   //预出环 防止再次误判
-		{
-			Sum_Dis1 += Speed;
-			if(Sum_Dis1 > DIS_ROUND_OUT)
-			{
-				Sum_Dis1=0;
-				Sum_Dis2=0;
-				Sum_Angle_C1=0;
-				circle_flag_R=0;
-			}
-			Delay_10Ms = 100;   //延时1000ms
-		}
-		
-				//实验室右环岛是最后一个特殊元素
-				//如果有多个重复元素，再置一个记数标志位
-				//Element_Num 
-				//if(Element_Num == x) //重复元素全部走完
-//				Avoid_ON == 1	
-		
-//如果误入环岛，也需要正常出去	***************************************************************************/
-	}
-}
-
-
-
 float Sum_Dis1 = 0;
 float Sum_Dis2 = 0;
 float Sum_Angle_C1 = 0;
-//进行右环岛识别并进出右环岛
-void Elem_Circle_R(float Speed,float Gyro_Z)
+void Elem_Circle(float Speed,float Gyro_Z)
 {
 //	static float Sum_Dis1 = 0;
 //	static float Sum_Dis2 = 0;
@@ -184,36 +131,146 @@ void Elem_Circle_R(float Speed,float Gyro_Z)
 	static char Delay_10Ms = 0;
 	if(Delay_10Ms > 0)
 	{
-		circle_flag_R = 0;
-		circle_flag_L = 0;
-		Ratio += 0.2;
-		Delay_10Ms--;
-		return;
+		Circle_Flag = 0;
+		Ratio -= 0.2;
+		Delay_10Ms --;
+		return;        //发生误判，退出函数
 	}
-	if(circle_flag_R == 1)  //识别圆环标志位
-	{	
+	if(Circle_Flag)
+	{
 		Gyro_Z = (Gyro_Z*2000)/32768;
-		if(Sum_Dis2>DIS_ROUND_IN)
+		if(Sum_Dis1>DIS_ROUND_IN)
 		{
 			Sum_Angle_C1 += Gyro_Z*0.005;
-			if(Sum_Angle_C1 > -80)
-				Ratio = -0.52;
+			if(Sum_Angle_C1 < 30 && Circle_Flag == LEFT_CIRCLE)
+				Ratio = 0.5;
+			if(Sum_Angle_C1 > -30 && Circle_Flag == RIGHT_CIRCLE)
+				Ratio = -0.5;
 		}
 		else
-			Sum_Dis2 += Speed;
-		if(ADC_proc[2] > 66)   //预出环 防止再次误判
+			Sum_Dis1+=Speed;
+		if(Sum_Angle_C1 > ROUND_L || Sum_Angle_C1 < ROUND_R )
 		{
-			Sum_Dis1 += Speed;
-			if(Sum_Dis1 > DIS_ROUND_OUT)
+			if(ADC_proc[2] > 65)   //预出环 防止再次误判
 			{
-				Sum_Dis1=0;
-				Sum_Dis2=0;
-				Sum_Angle_C1=0;
-				circle_flag_R=0;
+				Sum_Dis2 += Speed;
+				if(Sum_Dis2 > DIS_ROUND_OUT)
+				{
+					Sum_Dis1 = 0;
+					Sum_Dis2 = 0;
+					Sum_Angle_C1 = 0;
+					Circle_Flag = 0;
+				}
+				Delay_10Ms = 100;   //延时1000ms
 			}
-			Delay_10Ms = 100;   //延时1000ms
 		}
 	}
 }
+
+
+
+
+
+////进行左环岛识别并进出左环岛
+//void Elem_Circle_L(float Speed,float Gyro_Z)
+//{
+//	static float Sum_Dis1 = 0;
+//	static float Sum_Dis2 = 0;
+//	static float Sum_Angle_C1 = 0;
+//	static char Delay_10Ms = 0;
+//	if(Delay_10Ms > 0)
+//	{
+//		circle_flag_L = 0;
+//		circle_flag_R = 0;
+//		Ratio -= 0.2;
+//		Delay_10Ms --;
+//		return;        //发生误判，强制退出
+//	}
+
+//	if(circle_flag_L == 1)  //识别圆环标志位
+//	{	
+//		Gyro_Z = (Gyro_Z*2000)/32768;
+//		if(Sum_Dis2>DIS_ROUND_IN)
+//		{
+//			Sum_Angle_C1 += Gyro_Z*0.005;
+//			if(Sum_Angle_C1 < 80)
+//				Ratio = 0.52;
+//		}
+//		else
+//			Sum_Dis2+=Speed;
+//		if(Sum_Angle_C1 > ROUND_L)
+//		{
+//			if(ADC_proc[2] > 66)   //预出环 防止再次误判
+//			{
+//				Sum_Dis1 += Speed;
+//				if(Sum_Dis1 > DIS_ROUND_OUT)
+//				{
+//					Sum_Dis1=0;
+//					Sum_Dis2=0;
+//					Sum_Angle_C1=0;
+//					circle_flag_R=0;
+//				}
+//				Delay_10Ms = 100;   //延时1000ms
+//			}
+//		}
+//		
+//				//实验室右环岛是最后一个特殊元素
+//				//如果有多个重复元素，再置一个记数标志位
+//				//Element_Num 
+//				//if(Element_Num == x) //重复元素全部走完
+////				Avoid_ON == 1	
+//		
+////如果误入环岛，也需要正常出去	***************************************************************************/
+//	}
+//}
+
+
+
+//float Sum_Dis1 = 0;
+//float Sum_Dis2 = 0;
+//float Sum_Angle_C1 = 0;
+////进行右环岛识别并进出右环岛
+//void Elem_Circle_R(float Speed,float Gyro_Z)
+//{
+////	static float Sum_Dis1 = 0;
+////	static float Sum_Dis2 = 0;
+////	static float Sum_Angle_C1 = 0;
+//	static char Delay_10Ms = 0;
+//	if(Delay_10Ms > 0)
+//	{
+//		circle_flag_R = 0;
+//		circle_flag_L = 0;
+//		Ratio += 0.2;
+//		Delay_10Ms--;
+//		return;
+//	}
+//	if(circle_flag_R == 1)  //识别圆环标志位
+//	{	
+//		Gyro_Z = (Gyro_Z*2000)/32768;
+//		if(Sum_Dis2>DIS_ROUND_IN)
+//		{
+//			Sum_Angle_C1 += Gyro_Z*0.005;
+//			if(Sum_Angle_C1 > -80)
+//				Ratio = -0.52;
+//		}
+//		else
+//			Sum_Dis2 += Speed;
+//		if(Sum_Angle_C1 < ROUND_R)
+	//	{
+	//		if(ADC_proc[2] > 66)   //预出环 防止再次误判
+	//		{
+	//			Sum_Dis1 += Speed;
+	//			if(Sum_Dis1 > DIS_ROUND_OUT)
+	//			{
+	//				Sum_Dis1=0;
+	//				Sum_Dis2=0;
+	//				Sum_Angle_C1=0;
+	//				circle_flag_R=0;
+	//			}
+	//			Delay_10Ms = 100;   //延时1000ms
+	//		}
+//		}
+//	}
+//}
 
 

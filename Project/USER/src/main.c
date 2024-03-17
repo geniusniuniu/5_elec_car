@@ -35,7 +35,7 @@ float Exp_Speed_R = 0;
 float Exp_Speed = 200;
 float Adjust_Val = 0;
 
-char Num = 0;
+char Num1 = 0;
 
 void Init_all(void);
 void Get_Ratio(void);
@@ -47,7 +47,7 @@ void main(void)
 	Adjust_Val = -180;
 	while(1)
 	{		
-		printf("%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\r\n",Diff,Right_Wheel_PID.PID_Out,sum_L,sum_R,Ratio,Exp_Speed_L,Exp_Speed_R);
+		printf("%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\r\n",ADC_proc[2],ADC_proc[0],ADC_proc[4],Circle_Flag,Ratio,Exp_Speed_L,Exp_Speed_R);
 //		printf("%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\r\n",ADC_proc[0],ADC_proc[4],ADC_proc[1],ADC_proc[3],Ratio_Mid,Ratio);
 //		printf("%.2f,%.2f\r\n",Speed_L,Speed_R);
 /******************************************** 按键读值**********************************************************************/ 	
@@ -68,6 +68,7 @@ void main(void)
 			Get_Ratio();
 			
 		/************************************************ 直道弯道判别 ********************************************/ 
+			
 			#if TRACE_METHOD1  //单向巡线
 				if(Ratio > -0.16 && Ratio < 0.16) //直线
 				{
@@ -102,17 +103,19 @@ void main(void)
 				}
 				else   // 拐弯    
 				{
-					Turn_PID.Kp = -180;  // 5.4
-					Turn_PID.Kd = -30;  // 1.6
-					Left_Wheel_PID.Kp = 40;  // 4
+					Turn_PID.Kp = -200;  // 5.4
+					Turn_PID.Kd = -31;  // 1.6
+					Left_Wheel_PID.Kp = 36;  // 4
 					Left_Wheel_PID.Ki = 0.8;
-					Right_Wheel_PID.Kp = 40;
+					Right_Wheel_PID.Kp = 36;
 					Right_Wheel_PID.Ki = 0.8;
 					Exp_Speed = 250;
 				}
 			#endif	
+				
 		/************************************************ 避开路障 ***********************************************/ 	
-//			#if BARRIER_FIELD_STATUS
+//			
+//				#if BARRIER_FIELD_STATUS
 //				if(Avoid_ON == 1)			/*接收到最后一个元素的标志位后再开启避障*/
 //					Barrier_Executed = 0;
 //				else  
@@ -140,52 +143,43 @@ void main(void)
 //			#endif
 
 //		/************************************************ 圆环判别 ***********************************************/ 
-			if(ADC_proc[2] > 67)	//中间横电感识别圆环
+			
+			if(ADC_proc[2] > 65)	//中间横电感识别圆环
 			{  
-				
-				if(Diff < 0 && circle_flag_L == 0)  //判断左右
+				  x10_ms = 13;
+				if((ADC_proc[0] < ADC_proc[4]) && Circle_Flag == 0)  //判断左右
 				{ 
-					x10_ms = 13;
-					circle_flag_R = 1;
+				//	x10_ms = 13;
+					Circle_Flag = RIGHT_CIRCLE;
 				}
-				else if(Diff > 0 && circle_flag_R == 0)	 					
+				else if((ADC_proc[0] > ADC_proc[4]) && Circle_Flag == 0)	 					
 				{
-				    x10_ms = 13;
-					circle_flag_L = 1;
+				//    x10_ms = 13;
+					Circle_Flag = LEFT_CIRCLE;
 				}
 			}
 			if(vl53l0x_finsh_flag)  //一次测距完成
 			{
-				if(vl53l0x_distance_mm < 400)	
-					Num = 50;
+				if(vl53l0x_distance_mm < 450)	
+					Num1 = 50;
 			}
-			if(Num > 0)
+			if(Num1 > 0)
 			{
-				circle_flag_R = 0;
-				circle_flag_L = 0;
-				Num--;
+				Circle_Flag = 0;
+				Num1--;
 			}
-			Elem_Circle_L((Speed_L + Speed_R)/2,gz);	
-			Elem_Circle_R((Speed_L + Speed_R)/2,gz);
-		/************************************************ 直角弯道 ************************************************/	
-//			if(ADC_proc[0]< 20 && ADC_proc[1] > 5 && ADC_proc[2] < 40)
-//			{     //////////////特征值有问题/////////////
-//				Exp_Speed = 225;
-//				Ratio = 0.8;
-//			}
-//			else if(ADC_proc[4]< 20 && ADC_proc[3] > 5 && ADC_proc[2] < 40)
-//			{
-//				Exp_Speed = 225;
-//				Ratio = -0.8;
-//			}
+			Elem_Circle((Speed_L + Speed_R)/2,gz);	
+			
 		/************************************************ 转向环计算 **********************************************/ 	
+			
 			PID_Calculate(&Turn_PID,Ratio*100,gz/100); 
 			Limit_Out(&Turn_PID.PID_Out,-5000,5000);
+			
 		/************************************************ 上下坡道 ************************************************/ 
 			Elem_Up_Down(Pitch,gy);		
 		
 		/************************************************ 特殊元素降速 ********************************************/ 
-			if( circle_flag_L == 1 || circle_flag_R == 1 || Barrier_Flag2 == 1 || Barrier_Flag1 == 1)  
+			if( Circle_Flag != 0 || Barrier_Flag2 == 1 || Barrier_Flag1 == 1)  
 				Exp_Speed = 260;
 			Exp_Speed_L = Exp_Speed + Turn_PID.PID_Out*0.09;
 			Exp_Speed_R = Exp_Speed - Turn_PID.PID_Out*0.09;
@@ -243,9 +237,7 @@ void Get_Ratio(void)
 //			Ratio = 0.6;		
 //		if((ADC_proc[3] + ADC_proc[4] < 10) && (ADC_proc[0] + ADC_proc[1] < ADC_proc[3] + ADC_proc[4]))
 //			Ratio = -0.6;
-//		
-	
-	Limit_Out(&Ratio,-0.81,0.81);
+//	
 }
 
 void Init_all(void)

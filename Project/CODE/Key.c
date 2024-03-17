@@ -47,16 +47,3 @@ uint8 GetKey_Value(uint8 mode)
 }
 
 
-//void Adjust_Mode(void)
-//{
-//	int KeyVal ;
-//	KeyVal= GetKey_Value(0);
-//	if(KeyVal == KEY0_PRES)
-//	{
-//		Mode = DISPLAY_MODE;
-//		clear_Num++;
-//	}
-//	else if(KeyVal == KEY1_PRES)
-//		Mode = ADJUST_PARAM_MODE;
-//}
-

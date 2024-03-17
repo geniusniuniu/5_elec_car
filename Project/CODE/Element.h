@@ -6,9 +6,11 @@
 #define TRACE_METHOD2 		1  		//向量法巡线
 
 
+#define RIGHT_CIRCLE		2
+#define LEFT_CIRCLE			1
 
-#define ROUND_R 			-128  	//车转一圈陀螺仪角度积分
-#define ROUND_L 		 	128  
+#define ROUND_R 			-120  	//车转一圈陀螺仪角度积分
+#define ROUND_L 		 	120  
 
 #define DIS_ROUND_IN        3000
 #define DIS_ROUND_OUT       6000
@@ -34,15 +36,13 @@ extern float Sum_Dis1;
 extern float Sum_Dis2;
 extern float Sum_Angle_C1;
 
-extern char circle_flag_L;
-extern char circle_flag_R;
-extern char circle_In_Flag;
-extern char circle_Out_Flag;
-extern char circle_Force_Flag;
+extern float Circle_Flag;
+//extern char circle_flag_R;
+
 
 void Elem_Up_Down(float Angle,float Gyro);  
-void Elem_Circle_R(float Speed,float Gyro_Z);
-void Elem_Circle_L(float Speed,float Gyro_Z);
+//void Elem_Circle_R(float Speed,float Gyro_Z);
+void Elem_Circle(float Speed,float Gyro_Z);
 void Elem_Barrier(float Gyro_Z);
 
 #endif

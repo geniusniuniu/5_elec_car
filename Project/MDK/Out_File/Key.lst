@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Key                                                                16/03/24  22:11:06  PAGE 1   
+C251 COMPILER V5.60.0,  Key                                                                17/03/24  14:44:39  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Key
@@ -58,21 +58,6 @@ stmt  level    source
    47   1      }
    48          
    49          
-   50          //void Adjust_Mode(void)
-   51          //{
-   52          //      int KeyVal ;
-   53          //      KeyVal= GetKey_Value(0);
-   54          //      if(KeyVal == KEY0_PRES)
-   55          //      {
-   56          //              Mode = DISPLAY_MODE;
-   57          //              clear_Num++;
-C251 COMPILER V5.60.0,  Key                                                                16/03/24  22:11:06  PAGE 2   
-
-   58          //      }
-   59          //      else if(KeyVal == KEY1_PRES)
-   60          //              Mode = ADJUST_PARAM_MODE;
-   61          //}
-   62          
 
 
 Module Information          Static   Overlayable
@@ -82,6 +67,8 @@ Module Information          Static   Overlayable
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
+C251 COMPILER V5.60.0,  Key                                                                17/03/24  14:44:39  PAGE 2   
+
   xdata size           =    ------     ------
   xdata-const size     =    ------     ------
   edata size           =         3     ------

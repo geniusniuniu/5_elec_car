@@ -16,6 +16,5 @@
 extern char clear_Num;
 void Key_Init(void);
 uint8 GetKey_Value(uint8 mode);
-//void Adjust_Mode(void);
 
 #endif
