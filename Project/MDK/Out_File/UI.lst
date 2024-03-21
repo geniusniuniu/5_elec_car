@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  UI                                                                 17/03/24  15:02:53  PAGE 1   
+C251 COMPILER V5.60.0,  UI                                                                 21/03/24  16:36:01  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE UI
@@ -66,15 +66,15 @@ stmt  level    source
    55          void refresh_value()//value=填入变量名
    56          {
    57   1              //page=0
-C251 COMPILER V5.60.0,  UI                                                                 17/03/24  15:02:53  PAGE 2   
+C251 COMPILER V5.60.0,  UI                                                                 21/03/24  16:36:01  PAGE 2   
 
-   58   1          value[0][0]= Diff;//ADC_proc[0];
+   58   1          value[0][0]= ADC_proc[0];//Diff;//ADC_proc[0];
    59   1              value[0][1]= ADC_proc[1];
-   60   1              value[0][2]= ADC_proc[2];
-   61   1              value[0][3]= ADC_proc[3];
+   60   1              value[0][2]= ADC_proc[3];
+   61   1              value[0][3]= ADC_proc[4];
    62   1              
    63   1              //page=1
-   64   1              value[1][0]= ADC_proc[4];
+   64   1              value[1][0]= ADC_proc[2];
    65   1              value[1][1]= Turn_PID.Kp;
    66   1              value[1][2]= Turn_PID.Kd;
    67   1              value[1][3]= Exp_Speed;
@@ -134,7 +134,7 @@ stmt  level    source
   121          void ui_init(void)
   122          {
   123   1              oled_init();
-C251 COMPILER V5.60.0,  UI                                                                 17/03/24  15:02:53  PAGE 3   
+C251 COMPILER V5.60.0,  UI                                                                 21/03/24  16:36:01  PAGE 3   
 
   124   1              value_name_init();
   125   1              oled_all_static_state();

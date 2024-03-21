@@ -10,6 +10,8 @@
 #include "Key.h"
 #include "ui.h"
 
+#define EDGE_PROTECT 35
+
 #if TRACE_METHOD2
 	float sum_L,sum_R;
 #endif
@@ -34,8 +36,8 @@ float Exp_Speed_L = 0;
 float Exp_Speed_R = 0;
 float Exp_Speed = 200;
 float Adjust_Val = 0;
-
-char Num1 = 0;
+float temp_Speed = 0;
+float Num1 = 0;
 
 void Init_all(void);
 void Get_Ratio(void);
@@ -47,8 +49,7 @@ void main(void)
 	Adjust_Val = -180;
 	while(1)
 	{		
-		printf("%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\r\n",ADC_proc[2],ADC_proc[0],ADC_proc[4],Circle_Flag,Ratio,Exp_Speed_L,Exp_Speed_R);
-//		printf("%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\r\n",ADC_proc[0],ADC_proc[4],ADC_proc[1],ADC_proc[3],Ratio_Mid,Ratio);
+		printf("%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\r\n",Exp_Speed_L,Speed_R,Left_Wheel_PID.PID_Out,Right_Wheel_PID.PID_Out,ADC_proc[4],Ratio);
 //		printf("%.2f,%.2f\r\n",Speed_L,Speed_R);
 /******************************************** 按键读值**********************************************************************/ 	
 		ui_show();
@@ -58,8 +59,7 @@ void main(void)
 		else if (KeyValue == KEY0_PRES) 	Adjust_Val += 1;
 		else if (KeyValue == KEY1_PRES) 	Adjust_Val -= 1;
 	
-		
-/******************************************** 类似中断服务处理 **************************************************************/ 
+///******************************************** 类似中断服务处理 **************************************************************/ 
 		if(Isr_flag_10 == 1)  
 		{
 			ADC_GetValue();
@@ -83,7 +83,7 @@ void main(void)
 				} 
 				else   // 拐弯
 				{
-					Turn_PID.Kp = Adjust_Val ;
+					Turn_PID.Kp = -180 ;
 					Turn_PID.Kd = -32;
 					Left_Wheel_PID.Kp  = 26;
 					Left_Wheel_PID.Ki  = 1.26;
@@ -99,17 +99,17 @@ void main(void)
 					Turn_PID.Kd = -2.6;
 					Left_Wheel_PID.Kp = Right_Wheel_PID.Kp = 20;
 					Left_Wheel_PID.Ki = Right_Wheel_PID.Ki = 0.55;
-					Exp_Speed = 280;
+					Exp_Speed = 300;
 				}
 				else   // 拐弯    
 				{
-					Turn_PID.Kp = -200;  // 5.4
-					Turn_PID.Kd = -31;  // 1.6
-					Left_Wheel_PID.Kp = 36;  // 4
-					Left_Wheel_PID.Ki = 0.8;
-					Right_Wheel_PID.Kp = 36;
-					Right_Wheel_PID.Ki = 0.8;
-					Exp_Speed = 250;
+					Turn_PID.Kp = -200;  // -180
+					Turn_PID.Kd = -35;  // -45
+					Left_Wheel_PID.Kp = 42;  // 36
+					Left_Wheel_PID.Ki = 1.0; //0.8
+					Right_Wheel_PID.Kp = 42;
+					Right_Wheel_PID.Ki = 1.0;
+					Exp_Speed = 260;
 				}
 			#endif	
 				
@@ -133,7 +133,7 @@ void main(void)
 //					}
 //				}
 //				Elem_Barrier(gz);
-//			}2
+//			}
 //			#if TRACE_METHOD2  //弥补向量法检测缺陷导致车身反偏
 //				if(Barrier_Flag4 > 0)
 //				{
@@ -146,29 +146,32 @@ void main(void)
 			
 			if(ADC_proc[2] > 65)	//中间横电感识别圆环
 			{  
-				  x10_ms = 13;
-				if((ADC_proc[0] < ADC_proc[4]) && Circle_Flag == 0)  //判断左右
+				if(ADC_proc[1] < ADC_proc[3] && Circle_Flag == 0)  //判断左右
 				{ 
-				//	x10_ms = 13;
-					Circle_Flag = RIGHT_CIRCLE;
+//					if(ADC_proc[0] >= 64)
+//						Circle_Flag = LEFT_CIRCLE;
+//					else
+						Circle_Flag = RIGHT_CIRCLE;
 				}
-				else if((ADC_proc[0] > ADC_proc[4]) && Circle_Flag == 0)	 					
+				else if(ADC_proc[1] > ADC_proc[3] && Circle_Flag == 0)	 					
 				{
-				//    x10_ms = 13;
-					Circle_Flag = LEFT_CIRCLE;
+//					if(ADC_proc[4] >= 64)
+//						Circle_Flag = RIGHT_CIRCLE;
+//					else
+						Circle_Flag = LEFT_CIRCLE;
 				}
 			}
-			if(vl53l0x_finsh_flag)  //一次测距完成
-			{
-				if(vl53l0x_distance_mm < 450)	
-					Num1 = 50;
-			}
+
+			if(vl53l0x_finsh_flag == 1 && vl53l0x_distance_mm < 400)	//一次测距完成
+				Num1 = 150;
+
 			if(Num1 > 0)
 			{
 				Circle_Flag = 0;
 				Num1--;
 			}
-			Elem_Circle((Speed_L + Speed_R)/2,gz);	
+			temp_Speed = Circle_Flag == 1? Speed_R: Speed_L;
+			Elem_Circle(temp_Speed,gz);	
 			
 		/************************************************ 转向环计算 **********************************************/ 	
 			
@@ -180,9 +183,17 @@ void main(void)
 		
 		/************************************************ 特殊元素降速 ********************************************/ 
 			if( Circle_Flag != 0 || Barrier_Flag2 == 1 || Barrier_Flag1 == 1)  
-				Exp_Speed = 260;
-			Exp_Speed_L = Exp_Speed + Turn_PID.PID_Out*0.09;
-			Exp_Speed_R = Exp_Speed - Turn_PID.PID_Out*0.09;
+				Exp_Speed = 270;
+			if(Ratio > 0)	
+			{
+				Exp_Speed_L = Exp_Speed + Turn_PID.PID_Out*0.09;
+				Exp_Speed_R = Exp_Speed - Turn_PID.PID_Out*0.01;
+			}
+			else
+			{
+				Exp_Speed_L = Exp_Speed + Turn_PID.PID_Out*0.01;
+				Exp_Speed_R = Exp_Speed - Turn_PID.PID_Out*0.09;
+			}
 			
 			Get_Speed();  //获取车速
 
@@ -195,13 +206,13 @@ void main(void)
 				Left_Wheel_PID.PID_Out = 0;
 				Right_Wheel_PID.PID_Out = 0;
 			}
-		/******************************************** 设置左右PWM *********************************************/ 	
+	   /********************************************* 设置左右PWM ************************************************/ 	
 			if(A == 0 )
 				Left_SetSpeed(Left_Wheel_PID.PID_Out);
 			if(A1 == 0)			
 				Right_SetSpeed(Right_Wheel_PID.PID_Out);
-//			Right_SetSpeed(-2000);
-//			Left_SetSpeed(-2000);			
+			
+//			Motor_Test(3000);
 			Isr_flag_10 = 0;
 		} 
 	}
@@ -216,10 +227,17 @@ void Get_Ratio(void)
 		sum_R = sqrt((ADC_proc[4]*ADC_proc[4]+ADC_proc[3]*ADC_proc[3]));
 		Diff = sum_L - sum_R;
 		Plus = sum_L + sum_R;
-		Ratio = Diff/Plus;
-	#endif
+	    if(ADC_proc[0]+ADC_proc[1]+ADC_proc[3]+ADC_proc[4] > EDGE_PROTECT)  //如果小于EDGE_PROTECT
+				Ratio = Diff/Plus;											//视作丢线，下次偏差值
+//		else																//在上次基础上再次加（减）
+//		{
+//			if(Ratio >= 0)
+//				Ratio += 0.3;
+//			else
+//				Ratio -= 0.3;
+//		}
 	
-	#if TRACE_METHOD1 //单向巡线
+	#elif TRACE_METHOD1 //单向巡线
 		Diff = ADC_proc[0] - ADC_proc[4];
 		Plus = ADC_proc[0] + ADC_proc[4];
 		
@@ -228,16 +246,11 @@ void Get_Ratio(void)
 
 		Ratio = Diff/Plus;
 		Ratio_Mid = Diff_Mid/Plus_Mid;
-	if((Plus_Mid > 36 && Plus_Mid < 75)|| (Plus <45))
+		if((Plus_Mid > 36 && Plus_Mid < 75)|| Plus <45)
 			Ratio = Ratio_Mid;
 
 	#endif
-		//边界保护
-//		if((ADC_proc[0] + ADC_proc[1] < 10) && (ADC_proc[0] + ADC_proc[1] > ADC_proc[3] + ADC_proc[4]))
-//			Ratio = 0.6;		
-//		if((ADC_proc[3] + ADC_proc[4] < 10) && (ADC_proc[0] + ADC_proc[1] < ADC_proc[3] + ADC_proc[4]))
-//			Ratio = -0.6;
-//	
+		Limit_Out(&Ratio,-0.9,0.9);   //限幅
 }
 
 void Init_all(void)
@@ -273,9 +286,6 @@ void Init_all(void)
 	ctimer_count_init(CTIM0_P34);	//编码器1计数
 	ctimer_count_init(CTIM3_P04);	//编码器2计数
 	
-////串口初始化
-//	uart_init(UART_1, UART1_RX_P30, UART1_TX_P31, 115200, TIM_2);
-	
 ////电机初始化
 	Motor_Init();
 	
@@ -289,6 +299,9 @@ void Init_all(void)
 	PID_Init(&Left_Wheel_PID , 20, 0.5, 0, 9000, 2000);
 	PID_Init(&Right_Wheel_PID, 20, 0.5, 0, 9000, 2000);
 	PID_Init(&Turn_PID , -2, 0, 0 ,10000, 0);
+	
+//	PID_Incremental_Init();
+	
 } 
 
 

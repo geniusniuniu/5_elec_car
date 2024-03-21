@@ -128,7 +128,7 @@ void Elem_Circle(float Speed,float Gyro_Z)
 //	static float Sum_Dis1 = 0;
 //	static float Sum_Dis2 = 0;
 //	static float Sum_Angle_C1 = 0;
-	static char Delay_10Ms = 0;
+	static float Delay_10Ms = 0;
 	if(Delay_10Ms > 0)
 	{
 		Circle_Flag = 0;
@@ -138,20 +138,21 @@ void Elem_Circle(float Speed,float Gyro_Z)
 	}
 	if(Circle_Flag)
 	{
+		x10_ms = 13;
 		Gyro_Z = (Gyro_Z*2000)/32768;
 		if(Sum_Dis1>DIS_ROUND_IN)
 		{
 			Sum_Angle_C1 += Gyro_Z*0.005;
 			if(Sum_Angle_C1 < 30 && Circle_Flag == LEFT_CIRCLE)
-				Ratio = 0.5;
+				Ratio = 0.36;
 			if(Sum_Angle_C1 > -30 && Circle_Flag == RIGHT_CIRCLE)
-				Ratio = -0.5;
+				Ratio = -0.36;
 		}
 		else
 			Sum_Dis1+=Speed;
 		if(Sum_Angle_C1 > ROUND_L || Sum_Angle_C1 < ROUND_R )
 		{
-			if(ADC_proc[2] > 65)   //预出环 防止再次误判
+			if(ADC_proc[2] > 64)   //预出环 防止误判入环
 			{
 				Sum_Dis2 += Speed;
 				if(Sum_Dis2 > DIS_ROUND_OUT)
@@ -161,13 +162,11 @@ void Elem_Circle(float Speed,float Gyro_Z)
 					Sum_Angle_C1 = 0;
 					Circle_Flag = 0;
 				}
-				Delay_10Ms = 100;   //延时1000ms
+				Delay_10Ms = 250;   //延时2500ms
 			}
 		}
 	}
 }
-
-
 
 
 

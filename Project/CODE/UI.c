@@ -55,13 +55,13 @@ void value_name_init(void)//将name改为想要的参数名，但“ ”中的总长度不要变
 void refresh_value()//value=填入变量名
 {
 	//page=0
-    value[0][0]= Diff;//ADC_proc[0];
+    value[0][0]= ADC_proc[0];//Diff;//ADC_proc[0];
 	value[0][1]= ADC_proc[1];
-	value[0][2]= ADC_proc[2];
-	value[0][3]= ADC_proc[3];
+	value[0][2]= ADC_proc[3];
+	value[0][3]= ADC_proc[4];
 	
 	//page=1
-	value[1][0]= ADC_proc[4];
+	value[1][0]= ADC_proc[2];
 	value[1][1]= Turn_PID.Kp;
 	value[1][2]= Turn_PID.Kd;
 	value[1][3]= Exp_Speed;

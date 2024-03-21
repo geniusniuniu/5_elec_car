@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  ADC                                                                16/03/24  22:11:05  PAGE 1   
+C251 COMPILER V5.60.0,  ADC                                                                21/03/24  16:36:00  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE ADC
@@ -30,50 +30,45 @@ stmt  level    source
    19   1              adc_init(ADC_P06, ADC_SYSclk_DIV_2);
    20   1      }
    21          
-   22          void ADC_GetValue(void)
-   23          {
-   24   1              float temp;
-   25   1              char i,j,k;
-   26   1              for(i=0;i<3;i++)
-   27   1              {
-   28   2      //              ADC_Array_Original[0][i] = adc_once(ADC_P10, ADC_8BIT);         //左一路电感
-   29   2      //              ADC_Array_Original[1][i] = adc_once(ADC_P00, ADC_8BIT);         //左二路电感
-   30   2      
-   31   2      //              ADC_Array_Original[2][i] = adc_once(ADC_P16, ADC_8BIT);         //中间横电感
-   32   2      
-   33   2      //              ADC_Array_Original[3][i] = adc_once(ADC_P05, ADC_8BIT);         //右三路电感
-   34   2      //              ADC_Array_Original[4][i] = adc_once(ADC_P06, ADC_8BIT);         //右四路电感
-   35   2                      
-   36   2                      ADC_Array_Original[0][i] = adc_once(ADC_P10, ADC_8BIT);         //左一路电感
-   37   2                      ADC_Array_Original[1][i] = adc_once(ADC_P00, ADC_8BIT);         //左二路电感
-   38   2      
-   39   2                      ADC_Array_Original[2][i] = adc_once(ADC_P05, ADC_8BIT);         //中间横电感
-   40   2      
-   41   2                      ADC_Array_Original[3][i] = adc_once(ADC_P06, ADC_8BIT);         //右三路电感
-   42   2                      ADC_Array_Original[4][i] = adc_once(ADC_P16, ADC_8BIT);         //右四路电感
-   43   2              }
-   44   1              for(k=0;k<5;k++) //电感值 最终取三次平均值
-   45   1              {
-   46   2                      temp = 0;
-   47   2                      for(j=0;j<3;j++)
-   48   2                      {
-   49   3                              temp += ADC_Array_Original[k][j];
-   50   3                      }
-   51   2                      ADC_proc[k] = temp/3;
-   52   2                      if(ADC_proc[k] >= 200)                  ADC_proc[k] = 200;      //对电感值进行限幅处理
-   53   2                      else if(ADC_proc[k] <= 2)               ADC_proc[k] = 2;        //对电感值进行限幅处理
-   54   2      
-   55   2                      ADC_proc[k] = 100*(ADC_proc[k]/200);            //归一化,将电感值限制在0~100之间                
-   56   2              }
-   57   1      }
-C251 COMPILER V5.60.0,  ADC                                                                16/03/24  22:11:05  PAGE 2   
-
-   58          
+   22          //读取三次ADC各通道值，并取平均值
+   23          void ADC_GetValue(void)
+   24          {
+   25   1              float temp;
+   26   1              char i,j;
+   27   1              for(i=0;i<3;i++)
+   28   1              {
+   29   2                      ADC_Array_Original[0][i] = adc_once(ADC_P10, ADC_8BIT);         //左一路电感
+   30   2                      ADC_Array_Original[1][i] = adc_once(ADC_P00, ADC_8BIT);         //左二路电感    
+   31   2      
+   32   2                      ADC_Array_Original[2][i] = adc_once(ADC_P05, ADC_8BIT);         //右三路电感
+   33   2                      
+   34   2                      ADC_Array_Original[3][i] = adc_once(ADC_P06, ADC_8BIT);         //中间横电感 
+   35   2                      ADC_Array_Original[4][i] = adc_once(ADC_P16, ADC_8BIT);         //右四路电感
+   36   2              }
+   37   1              //取三次电感值平均值
+   38   1              for(i=0;i<5;i++)
+   39   1              {
+   40   2                      temp = 0;
+   41   2                      for(j=0;j<3;j++)
+   42   2                      {
+   43   3                              temp += ADC_Array_Original[i][j];
+   44   3                      }
+   45   2                      ADC_proc[i] = temp/3;
+   46   2                      //对电感值限幅
+   47   2                      if(ADC_proc[i] >= 200)                  ADC_proc[i] = 200;      
+   48   2                      else if(ADC_proc[i] <= 2)               ADC_proc[i] = 2;
+   49   2                      //归一化,将电感值限制在0~100之间
+   50   2                      ADC_proc[i] = 100*(ADC_proc[i]/200);    
+   51   2      
+   52   2              }
+   53   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
   code size            =       374     ------
+C251 COMPILER V5.60.0,  ADC                                                                21/03/24  16:36:00  PAGE 2   
+
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------

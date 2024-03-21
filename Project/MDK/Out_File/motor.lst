@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  motor                                                              16/03/24  22:11:05  PAGE 1   
+C251 COMPILER V5.60.0,  motor                                                              21/03/24  16:36:00  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE motor
@@ -21,137 +21,140 @@ stmt  level    source
    10          #include <STC32Gxx.H>
    11          #include <math.h>
    12          
-   13          PID_InitTypeDef Left_Wheel_PID;
-   14          PID_InitTypeDef Right_Wheel_PID;
-   15          PID_InitTypeDef Turn_PID;
-   16          
-   17          char A = 0; 
-   18          char A1 = 0;
-   19          float Speed_L,Speed_R;
-   20          
-   21          void Limit_Out(float *Output,float Limit_Min,float Limit_Max)
-   22          {
-   23   1          if (*Output <= Limit_Min) *Output = Limit_Min;
-   24   1          else if (*Output >= Limit_Max) *Output = Limit_Max;
-   25   1      }
-   26          
-   27          float Num2Abs(float x)
-   28          {
-   29   1              if(x < 0)
-   30   1                      return -x;
-   31   1              return x;
-   32   1      }
-   33          
-   34          void Motor_Init(void)
-   35          {
-   36   1              pwm_init(PWMA_CH1P_P60, 15000, 0);              //左电机-
-   37   1              pwm_init(PWMA_CH3P_P64, 15000, 0);              //右电机-
-   38   1              pwm_init(PWMA_CH2P_P62, 15000, 0);              //左电机--PWM
-   39   1              pwm_init(PWMA_CH4P_P66, 15000, 0);              //右电机-PWM
-   40   1      }
-   41          
-   42          
-   43          void Left_SetSpeed(float speed)
-   44          {
-   45   1              static int16 Special_NumL = 0;  //异常情况记数
-   46   1              if(abs(speed) >= (SPEED_MAX-100))  //连续50次都逼近最大速度，异常情况直接置零
-   47   1                      Special_NumL++;
-   48   1              else 
-   49   1                      Special_NumL = 0;
-   50   1              if(Special_NumL >= 150)   //出现异常
-   51   1              {
-   52   2                      pwm_duty(PWMA_CH2P_P62, 0);
-   53   2                      pwm_duty(PWMA_CH1P_P60, 0);
-   54   2                      A = 1;
-   55   2              }
-   56   1              else                             //没有出现异常
-   57   1              {
-C251 COMPILER V5.60.0,  motor                                                              16/03/24  22:11:05  PAGE 2   
+   13          
+   14          char A = 0; 
+   15          char A1 = 0;
+   16          float Speed_L,Speed_R;
+   17          
+   18          void Limit_Out(float *Output,float Limit_Min,float Limit_Max)
+   19          {
+   20   1          if (*Output <= Limit_Min) *Output = Limit_Min;
+   21   1          else if (*Output >= Limit_Max) *Output = Limit_Max;
+   22   1      }
+   23          
+   24          float Num2Abs(float x)
+   25          {
+   26   1              if(x < 0)
+   27   1                      return -x;
+   28   1              return x;
+   29   1      }
+   30          
+   31          void Motor_Init(void)
+   32          {
+   33   1              pwm_init(PWMA_CH1P_P60, 15000, 0);              //左电机-
+   34   1              pwm_init(PWMA_CH3P_P64, 15000, 0);              //右电机-
+   35   1              pwm_init(PWMA_CH2P_P62, 15000, 0);              //左电机--PWM
+   36   1              pwm_init(PWMA_CH4P_P66, 15000, 0);              //右电机-PWM
+   37   1      }
+   38          
+   39          
+   40          void Left_SetSpeed(float speed)
+   41          {
+   42   1              static int16 Special_NumL = 0;  //异常情况记数
+   43   1              if(abs(speed) >= (SPEED_MAX-100))  //连续50次都逼近最大速度，异常情况直接置零
+   44   1                      Special_NumL++;
+   45   1              else 
+   46   1                      Special_NumL = 0;
+   47   1              if(Special_NumL >= 150)   //出现异常
+   48   1              {
+   49   2                      pwm_duty(PWMA_CH2P_P62, 0);
+   50   2                      pwm_duty(PWMA_CH1P_P60, 0);
+   51   2                      A = 1;
+   52   2              }
+   53   1              else                             //没有出现异常
+   54   1              {
+   55   2                      if(speed >= SPEED_MAX)                  speed = SPEED_MAX; 
+   56   2                      else if(speed <= -SPEED_MAX)    speed = -SPEED_MAX;
+   57   2                      if(speed > 0)
+C251 COMPILER V5.60.0,  motor                                                              21/03/24  16:36:00  PAGE 2   
 
-   58   2                      if(speed >= SPEED_MAX)                  speed = SPEED_MAX; 
-   59   2                      else if(speed <= -SPEED_MAX)    speed = -SPEED_MAX;
-   60   2                      if(speed > 0)
-   61   2                      {
-   62   3                              pwm_duty(PWMA_CH2P_P62, (int)speed);
-   63   3                              pwm_duty(PWMA_CH1P_P60, 0);
-   64   3                      } 
-   65   2                      else if(speed < 0)
-   66   2                      {
-   67   3                              pwm_duty(PWMA_CH2P_P62, 0);
-   68   3                              pwm_duty(PWMA_CH1P_P60, -(int)speed);
-   69   3                      } 
-   70   2                      else 
-   71   2                      {
-   72   3                              pwm_duty(PWMA_CH2P_P62, 0);
-   73   3                              pwm_duty(PWMA_CH1P_P60, 0);
-   74   3                      }
-   75   2              }
-   76   1              
-   77   1      }
-   78          
-   79          void Right_SetSpeed(float speed)        
-   80          {
-   81   1              static int16  Special_NumR = 0; //异常情况记数
-   82   1          if(speed >= SPEED_MAX)                      speed = SPEED_MAX;  
-   83   1              else if(speed <= -SPEED_MAX)    speed = -SPEED_MAX;
-   84   1              
-   85   1              if(abs(speed) >= (SPEED_MAX-100))  //连续50次都逼近最大速度，异常情况直接置零
-   86   1                      Special_NumR++;
-   87   1              else
-   88   1                      Special_NumR = 0;
-   89   1              if(Special_NumR >= 150)
-   90   1              {
-   91   2                      A1 = 1;
-   92   2                      pwm_duty(PWMA_CH3P_P64, 0);
-   93   2              pwm_duty(PWMA_CH4P_P66, 0);
-   94   2              }
-   95   1          else
-   96   1              {
-   97   2                      if(speed > 0)
-   98   2                      {
-   99   3                              pwm_duty(PWMA_CH3P_P64, (int)speed);
-  100   3                              pwm_duty(PWMA_CH4P_P66, 0);
-  101   3                      } 
-  102   2                      else if(speed < 0)
-  103   2                      {
-  104   3                              pwm_duty(PWMA_CH3P_P64, 0);
-  105   3                              pwm_duty(PWMA_CH4P_P66, -(int)speed);
-  106   3                      } 
-  107   2                      else 
-  108   2                      {
-  109   3                              pwm_duty(PWMA_CH3P_P64, 0);
-  110   3                              pwm_duty(PWMA_CH4P_P66, 0);
-  111   3                      }
-  112   2              
-  113   2              }
-  114   1      }
-  115          
-  116          void Get_Speed(void)    //获取速度
-  117          {
-  118   1              if(P53 == 0)             Speed_L = ctimer_count_read(CTIM3_P04);        ////左轮方向读取数值
-  119   1              else                            {Speed_L = ctimer_count_read(CTIM3_P04); Speed_L = -Speed_L;}
-  120   1              ctimer_count_clean(CTIM3_P04);                                                                  //清除计数值，开始下一轮计数
-  121   1      
-  122   1              
-  123   1              if(P35 == 1)             Speed_R = ctimer_count_read(CTIM0_P34);                //右轮方向读取数值
-C251 COMPILER V5.60.0,  motor                                                              16/03/24  22:11:05  PAGE 3   
+   58   2                      {
+   59   3                              pwm_duty(PWMA_CH2P_P62, (int)speed);
+   60   3                              pwm_duty(PWMA_CH1P_P60, 0);
+   61   3                      } 
+   62   2                      else if(speed < 0)
+   63   2                      {
+   64   3                              pwm_duty(PWMA_CH2P_P62, 0);
+   65   3                              pwm_duty(PWMA_CH1P_P60, -(int)speed);
+   66   3                      } 
+   67   2                      else 
+   68   2                      {
+   69   3                              pwm_duty(PWMA_CH2P_P62, 0);
+   70   3                              pwm_duty(PWMA_CH1P_P60, 0);
+   71   3                      }
+   72   2              }
+   73   1              
+   74   1      }
+   75          
+   76          void Right_SetSpeed(float speed)        
+   77          {
+   78   1              static int16  Special_NumR = 0; //异常情况记数
+   79   1          if(speed >= SPEED_MAX)                      speed = SPEED_MAX;  
+   80   1              else if(speed <= -SPEED_MAX)    speed = -SPEED_MAX;
+   81   1              
+   82   1              if(abs(speed) >= (SPEED_MAX-100))  //连续50次都逼近最大速度，异常情况直接置零
+   83   1                      Special_NumR++;
+   84   1              else
+   85   1                      Special_NumR = 0;
+   86   1              if(Special_NumR >= 150)
+   87   1              {
+   88   2                      A1 = 1;
+   89   2                      pwm_duty(PWMA_CH3P_P64, 0);
+   90   2              pwm_duty(PWMA_CH4P_P66, 0);
+   91   2              }
+   92   1          else
+   93   1              {
+   94   2                      if(speed > 0)
+   95   2                      {
+   96   3                              pwm_duty(PWMA_CH3P_P64, (int)speed);
+   97   3                              pwm_duty(PWMA_CH4P_P66, 0);
+   98   3                      } 
+   99   2                      else if(speed < 0)
+  100   2                      {
+  101   3                              pwm_duty(PWMA_CH3P_P64, 0);
+  102   3                              pwm_duty(PWMA_CH4P_P66, -(int)speed);
+  103   3                      } 
+  104   2                      else 
+  105   2                      {
+  106   3                              pwm_duty(PWMA_CH3P_P64, 0);
+  107   3                              pwm_duty(PWMA_CH4P_P66, 0);
+  108   3                      }
+  109   2              
+  110   2              }
+  111   1      }
+  112          
+  113          void Get_Speed(void)    //获取速度
+  114          {
+  115   1              if(P53 == 0)             Speed_L = ctimer_count_read(CTIM3_P04);        ////左轮方向读取数值
+  116   1              else                            {Speed_L = ctimer_count_read(CTIM3_P04); Speed_L = -Speed_L;}
+  117   1              ctimer_count_clean(CTIM3_P04);                                                                  //清除计数值，开始下一轮计数
+  118   1      
+  119   1              
+  120   1              if(P35 == 1)             Speed_R = ctimer_count_read(CTIM0_P34);                //右轮方向读取数值
+  121   1              else                            {Speed_R = ctimer_count_read(CTIM0_P34); Speed_R = -Speed_R;}
+  122   1              ctimer_count_clean(CTIM0_P34);                                                                  //清除计数值，开始下一轮计数
+  123   1      }
+C251 COMPILER V5.60.0,  motor                                                              21/03/24  16:36:00  PAGE 3   
 
-  124   1              else                            {Speed_R = ctimer_count_read(CTIM0_P34); Speed_R = -Speed_R;}
-  125   1              ctimer_count_clean(CTIM0_P34);                                                                  //清除计数值，开始下一轮计数
-  126   1      }
-  127          
+  124          
+  125          
+  126          void Motor_Test(float Speed)
+  127          {
+  128   1              Right_SetSpeed(Speed);
+  129   1              Left_SetSpeed(-Speed);  
+  130   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =       598     ------
+  code size            =       616     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
   xdata size           =    ------     ------
   xdata-const size     =    ------     ------
-  edata size           =       122          4
+  edata size           =        14          4
   bit size             =    ------     ------
   ebit size            =    ------     ------
   bitaddressable size  =    ------     ------

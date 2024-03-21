@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  PID                                                                16/03/24  22:11:05  PAGE 1   
+C251 COMPILER V5.60.0,  PID                                                                21/03/24  16:36:44  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE PID
@@ -18,59 +18,125 @@ stmt  level    source
     7          #include "ZF_PWM.h"
     8          #include "PID.h"
     9          
-   10          void PID_Init(PID_InitTypeDef *PID_Struct, float Kp, float Ki, float Kd,float Out_Limit, float Integral_L
+   10          
+   11          //***********************************************************位置式PID***********************************
+             -*************************//
+   12          
+   13          PID_InitTypeDef Left_Wheel_PID;
+   14          PID_InitTypeDef Right_Wheel_PID;
+   15          PID_InitTypeDef Turn_PID;
+   16          
+   17          void PID_Init(PID_InitTypeDef *PID_Struct, float Kp, float Ki, float Kd,float Out_Limit, float Integral_L
              -imit)                //PID初始化
-   11          {
-   12   1              PID_Struct->Kp = Kp;
-   13   1              PID_Struct->Ki = Ki;
-   14   1              PID_Struct->Kd = Kd;
-   15   1              
-   16   1              PID_Struct->Err = 0;
-   17   1              PID_Struct->Err_last = 0;
-   18   1      
-   19   1              PID_Struct->PID_Out = 0;
-   20   1              PID_Struct->Out_Limit = Out_Limit;
-   21   1              PID_Struct->Integral_Limit = Integral_Limit;
-   22   1      }
-   23          
-   24          void PID_Calculate(PID_InitTypeDef *PID_Struct, float Exp_Val, float Act_Val)           //PID计算
-   25          {
-   26   1              PID_Struct->Err = Exp_Val-Act_Val;              //err值为期望偏差与当前偏差的差值       
-   27   1              PID_Struct->Integral += PID_Struct->Err;                //误差值累加    
-   28   1              Limit_Out(&PID_Struct->Integral, -PID_Struct->Integral_Limit,PID_Struct->Integral_Limit);                                                                       //积分
+   18          {
+   19   1              PID_Struct->Kp = Kp;
+   20   1              PID_Struct->Ki = Ki;
+   21   1              PID_Struct->Kd = Kd;
+   22   1              
+   23   1              PID_Struct->Err = 0;
+   24   1              PID_Struct->Err_last = 0;
+   25   1      
+   26   1              PID_Struct->PID_Out = 0;
+   27   1              PID_Struct->Out_Limit = Out_Limit;
+   28   1              PID_Struct->Integral_Limit = Integral_Limit;
+   29   1      }
+   30          
+   31          
+   32          void PID_Calculate(PID_InitTypeDef *PID_Struct, float Exp_Val, float Act_Val)           //PID计算
+   33          {
+   34   1              PID_Struct->Err = Exp_Val-Act_Val;              //err值为期望偏差与当前偏差的差值       
+   35   1              PID_Struct->Integral += PID_Struct->Err;                //误差值累加    
+   36   1              Limit_Out(&PID_Struct->Integral, -PID_Struct->Integral_Limit,PID_Struct->Integral_Limit);                                                                       //积分
              -限幅
-   29   1              PID_Struct->PID_Out = PID_Struct->Err * PID_Struct->Kp + 
-   30   1                                                                      PID_Struct->Integral * PID_Struct->Ki + //计算总输出量
-   31   1                                                                              (PID_Struct->Err - PID_Struct->Err_last)*(PID_Struct->Kd);
-   32   1              
-   33   1              Limit_Out(&PID_Struct->PID_Out,-PID_Struct->Out_Limit,PID_Struct->Out_Limit);                                                   //输出限幅
-   34   1              PID_Struct->Err_last = PID_Struct->Err;         //更新上一次err
-   35   1      }
-   36          
-   37          
-   38          
-   39          
+   37   1              PID_Struct->PID_Out = PID_Struct->Err * PID_Struct->Kp + 
+   38   1                                                                      PID_Struct->Integral * PID_Struct->Ki + //计算总输出量
+   39   1                                                                              (PID_Struct->Err - PID_Struct->Err_last)*(PID_Struct->Kd);
+   40   1              
+   41   1              Limit_Out(&PID_Struct->PID_Out,-PID_Struct->Out_Limit,PID_Struct->Out_Limit);                                                   //输出限幅
+   42   1              PID_Struct->Err_last = PID_Struct->Err;         //更新上一次err
+   43   1      }
+   44          
+   45          
+   46          
+   47          
+   48          //***********************************************************增量式PID***********************************
+             -***************//
+   49          
+   50          
+   51          PID_Incremental Turn;
+   52          PID_Incremental Left_Wheel;
+   53          PID_Incremental Right_Wheel;
+C251 COMPILER V5.60.0,  PID                                                                21/03/24  16:36:44  PAGE 2   
+
+   54          
+   55          void PID_Incremental_Init(PID_Incremental *pid, float Kp, float Ki, float Kd,float Out_Limit, uint8 use_l
+             -owpass_filter)
+   56          {
+   57   1              pid->Kp = Kp;
+   58   1              pid->Ki = Ki;
+   59   1              pid->Kd = Kd;
+   60   1              
+   61   1          pid->error = 0;
+   62   1          pid->last_error = 0;
+   63   1          pid->last_last_error = 0;
+   64   1          pid->last_out = 0;
+   65   1          pid->out = 0;
+   66   1          pid->outmax = Out_Limit;
+   67   1          pid->outmin = -Out_Limit;
+   68   1          pid->use_lowpass_filter = use_lowpass_filter;
+   69   1          pid->lowpass_filter_factor = 0.3;
+   70   1      }
+   71          
+   72          
+   73          float PID_Incremental_Calc(PID_Incremental *pid, float setpoint, float input_value)
+   74          {
+   75   1              float derivative;
+   76   1              float output_increment;
+   77   1          pid->last_last_error = pid->last_error;
+   78   1          pid->last_error = pid->error;
+   79   1          pid->error = setpoint - input_value;
+   80   1          derivative = (pid->error - 2 * pid->last_last_error + pid->last_last_error);
+   81   1          output_increment = pid->Kp * (pid->error - pid->last_error) + pid->Ki * pid->error + pid->Kd * deriva
+             -tive;
+   82   1      
+   83   1          pid->out += output_increment;
+   84   1      
+   85   1          // Output limit
+   86   1              Limit_Out(&pid->out,pid->outmax,pid->outmin);                                                   //输出限幅
+   87   1      
+   88   1          // Low pass filter
+   89   1          if(pid->use_lowpass_filter){
+   90   2              pid->out = pid->last_out * pid->lowpass_filter_factor + pid->out * (1 - pid->lowpass_filter_facto
+             -r);
+   91   2          }
+   92   1      
+   93   1          pid->last_out = pid->out;
+   94   1      
+   95   1          return pid->out;
+   96   1      }
+   97          
+   98          
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =       283     ------
+  code size            =       716     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
   xdata size           =    ------     ------
   xdata-const size     =    ------     ------
-  edata size           =    ------         20
+  edata size           =       243         37
   bit size             =    ------     ------
   ebit size            =    ------     ------
   bitaddressable size  =    ------     ------
   ebitaddressable size =    ------     ------
   far data size        =    ------     ------
-C251 COMPILER V5.60.0,  PID                                                                16/03/24  22:11:05  PAGE 2   
-
   huge data size       =    ------     ------
   const size           =    ------     ------
+C251 COMPILER V5.60.0,  PID                                                                21/03/24  16:36:44  PAGE 3   
+
   hconst size          =    ------     ------
 End of Module Information.
 

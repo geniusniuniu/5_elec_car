@@ -12,9 +12,7 @@ extern float Speed_R;
 extern char A;
 extern char A1;
 
-extern PID_InitTypeDef Left_Wheel_PID;
-extern PID_InitTypeDef Right_Wheel_PID;
-extern PID_InitTypeDef Turn_PID;
+
 
 float Num2Abs(float x);
 void Limit_Out(float *Output,float Limit_Min,float Limit_Max);
@@ -23,5 +21,5 @@ void Motor_Init(void);
 void Right_SetSpeed(float speed);
 void Left_SetSpeed(float speed);
 void Get_Speed(void);	//获取速度
-
+void Motor_Test(float Speed);  //用来测试电机接线
 #endif

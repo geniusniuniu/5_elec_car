@@ -10,9 +10,6 @@
 #include <STC32Gxx.H>
 #include <math.h>
 
-PID_InitTypeDef Left_Wheel_PID;
-PID_InitTypeDef Right_Wheel_PID;
-PID_InitTypeDef Turn_PID;
 
 char A = 0; 
 char A1 = 0;
@@ -125,3 +122,9 @@ void Get_Speed(void)	//获取速度
 	ctimer_count_clean(CTIM0_P34);									//清除计数值，开始下一轮计数
 }
 
+
+void Motor_Test(float Speed)
+{
+	Right_SetSpeed(Speed);
+	Left_SetSpeed(-Speed);	
+}
