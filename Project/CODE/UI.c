@@ -69,7 +69,7 @@ void refresh_value()//value=填入变量名
 	//page=2
 	value[2][0]= Left_Wheel_PID.Kp;
 	value[2][1]= Left_Wheel_PID.Ki;
-	value[2][2]= Circle_Flag;
+	value[2][2]= Circle_Flag2;
 	value[2][3]= vl53l0x_distance_mm;
 	
 	//page=3

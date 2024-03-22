@@ -22,22 +22,20 @@ extern uint8 vl53l0x_finsh_flag;
 
 short gx, gy, gz;
 char Isr_flag_10 = 0; 
-
 char KeyValue = 0;
+float Num1 = 0;
 
 float Diff,Plus;
 float Ratio = 0;
-
 float Diff_Mid,Plus_Mid;
 float Ratio_Mid = 0;
 float sum = 0;
-float Round_Flag_R;
 float Exp_Speed_L = 0;
 float Exp_Speed_R = 0;
 float Exp_Speed = 200;
 float Adjust_Val = 0;
 float temp_Speed = 0;
-float Num1 = 0;
+
 
 void Init_all(void);
 void Get_Ratio(void);
@@ -49,7 +47,7 @@ void main(void)
 	Adjust_Val = -180;
 	while(1)
 	{		
-		printf("%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\r\n",Exp_Speed_L,Speed_R,Left_Wheel_PID.PID_Out,Right_Wheel_PID.PID_Out,ADC_proc[4],Ratio);
+		printf("%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\r\n",Num1,Speed_R,Left_Wheel_PID.PID_Out,Right_Wheel_PID.PID_Out,ADC_proc[4],Ratio);
 //		printf("%.2f,%.2f\r\n",Speed_L,Speed_R);
 /******************************************** 按键读值**********************************************************************/ 	
 		ui_show();
@@ -105,11 +103,11 @@ void main(void)
 				{
 					Turn_PID.Kp = -200;  // -180
 					Turn_PID.Kd = -35;  // -45
-					Left_Wheel_PID.Kp = 42;  // 36
-					Left_Wheel_PID.Ki = 1.0; //0.8
-					Right_Wheel_PID.Kp = 42;
-					Right_Wheel_PID.Ki = 1.0;
-					Exp_Speed = 260;
+					Left_Wheel_PID.Kp = 36;  // 36
+					Left_Wheel_PID.Ki = 0.7; //0.8
+					Right_Wheel_PID.Kp = 36;
+					Right_Wheel_PID.Ki = 0.7;
+					Exp_Speed = 270;
 				}
 			#endif	
 				
@@ -144,34 +142,16 @@ void main(void)
 
 //		/************************************************ 圆环判别 ***********************************************/ 
 			
-			if(ADC_proc[2] > 65)	//中间横电感识别圆环
-			{  
-				if(ADC_proc[1] < ADC_proc[3] && Circle_Flag == 0)  //判断左右
-				{ 
-//					if(ADC_proc[0] >= 64)
-//						Circle_Flag = LEFT_CIRCLE;
-//					else
-						Circle_Flag = RIGHT_CIRCLE;
-				}
-				else if(ADC_proc[1] > ADC_proc[3] && Circle_Flag == 0)	 					
-				{
-//					if(ADC_proc[4] >= 64)
-//						Circle_Flag = RIGHT_CIRCLE;
-//					else
-						Circle_Flag = LEFT_CIRCLE;
-				}
-			}
-
+			if(ADC_proc[2] > 66) 
+				Circle_Flag2 = 1;   //识别到圆环
 			if(vl53l0x_finsh_flag == 1 && vl53l0x_distance_mm < 400)	//一次测距完成
-				Num1 = 150;
-
+				Num1 = 200;
 			if(Num1 > 0)
 			{
-				Circle_Flag = 0;
+				Circle_Flag2 = 0;
 				Num1--;
 			}
-			temp_Speed = Circle_Flag == 1? Speed_R: Speed_L;
-			Elem_Circle(temp_Speed,gz);	
+			Elem_Circle((Speed_L+Speed_R)/2,gz);	
 			
 		/************************************************ 转向环计算 **********************************************/ 	
 			
@@ -182,8 +162,8 @@ void main(void)
 			Elem_Up_Down(Pitch,gy);		
 		
 		/************************************************ 特殊元素降速 ********************************************/ 
-			if( Circle_Flag != 0 || Barrier_Flag2 == 1 || Barrier_Flag1 == 1)  
-				Exp_Speed = 270;
+			if( Circle_Flag2 == 1 || Barrier_Flag2 == 1 || Barrier_Flag1 == 1)  
+				Exp_Speed = 280;
 			if(Ratio > 0)	
 			{
 				Exp_Speed_L = Exp_Speed + Turn_PID.PID_Out*0.09;

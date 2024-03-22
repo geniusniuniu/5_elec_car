@@ -18,7 +18,7 @@ char delay_10ms = 0;
 
 //环岛标志位
 float Circle_Flag = 0;  // 左右环岛标志位
-
+char Circle_Flag2 = 0;
 
 //避障相关标志位
 char Barrier_Flag1=0;
@@ -132,24 +132,31 @@ void Elem_Circle(float Speed,float Gyro_Z)
 	if(Delay_10Ms > 0)
 	{
 		Circle_Flag = 0;
+		Circle_Flag2 = 0;
 		Ratio -= 0.2;
-		Delay_10Ms --;
-		return;        //发生误判，退出函数
+		Delay_10Ms--;
+		return ;        //发生误判，退出函数
 	}
-	if(Circle_Flag)
+	if(Circle_Flag2)
 	{
 		x10_ms = 13;
 		Gyro_Z = (Gyro_Z*2000)/32768;
 		if(Sum_Dis1>DIS_ROUND_IN)
 		{
 			Sum_Angle_C1 += Gyro_Z*0.005;
+			if((Circle_Flag == 0 && ADC_proc[0]+ADC_proc[1] > ADC_proc[3]+ADC_proc[4]))
+				Circle_Flag = LEFT_CIRCLE;
+			else if((Circle_Flag == 0 && ADC_proc[0]+ADC_proc[1] < ADC_proc[3]+ADC_proc[4]) )
+				Circle_Flag = RIGHT_CIRCLE;
+			
 			if(Sum_Angle_C1 < 30 && Circle_Flag == LEFT_CIRCLE)
-				Ratio = 0.36;
+				Ratio = 0.42;
 			if(Sum_Angle_C1 > -30 && Circle_Flag == RIGHT_CIRCLE)
-				Ratio = -0.36;
+				Ratio = -0.42;
 		}
 		else
 			Sum_Dis1+=Speed;
+		
 		if(Sum_Angle_C1 > ROUND_L || Sum_Angle_C1 < ROUND_R )
 		{
 			if(ADC_proc[2] > 64)   //预出环 防止误判入环
@@ -161,6 +168,7 @@ void Elem_Circle(float Speed,float Gyro_Z)
 					Sum_Dis2 = 0;
 					Sum_Angle_C1 = 0;
 					Circle_Flag = 0;
+					Circle_Flag2 = 0;
 				}
 				Delay_10Ms = 250;   //延时2500ms
 			}

@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  UI                                                                 21/03/24  16:36:01  PAGE 1   
+C251 COMPILER V5.60.0,  UI                                                                 22/03/24  17:35:47  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE UI
@@ -66,7 +66,7 @@ stmt  level    source
    55          void refresh_value()//value=填入变量名
    56          {
    57   1              //page=0
-C251 COMPILER V5.60.0,  UI                                                                 21/03/24  16:36:01  PAGE 2   
+C251 COMPILER V5.60.0,  UI                                                                 22/03/24  17:35:47  PAGE 2   
 
    58   1          value[0][0]= ADC_proc[0];//Diff;//ADC_proc[0];
    59   1              value[0][1]= ADC_proc[1];
@@ -82,7 +82,7 @@ stmt  level    source
    69   1              //page=2
    70   1              value[2][0]= Left_Wheel_PID.Kp;
    71   1              value[2][1]= Left_Wheel_PID.Ki;
-   72   1              value[2][2]= Circle_Flag;
+   72   1              value[2][2]= Circle_Flag2;
    73   1              value[2][3]= vl53l0x_distance_mm;
    74   1              
    75   1              //page=3
@@ -134,7 +134,7 @@ stmt  level    source
   121          void ui_init(void)
   122          {
   123   1              oled_init();
-C251 COMPILER V5.60.0,  UI                                                                 21/03/24  16:36:01  PAGE 3   
+C251 COMPILER V5.60.0,  UI                                                                 22/03/24  17:35:47  PAGE 3   
 
   124   1              value_name_init();
   125   1              oled_all_static_state();
@@ -152,7 +152,7 @@ stmt  level    source
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =       560     ------
+  code size            =       565     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------

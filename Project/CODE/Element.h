@@ -12,7 +12,7 @@
 #define ROUND_R 			-120  	//车转一圈陀螺仪角度积分
 #define ROUND_L 		 	120  
 
-#define DIS_ROUND_IN        3200
+#define DIS_ROUND_IN        3800
 #define DIS_ROUND_OUT       6000
 
 #define BARRIER_FIELD_STATUS	0	// 可以根据赛道状态改变，1表示赛道周围空旷，可以常开避障
@@ -36,6 +36,7 @@ extern char Up_Down_Flag;
 extern float Sum_Dis1;
 extern float Sum_Dis2;
 extern float Sum_Angle_C1;
+extern char Circle_Flag2;
 
 extern float Circle_Flag;
 //extern char circle_flag_R;
