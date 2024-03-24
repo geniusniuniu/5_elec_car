@@ -19,7 +19,7 @@ char delay_10ms = 0;
 //环岛标志位
 float Circle_Flag = 0;  // 左右环岛标志位
 char Circle_Flag2 = 0;
-
+char Circle_Flag3 = 0;
 //避障相关标志位
 char Barrier_Flag1=0;
 char Barrier_Flag2=0;
@@ -34,7 +34,7 @@ void Elem_Up_Down(float Angle,float Gyro)  //上下坡
 {
 
 	if(Angle > -4 && Gyro < -400)
-		Exp_Speed = 310;
+		Exp_Speed = 350;
 	else if(Angle < -18)
 		Exp_Speed = 30;
 }
@@ -133,10 +133,15 @@ void Elem_Circle(float Speed,float Gyro_Z)
 	{
 		Circle_Flag = 0;
 		Circle_Flag2 = 0;
-		Ratio -= 0.2;
+		if(Circle_Flag3 == LEFT_CIRCLE)
+			Ratio -=0.2;
+		else if(Circle_Flag3 == RIGHT_CIRCLE)
+			Ratio +=0.2;
 		Delay_10Ms--;
 		return ;        //发生误判，退出函数
 	}
+	else
+		Circle_Flag3 = 0;
 	if(Circle_Flag2)
 	{
 		x10_ms = 13;
@@ -144,22 +149,22 @@ void Elem_Circle(float Speed,float Gyro_Z)
 		if(Sum_Dis1>DIS_ROUND_IN)
 		{
 			Sum_Angle_C1 += Gyro_Z*0.005;
-			if((Circle_Flag == 0 && ADC_proc[0]+ADC_proc[1] > ADC_proc[3]+ADC_proc[4]))
+			if(Circle_Flag == 0 && (ADC_proc[0]+ADC_proc[1] > ADC_proc[3]+ADC_proc[4]))
 				Circle_Flag = LEFT_CIRCLE;
-			else if((Circle_Flag == 0 && ADC_proc[0]+ADC_proc[1] < ADC_proc[3]+ADC_proc[4]) )
+			else if(Circle_Flag == 0 && (ADC_proc[0]+ADC_proc[1] < ADC_proc[3]+ADC_proc[4]))
 				Circle_Flag = RIGHT_CIRCLE;
-			
-			if(Sum_Angle_C1 < 30 && Circle_Flag == LEFT_CIRCLE)
-				Ratio = 0.42;
+			Circle_Flag3 = Circle_Flag;
+			if(Sum_Angle_C1 < 30  && Circle_Flag == LEFT_CIRCLE)
+				Ratio = 0.52;
 			if(Sum_Angle_C1 > -30 && Circle_Flag == RIGHT_CIRCLE)
-				Ratio = -0.42;
+				Ratio = -0.52;
 		}
 		else
 			Sum_Dis1+=Speed;
 		
 		if(Sum_Angle_C1 > ROUND_L || Sum_Angle_C1 < ROUND_R )
 		{
-			if(ADC_proc[2] > 64)   //预出环 防止误判入环
+			if(ADC_proc[2] > 64 || ADC_proc[0] > 59 || ADC_proc[4] > 59)   //预出环 防止误判入环
 			{
 				Sum_Dis2 += Speed;
 				if(Sum_Dis2 > DIS_ROUND_OUT)
@@ -170,9 +175,16 @@ void Elem_Circle(float Speed,float Gyro_Z)
 					Circle_Flag = 0;
 					Circle_Flag2 = 0;
 				}
-				Delay_10Ms = 250;   //延时2500ms
+				Delay_10Ms = 60;   //延时1500ms
 			}
 		}
+	}
+	else
+	{
+		Sum_Dis1 = 0;
+		Sum_Dis2 = 0;
+		Sum_Angle_C1 = 0;
+		Circle_Flag = 0;
 	}
 }
 

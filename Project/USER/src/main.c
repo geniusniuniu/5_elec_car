@@ -67,7 +67,27 @@ void main(void)
 			
 		/************************************************ 直道弯道判别 ********************************************/ 
 			
-			#if TRACE_METHOD1  //单向巡线
+			#if TRACE_METHOD2  //向量法
+				if(Ratio >= -0.1 && Ratio <= 0.1) //直线
+				{
+					Turn_PID.Kp = -15;
+					Turn_PID.Kd = -2.6;
+					Left_Wheel_PID.Kp = Right_Wheel_PID.Kp = 20;
+					Left_Wheel_PID.Ki = Right_Wheel_PID.Ki = 0.55;
+					Exp_Speed = 310;
+				}
+				else   // 拐弯    
+				{
+					Turn_PID.Kp = -200;  // -180
+					Turn_PID.Kd = -35;  // -45
+					Left_Wheel_PID.Kp = 40;  // 36
+					Left_Wheel_PID.Ki = 0.8; //0.8
+					Right_Wheel_PID.Kp = 40;
+					Right_Wheel_PID.Ki = 0.8;
+					Exp_Speed = 280;
+				}
+				
+			#elif TRACE_METHOD1  //单向巡线
 				if(Ratio > -0.16 && Ratio < 0.16) //直线
 				{
 					Turn_PID.Kp = -20;
@@ -86,29 +106,11 @@ void main(void)
 					Left_Wheel_PID.Kp  = 26;
 					Left_Wheel_PID.Ki  = 1.26;
 					
-					Right_Wheel_PID.Kp = 45;
-					Right_Wheel_PID.Ki = 1.35; //i太大会出现矫正滞后，导致车反方向飘逸
+					Right_Wheel_PID.Kp = 26;
+					Right_Wheel_PID.Ki = 1.26; //i太大会出现矫正滞后，导致车反方向飘逸
 					Exp_Speed = 200;
-				}
-			#elif TRACE_METHOD2  //向量法
-				if(Ratio >= -0.1 && Ratio <= 0.1) //直线
-				{
-					Turn_PID.Kp = -15;
-					Turn_PID.Kd = -2.6;
-					Left_Wheel_PID.Kp = Right_Wheel_PID.Kp = 20;
-					Left_Wheel_PID.Ki = Right_Wheel_PID.Ki = 0.55;
-					Exp_Speed = 300;
-				}
-				else   // 拐弯    
-				{
-					Turn_PID.Kp = -200;  // -180
-					Turn_PID.Kd = -35;  // -45
-					Left_Wheel_PID.Kp = 36;  // 36
-					Left_Wheel_PID.Ki = 0.7; //0.8
-					Right_Wheel_PID.Kp = 36;
-					Right_Wheel_PID.Ki = 0.7;
-					Exp_Speed = 270;
-				}
+				}	
+					
 			#endif	
 				
 		/************************************************ 避开路障 ***********************************************/ 	
@@ -142,7 +144,7 @@ void main(void)
 
 //		/************************************************ 圆环判别 ***********************************************/ 
 			
-			if(ADC_proc[2] > 66) 
+			if(ADC_proc[2] > 66 || ADC_proc[0] > 61.5 || ADC_proc[4] > 61.5) 
 				Circle_Flag2 = 1;   //识别到圆环
 			if(vl53l0x_finsh_flag == 1 && vl53l0x_distance_mm < 400)	//一次测距完成
 				Num1 = 200;
@@ -162,16 +164,16 @@ void main(void)
 			Elem_Up_Down(Pitch,gy);		
 		
 		/************************************************ 特殊元素降速 ********************************************/ 
-			if( Circle_Flag2 == 1 || Barrier_Flag2 == 1 || Barrier_Flag1 == 1)  
+			if(Barrier_Flag2 == 1 || Barrier_Flag1 == 1)  
 				Exp_Speed = 280;
 			if(Ratio > 0)	
 			{
 				Exp_Speed_L = Exp_Speed + Turn_PID.PID_Out*0.09;
-				Exp_Speed_R = Exp_Speed - Turn_PID.PID_Out*0.01;
+				Exp_Speed_R = Exp_Speed - Turn_PID.PID_Out*0.03;
 			}
 			else
 			{
-				Exp_Speed_L = Exp_Speed + Turn_PID.PID_Out*0.01;
+				Exp_Speed_L = Exp_Speed + Turn_PID.PID_Out*0.03;
 				Exp_Speed_R = Exp_Speed - Turn_PID.PID_Out*0.09;
 			}
 			
