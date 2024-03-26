@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  motor                                                              21/03/24  16:36:00  PAGE 1   
+C251 COMPILER V5.60.0,  motor                                                              26/03/24  19:03:01  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE motor
@@ -66,7 +66,7 @@ stmt  level    source
    55   2                      if(speed >= SPEED_MAX)                  speed = SPEED_MAX; 
    56   2                      else if(speed <= -SPEED_MAX)    speed = -SPEED_MAX;
    57   2                      if(speed > 0)
-C251 COMPILER V5.60.0,  motor                                                              21/03/24  16:36:00  PAGE 2   
+C251 COMPILER V5.60.0,  motor                                                              26/03/24  19:03:01  PAGE 2   
 
    58   2                      {
    59   3                              pwm_duty(PWMA_CH2P_P62, (int)speed);
@@ -134,14 +134,14 @@ stmt  level    source
   121   1              else                            {Speed_R = ctimer_count_read(CTIM0_P34); Speed_R = -Speed_R;}
   122   1              ctimer_count_clean(CTIM0_P34);                                                                  //清除计数值，开始下一轮计数
   123   1      }
-C251 COMPILER V5.60.0,  motor                                                              21/03/24  16:36:00  PAGE 3   
+C251 COMPILER V5.60.0,  motor                                                              26/03/24  19:03:01  PAGE 3   
 
   124          
   125          
   126          void Motor_Test(float Speed)
   127          {
-  128   1              Right_SetSpeed(Speed);
-  129   1              Left_SetSpeed(-Speed);  
+  128   1              Right_SetSpeed(-Speed);
+  129   1              Left_SetSpeed(Speed);   
   130   1      }
 
 

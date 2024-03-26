@@ -22,8 +22,7 @@ extern uint8 vl53l0x_finsh_flag;
 
 short gx, gy, gz;
 char Isr_flag_10 = 0; 
-char KeyValue = 0;
-char Circle_Delay1 = 0;		
+char KeyValue = 0;	
 
 float Diff,Plus;
 float Ratio = 0;
@@ -47,7 +46,7 @@ void main(void)
 	Adjust_Val = -180;
 	while(1)
 	{		
-		printf("%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\r\n",Speed_R,Speed_R,Left_Wheel_PID.PID_Out,Right_Wheel_PID.PID_Out,ADC_proc[4],Ratio);
+		printf("%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\r\n",Circle_Delay1,Circle_Flag1,Left_Wheel_PID.PID_Out,Right_Wheel_PID.PID_Out,ADC_proc[4],Ratio);
 //		printf("%.2f,%.2f\r\n",Speed_L,Speed_R);
 /******************************************** 按键读值**********************************************************************/ 	
 		ui_show();
@@ -80,7 +79,7 @@ void main(void)
 				else   // 拐弯    
 				{
 					Turn_PID.Kp = -200;  // -180
-					Turn_PID.Kd = -37;  // -45
+					Turn_PID.Kd = -35;  // -45
 					Left_Wheel_PID.Kp = 45;  // 36
 					Left_Wheel_PID.Ki = 0.9; //0.8
 					Right_Wheel_PID.Kp = 45;
@@ -125,30 +124,30 @@ void main(void)
 				
 			if(Barrier_Executed == 0)
 			{	
-				if (vl53l0x_finsh_flag == 1 && ADC_proc[2] < 55 && vl53l0x_distance_mm > 500 && vl53l0x_distance_mm < 800)		//	检测到路障
+				if (vl53l0x_finsh_flag == 1 && vl53l0x_distance_mm < 800)		//	检测到路障
 				{ 
 					x10_ms = 13; 
 					Barrier_Flag1 = 1;
 				}
 				Elem_Barrier(gz);
 			}
-			#if TRACE_METHOD2  //弥补向量法检测缺陷导致车身反偏
-				if(Barrier_Delay > 0)
-				{
-					Ratio = -0.3;
-					Barrier_Delay -= 1;
-				}	
-			#endif
+//			#if TRACE_METHOD2  //弥补向量法检测缺陷导致车身反偏
+//				if(Barrier_Delay > 0)
+//				{
+//					Ratio = -0.2;
+//					Barrier_Delay -= 1;
+//				}	
+//			#endif
 
 //		/************************************************ 圆环判别 ***********************************************/ 
 			
-			if(ADC_proc[2] > 66 || ADC_proc[0] > 61.5 || ADC_proc[4] > 61.5) 
+			if(ADC_proc[2] > 66 || ADC_proc[0] > 64 || ADC_proc[4] > 64) 
 			{
 				Circle_Flag1 = 1;   									//识别到圆环标志位
 				x10_ms = 13;
 			}
 			if(vl53l0x_finsh_flag == 1 && vl53l0x_distance_mm < 400)	//一次测距完成，区分坡道
-				Circle_Delay1 = 150;		
+				Circle_Delay1 = 250;		
 			if(Circle_Delay1 > 0)										//检测到坡道，清零环岛标志位，并延时1.5秒
 			{
 				Circle_Flag1 = 0;
@@ -170,11 +169,11 @@ void main(void)
 			if(Ratio > 0)	
 			{
 				Exp_Speed_L = Exp_Speed + Turn_PID.PID_Out*0.07;
-				Exp_Speed_R = Exp_Speed - Turn_PID.PID_Out*0.04;
+				Exp_Speed_R = Exp_Speed - Turn_PID.PID_Out*0.08;
 			}
 			else
 			{
-				Exp_Speed_L = Exp_Speed + Turn_PID.PID_Out*0.04;
+				Exp_Speed_L = Exp_Speed + Turn_PID.PID_Out*0.08;
 				Exp_Speed_R = Exp_Speed - Turn_PID.PID_Out*0.07;
 			}
 			
@@ -184,7 +183,7 @@ void main(void)
 			PID_Calculate(&Right_Wheel_PID,Exp_Speed_R,Speed_R);
 			
 	   /********************************************* 驶离赛道，撞到障碍，停车 *********************************************/ 		
-			if((ADC_proc[0]<2 && ADC_proc[4]<2 && Barrier_Executed == 1) || vl53l0x_distance_mm < 180) 
+			if(vl53l0x_distance_mm < 190) 
 			{
 				Left_Wheel_PID.PID_Out = 0;
 				Right_Wheel_PID.PID_Out = 0;
@@ -195,7 +194,7 @@ void main(void)
 			if(A1 == 0)			
 				Right_SetSpeed(Right_Wheel_PID.PID_Out);
 			
-//			Motor_Test(3000);
+//			Motor_Test(2000);
 			Isr_flag_10 = 0;
 		} 
 	}
@@ -210,7 +209,7 @@ void Get_Ratio(void)
 		sum_R = sqrt((ADC_proc[4]*ADC_proc[4]+ADC_proc[3]*ADC_proc[3]));
 		Diff = sum_L - sum_R;
 		Plus = sum_L + sum_R;
-	    if((ADC_proc[0]+ADC_proc[1]+ADC_proc[3]+ADC_proc[4] > EDGE_PROTECT) && Barrier_Executed == 1)  //如果小于EDGE_PROTECT
+	    if((ADC_proc[0]+ADC_proc[1]+ADC_proc[3]+ADC_proc[4] > EDGE_PROTECT))  //如果小于EDGE_PROTECT
 				Ratio = Diff/Plus;											//视作丢线，下次偏差值
 //		else																//在上次基础上再次加（减）
 //		{
@@ -286,7 +285,4 @@ void Init_all(void)
 //	PID_Incremental_Init();
 	
 } 
-
-
-
 

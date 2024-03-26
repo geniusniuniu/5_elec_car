@@ -125,6 +125,6 @@ void Get_Speed(void)	//获取速度
 
 void Motor_Test(float Speed)
 {
-	Right_SetSpeed(Speed);
-	Left_SetSpeed(-Speed);	
+	Right_SetSpeed(-Speed);
+	Left_SetSpeed(Speed);	
 }
