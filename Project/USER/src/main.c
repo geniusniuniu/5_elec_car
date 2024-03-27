@@ -12,29 +12,25 @@
 
 #define EDGE_PROTECT 35
 
-#if TRACE_METHOD2
-	float sum_L,sum_R;
-#endif
 
-extern char Up_Down_Flag;
 extern uint16 vl53l0x_distance_mm;
 extern uint8 vl53l0x_finsh_flag;
 
 short gx, gy, gz;
 char Isr_flag_10 = 0; 
 char KeyValue = 0;	
+char Speed_Delay = 100;
 
+float sum_L,sum_R;
 float Diff,Plus;
 float Ratio = 0;
 float Diff_Mid,Plus_Mid;
 float Ratio_Mid = 0;
-float sum = 0;
 float Exp_Speed_L = 0;
 float Exp_Speed_R = 0;
-float Exp_Speed = 200;
+float Exp_Speed = 0;
 float Adjust_Val = 0;
-float temp_Speed = 0;
-
+float x = 0;
 
 void Init_all(void);
 void Get_Ratio(void);
@@ -46,7 +42,7 @@ void main(void)
 	Adjust_Val = -180;
 	while(1)
 	{		
-		printf("%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\r\n",Circle_Delay1,Circle_Flag1,Left_Wheel_PID.PID_Out,Right_Wheel_PID.PID_Out,ADC_proc[4],Ratio);
+		printf("%.2f,%.2f,%.2f,%.2f,%.2f,%.2f\r\n",Speed_L,Speed_R,Left_Wheel_PID.PID_Out,Right_Wheel_PID.PID_Out,ADC_proc[4],Ratio);
 //		printf("%.2f,%.2f\r\n",Speed_L,Speed_R);
 /******************************************** 按键读值**********************************************************************/ 	
 		ui_show();
@@ -147,7 +143,7 @@ void main(void)
 				x10_ms = 13;
 			}
 			if(vl53l0x_finsh_flag == 1 && vl53l0x_distance_mm < 400)	//一次测距完成，区分坡道
-				Circle_Delay1 = 250;		
+				Circle_Delay1 = 150;		
 			if(Circle_Delay1 > 0)										//检测到坡道，清零环岛标志位，并延时1.5秒
 			{
 				Circle_Flag1 = 0;
@@ -169,11 +165,11 @@ void main(void)
 			if(Ratio > 0)	
 			{
 				Exp_Speed_L = Exp_Speed + Turn_PID.PID_Out*0.07;
-				Exp_Speed_R = Exp_Speed - Turn_PID.PID_Out*0.08;
+				Exp_Speed_R = Exp_Speed - Turn_PID.PID_Out*0.09*(1-Ratio);
 			}
 			else
 			{
-				Exp_Speed_L = Exp_Speed + Turn_PID.PID_Out*0.08;
+				Exp_Speed_L = Exp_Speed + Turn_PID.PID_Out*0.09*(1+Ratio);
 				Exp_Speed_R = Exp_Speed - Turn_PID.PID_Out*0.07;
 			}
 			
@@ -182,16 +178,17 @@ void main(void)
 			PID_Calculate(&Left_Wheel_PID,Exp_Speed_L,Speed_L);//速度环PID计算
 			PID_Calculate(&Right_Wheel_PID,Exp_Speed_R,Speed_R);
 			
-	   /********************************************* 驶离赛道，撞到障碍，停车 *********************************************/ 		
-			if(vl53l0x_distance_mm < 190) 
+	   /********************************************* 驶离赛道，撞到障碍，停车 *********************************************/
+
+			if((--Speed_Delay) == 0 && abs(Speed_L) < 50 && abs(Speed_R) < 50)
+				x = 1;
+			if(vl53l0x_distance_mm < 190 || x == 1) 
 			{
 				Left_Wheel_PID.PID_Out = 0;
 				Right_Wheel_PID.PID_Out = 0;
 			}
 	   /********************************************* 设置左右PWM ************************************************/ 	
-			if(A == 0 )
-				Left_SetSpeed(Left_Wheel_PID.PID_Out);
-			if(A1 == 0)			
+				Left_SetSpeed(Left_Wheel_PID.PID_Out);		
 				Right_SetSpeed(Right_Wheel_PID.PID_Out);
 			
 //			Motor_Test(2000);

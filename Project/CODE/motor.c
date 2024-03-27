@@ -36,19 +36,18 @@ void Motor_Init(void)
 	pwm_init(PWMA_CH4P_P66, 15000, 0);		//右电机-PWM
 }
 
-
 void Left_SetSpeed(float speed)
 {
 	static int16 Special_NumL = 0;  //异常情况记数
-	if(abs(speed) >= (SPEED_MAX-100))  //连续50次都逼近最大速度，异常情况直接置零
+	if(abs(Speed_L) >= Special_Speed)  		//连续30次都超过最大速度，发生异常
 		Special_NumL++;
 	else 
 		Special_NumL = 0;
-	if(Special_NumL >= 150)   //出现异常
+	if(Special_NumL >= 50)   		//出现异常
 	{
 		pwm_duty(PWMA_CH2P_P62, 0);
 		pwm_duty(PWMA_CH1P_P60, 0);
-		A = 1;
+		while(1);
 	}
 	else				 //没有出现异常
 	{
@@ -75,19 +74,16 @@ void Left_SetSpeed(float speed)
 
 void Right_SetSpeed(float speed)	
 {
-	static int16  Special_NumR = 0; //异常情况记数
-    if(speed >= SPEED_MAX) 			speed = SPEED_MAX;  
-	else if(speed <= -SPEED_MAX)	speed = -SPEED_MAX;
-	
-	if(abs(speed) >= (SPEED_MAX-100))  //连续50次都逼近最大速度，异常情况直接置零
+	static int16 Special_NumR = 0;  //异常情况记数
+	if(abs(Speed_L) >= Special_Speed)  		//连续30次都超过最大速度，发生异常
 		Special_NumR++;
-	else
+	else 
 		Special_NumR = 0;
-	if(Special_NumR >= 150)
+	if(Special_NumR >= 50)   		//出现异常
 	{
-		A1 = 1;
-		pwm_duty(PWMA_CH3P_P64, 0);
-        pwm_duty(PWMA_CH4P_P66, 0);
+		pwm_duty(PWMA_CH2P_P62, 0);
+		pwm_duty(PWMA_CH1P_P60, 0);
+		while(1);
 	}
     else
 	{

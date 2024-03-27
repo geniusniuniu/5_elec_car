@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  Element                                                            26/03/24  22:47:39  PAGE 1   
+C251 COMPILER V5.60.0,  Element                                                            27/03/24  13:54:21  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE Element
@@ -66,7 +66,7 @@ stmt  level    source
    55   2                              {
    56   3                                      Ratio = -0.40;  
    57   3                                      Sum_Angle += Gyro_Z*0.005;              //角度积分
-C251 COMPILER V5.60.0,  Element                                                            26/03/24  22:47:39  PAGE 2   
+C251 COMPILER V5.60.0,  Element                                                            27/03/24  13:54:21  PAGE 2   
 
    58   3                              }
    59   2                              else
@@ -79,7 +79,7 @@ stmt  level    source
    66   2                              {
    67   3                                      Ratio = 0.42;                                   //开始左拐
    68   3                                      Sum_Angle += Gyro_Z*0.005;      
-   69   3                                      if(Sum_Angle > 27)                      //左拐回正
+   69   3                                      if(Sum_Angle > 22)                      //左拐回正
    70   3                                              Barrier_Flag3 = 1;              //回正标志位            
    71   3                              }       
    72   2                              if(Barrier_Flag3 == 1)                          //回正后标志位清零
@@ -119,7 +119,7 @@ stmt  level    source
                                        {
                                                Ratio = -0.42;                                  //开始右拐
                                                Sum_Angle += Gyro_Z*0.005;      
-                                               if(Sum_Angle < -28)                     //右拐回正
+                                               if(Sum_Angle < -22)                     //右拐回正
                                                        Barrier_Flag3 = 1;              //回正标志位            
                                        }       
                                        if(Barrier_Flag3==1)                            //回正后标志位清零
@@ -134,7 +134,7 @@ stmt  level    source
                                }
                                else
                                {
-C251 COMPILER V5.60.0,  Element                                                            26/03/24  22:47:39  PAGE 3   
+C251 COMPILER V5.60.0,  Element                                                            27/03/24  13:54:21  PAGE 3   
 
                                        Barrier_Flag1 = 0;
                                        Barrier_Flag2 = 0;
@@ -202,7 +202,7 @@ stmt  level    source
   186   5                                              Sum_Dis1 = 0;
   187   5                                              Sum_Dis2 = 0;
   188   5                                              Sum_Angle_C1 = 0;
-C251 COMPILER V5.60.0,  Element                                                            26/03/24  22:47:39  PAGE 4   
+C251 COMPILER V5.60.0,  Element                                                            27/03/24  13:54:21  PAGE 4   
 
   189   5                                              Circle_Flag1 = 0;
   190   5                                              Circle_Flag2 = 0;

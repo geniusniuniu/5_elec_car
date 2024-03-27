@@ -4,14 +4,12 @@
 #include "zf_tim.h"
 #include "PID.h"
 
-#define SPEED_MAX 8700
+#define SPEED_MAX 			8700
+#define Special_Speed 		850
+
 
 extern float Speed_L;
 extern float Speed_R;
-
-extern char A;
-extern char A1;
-
 
 
 float Num2Abs(float x);
