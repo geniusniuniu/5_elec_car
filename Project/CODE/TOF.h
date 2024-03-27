@@ -187,6 +187,7 @@ typedef struct
 
 extern uint8 vl53l0x_finsh_flag;
 extern uint16 vl53l0x_distance_mm;
+
 void 	vl53l0x_get_distance (void);
 
 uint8  vl53l0x_read_range   (void);

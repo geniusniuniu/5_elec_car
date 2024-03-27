@@ -108,6 +108,8 @@ void Right_SetSpeed(float speed)
 
 void Get_Speed(void)	//获取速度
 {
+	static float Speed_L_Last=0;
+	static float Speed_R_Last=0;
 	if(P53 == 0)  		 Speed_L = ctimer_count_read(CTIM3_P04);	////左轮方向读取数值
 	else  				{Speed_L = ctimer_count_read(CTIM3_P04); Speed_L = -Speed_L;}
 	ctimer_count_clean(CTIM3_P04);									//清除计数值，开始下一轮计数
@@ -116,6 +118,10 @@ void Get_Speed(void)	//获取速度
 	if(P35 == 1)		 Speed_R = ctimer_count_read(CTIM0_P34);		//右轮方向读取数值
 	else  				{Speed_R = ctimer_count_read(CTIM0_P34); Speed_R = -Speed_R;}
 	ctimer_count_clean(CTIM0_P34);									//清除计数值，开始下一轮计数
+	Speed_L = Speed_L * 0.5 + Speed_L_Last * 0.5;
+	Speed_R = Speed_R * 0.5 + Speed_R_Last * 0.5;
+	Speed_L_Last = Speed_L;
+	Speed_R_Last = Speed_R;
 }
 
 

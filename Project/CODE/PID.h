@@ -40,8 +40,6 @@ typedef struct{
     float outmax;
     float outmin;
 	
-    uint8 use_lowpass_filter;
-    float lowpass_filter_factor;
 	
 } PID_Incremental;
 
@@ -53,7 +51,7 @@ extern PID_Incremental Right_Wheel;
 
 
 
-void PID_Incremental_Init(PID_Incremental *pid, float Kp, float Ki, float Kd,float Out_Limit, uint8 use_lowpass_filter);
+PID_Incremental PID_Incremental_Init(float Kp, float Ki, float Kd,float Out_Limit);
 float PID_Incremental_Calc(PID_Incremental *pid, float setpoint, float input_value);
 
 

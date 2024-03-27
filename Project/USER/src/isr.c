@@ -19,8 +19,9 @@
 #include "headfile.h"
 #include "Motor.h"
 #include "Buzzer.h"
-
+#include "PID.h"
 extern char Isr_flag_10;
+extern char flag_stop;
 
 
 //UART1中断
@@ -153,14 +154,29 @@ void TM3_Isr() interrupt 19
 	TIM3_CLEAR_FLAG; //清除中断标志
 	
 }
-
+extern float Ratio;
+extern short gx, gy, gz;
+extern float Exp_Speed_L;
+extern float Exp_Speed_R;
+extern float Exp_Speed;
 char count = 0;
 void TM4_Isr() interrupt 20
 {
 	TIM4_CLEAR_FLAG; //清除中断标志
 	count++;
 	Isr_flag_10 = 1;
+	PID_Calculate(&Turn_PID,Ratio*100,0);
 	
+	Get_Speed();  //获取车速
+	PID_Incremental_Calc(&Left_Wheel,Exp_Speed_L,Speed_L);//速度环PID计算
+	PID_Incremental_Calc(&Right_Wheel,Exp_Speed_R,Speed_R);
+	if(flag_stop){
+		Left_SetSpeed(0);		
+		Right_SetSpeed(0);
+	} else {
+		Left_SetSpeed(Left_Wheel.out);		
+		Right_SetSpeed(Right_Wheel.out);
+	}
 	if(x10_ms > 0)
 	{
 		pwm_duty(PWMB_CH4_P77,2000);

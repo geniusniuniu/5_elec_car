@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  motor                                                              27/03/24  13:54:21  PAGE 1   
+C251 COMPILER V5.60.0,  motor                                                              27/03/24  17:22:29  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE motor
@@ -66,7 +66,7 @@ stmt  level    source
    55   2                      else if(speed <= -SPEED_MAX)    speed = -SPEED_MAX;
    56   2                      if(speed > 0)
    57   2                      {
-C251 COMPILER V5.60.0,  motor                                                              27/03/24  13:54:21  PAGE 2   
+C251 COMPILER V5.60.0,  motor                                                              27/03/24  17:22:29  PAGE 2   
 
    58   3                              pwm_duty(PWMA_CH2P_P62, (int)speed);
    59   3                              pwm_duty(PWMA_CH1P_P60, 0);
@@ -121,36 +121,42 @@ stmt  level    source
   108          
   109          void Get_Speed(void)    //获取速度
   110          {
-  111   1              if(P53 == 0)             Speed_L = ctimer_count_read(CTIM3_P04);        ////左轮方向读取数值
-  112   1              else                            {Speed_L = ctimer_count_read(CTIM3_P04); Speed_L = -Speed_L;}
-  113   1              ctimer_count_clean(CTIM3_P04);                                                                  //清除计数值，开始下一轮计数
-  114   1      
-  115   1              
-  116   1              if(P35 == 1)             Speed_R = ctimer_count_read(CTIM0_P34);                //右轮方向读取数值
-  117   1              else                            {Speed_R = ctimer_count_read(CTIM0_P34); Speed_R = -Speed_R;}
-  118   1              ctimer_count_clean(CTIM0_P34);                                                                  //清除计数值，开始下一轮计数
-  119   1      }
-  120          
-  121          
-  122          void Motor_Test(float Speed)
-  123          {
-C251 COMPILER V5.60.0,  motor                                                              27/03/24  13:54:21  PAGE 3   
+  111   1              static float Speed_L_Last=0;
+  112   1              static float Speed_R_Last=0;
+  113   1              if(P53 == 0)             Speed_L = ctimer_count_read(CTIM3_P04);        ////左轮方向读取数值
+  114   1              else                            {Speed_L = ctimer_count_read(CTIM3_P04); Speed_L = -Speed_L;}
+  115   1              ctimer_count_clean(CTIM3_P04);                                                                  //清除计数值，开始下一轮计数
+  116   1      
+  117   1              
+  118   1              if(P35 == 1)             Speed_R = ctimer_count_read(CTIM0_P34);                //右轮方向读取数值
+  119   1              else                            {Speed_R = ctimer_count_read(CTIM0_P34); Speed_R = -Speed_R;}
+  120   1              ctimer_count_clean(CTIM0_P34);                                                                  //清除计数值，开始下一轮计数
+  121   1              Speed_L = Speed_L * 0.5 + Speed_L_Last * 0.5;
+  122   1              Speed_R = Speed_R * 0.5 + Speed_R_Last * 0.5;
+  123   1              Speed_L_Last = Speed_L;
+C251 COMPILER V5.60.0,  motor                                                              27/03/24  17:22:29  PAGE 3   
 
-  124   1              Right_SetSpeed(-Speed);
-  125   1              Left_SetSpeed(Speed);   
-  126   1      }
+  124   1              Speed_R_Last = Speed_R;
+  125   1      }
+  126          
+  127          
+  128          void Motor_Test(float Speed)
+  129          {
+  130   1              Right_SetSpeed(-Speed);
+  131   1              Left_SetSpeed(Speed);   
+  132   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =       589     ------
+  code size            =       652     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
   xdata size           =    ------     ------
   xdata-const size     =    ------     ------
-  edata size           =        14          4
+  edata size           =        22          4
   bit size             =    ------     ------
   ebit size            =    ------     ------
   bitaddressable size  =    ------     ------
@@ -158,7 +164,7 @@ Module Information          Static   Overlayable
   far data size        =    ------     ------
   huge data size       =    ------     ------
   const size           =    ------     ------
-  hconst size          =        22     ------
+  hconst size          =        38     ------
 End of Module Information.
 
 

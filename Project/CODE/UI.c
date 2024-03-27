@@ -9,12 +9,12 @@
 #include "MPU6050.h"
 
 extern uint16 vl53l0x_distance_mm;
-extern float Ratio;
-extern float Ratio_Mid;
 extern float Exp_Speed;
-extern float sum;
-extern float Diff;
+extern float Exp_Speed_L;
+extern float Exp_Speed_R;
+
 uint8 page=0;
+
 float value[4][7];
 char value_name[4][7][7];
 ///////////////////////////////////////////////////待显示参数
@@ -25,30 +25,30 @@ char value_name[4][7][7];
 void value_name_init(void)//将name改为想要的参数名，但“ ”中的总长度不要变
 {
 	//page=0
-	strcpy(value_name[0][0],"ADC0_1"); //NAME_1表示显示的是第一页
+	strcpy(value_name[0][0],"ADC0  "); //NAME_1表示显示的是第一页
 	strcpy(value_name[0][1],"ADC1  ");
 	strcpy(value_name[0][2],"ADC2  ");
 	strcpy(value_name[0][3],"ADC3  ");
 
 
 	//page=1	
-	strcpy(value_name[1][0],"ADC4_2");
-	strcpy(value_name[1][1],"T_Kp  ");
-	strcpy(value_name[1][2],"T_Kd  ");
-	strcpy(value_name[1][3],"Exp_Sp");
+	strcpy(value_name[1][0],"ADC4  ");
+	strcpy(value_name[1][1],"Ratio ");
+	strcpy(value_name[1][2],"L_OUT ");
+	strcpy(value_name[1][3],"R_OUT ");
 
 	
 	//page=2
-	strcpy(value_name[2][0],"Sp_Kp3");
-	strcpy(value_name[2][1],"Sp_Ki ");
-	strcpy(value_name[2][2],"Circle");
+	strcpy(value_name[2][0],"Exp_L ");
+	strcpy(value_name[2][1],"Exp_R ");
+	strcpy(value_name[2][2],"Bar_Ex");
 	strcpy(value_name[2][3],"Vl_Dis");
 	
 	//page=3
-	strcpy(value_name[3][0],"Ratio ");
-	strcpy(value_name[3][1],"Dis1  ");
-	strcpy(value_name[3][2],"Dis2  ");
-	strcpy(value_name[3][3],"An_Sum");
+	strcpy(value_name[3][0],"Sum_An");
+	strcpy(value_name[3][1],"Bar1  ");
+	strcpy(value_name[3][2],"Bar2  ");
+	strcpy(value_name[3][3],"Bar3  ");
 
 }
 
@@ -62,18 +62,18 @@ void refresh_value()//value=填入变量名
 	
 	//page=1
 	value[1][0]= ADC_proc[2];
-	value[1][1]= Turn_PID.Kp;
-	value[1][2]= Turn_PID.Kd;
-	value[1][3]= Exp_Speed;
+	value[1][1]= Ratio;
+	value[1][2]= Left_Wheel.out;
+	value[1][3]= Right_Wheel.out;
 	
 	//page=2
-	value[2][0]= Left_Wheel_PID.Kp;
-	value[2][1]= Left_Wheel_PID.Ki;
-	value[2][2]= Sum_Angle;
+	value[2][0]= Exp_Speed_L;
+	value[2][1]= Exp_Speed_R;
+	value[2][2]= Barrier_Executed;
 	value[2][3]= vl53l0x_distance_mm;
 	
 	//page=3
-	value[3][0]= Barrier_Executed;
+	value[3][0]= Sum_Angle;
 	value[3][1]= Barrier_Flag1;//Sum_Dis1;
 	value[3][2]= Barrier_Flag2;//Sum_Dis2;
 	value[3][3]= Barrier_Flag3;//Sum_Angle_C1;

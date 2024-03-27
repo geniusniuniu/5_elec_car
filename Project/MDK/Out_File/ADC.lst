@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  ADC                                                                27/03/24  13:54:21  PAGE 1   
+C251 COMPILER V5.60.0,  ADC                                                                27/03/24  17:05:19  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE ADC
@@ -15,67 +15,113 @@ stmt  level    source
     4          #include "common.h"
     5          #include "zf_adc.h"
     6          #include "Motor.h"
-    7          
-    8          float ADC_Array_Original[5][3];
-    9          float ADC_proc[5];
-   10          
-   11          void ADC_InitAll(void)
-   12          {
-   13   1              adc_init(ADC_P10, ADC_SYSclk_DIV_2);
-   14   1              adc_init(ADC_P00, ADC_SYSclk_DIV_2);
-   15   1              
-   16   1              adc_init(ADC_P16, ADC_SYSclk_DIV_2);
-   17   1      
-   18   1              adc_init(ADC_P05, ADC_SYSclk_DIV_2);
-   19   1              adc_init(ADC_P06, ADC_SYSclk_DIV_2);
-   20   1      }
-   21          
-   22          //读取三次ADC各通道值，并取平均值
-   23          void ADC_GetValue(void)
-   24          {
-   25   1              float temp;
-   26   1              char i,j;
-   27   1              for(i=0;i<3;i++)
-   28   1              {
-   29   2                      ADC_Array_Original[0][i] = adc_once(ADC_P10, ADC_8BIT);         //左一路电感
-   30   2                      ADC_Array_Original[1][i] = adc_once(ADC_P00, ADC_8BIT);         //左二路电感    
-   31   2      
-   32   2                      ADC_Array_Original[2][i] = adc_once(ADC_P05, ADC_8BIT);         //右三路电感
-   33   2                      
-   34   2                      ADC_Array_Original[3][i] = adc_once(ADC_P06, ADC_8BIT);         //中间横电感 
-   35   2                      ADC_Array_Original[4][i] = adc_once(ADC_P16, ADC_8BIT);         //右四路电感
-   36   2              }
-   37   1              //取三次电感值平均值
-   38   1              for(i=0;i<5;i++)
-   39   1              {
-   40   2                      temp = 0;
-   41   2                      for(j=0;j<3;j++)
-   42   2                      {
-   43   3                              temp += ADC_Array_Original[i][j];
-   44   3                      }
-   45   2                      ADC_proc[i] = temp/3;
-   46   2                      //对电感值限幅
-   47   2                      if(ADC_proc[i] >= 200)                  ADC_proc[i] = 200;      
-   48   2                      else if(ADC_proc[i] <= 2)               ADC_proc[i] = 2;
-   49   2                      //归一化,将电感值限制在0~100之间
-   50   2                      ADC_proc[i] = 100*(ADC_proc[i]/200);    
-   51   2      
-   52   2              }
-   53   1      }
+    7          #include "Element.h"
+    8          #include "math.h"
+    9          
+   10          #define EDGE_PROTECT 35
+   11          
+   12          float ADC_Array_Original[5][3];
+   13          float ADC_proc[5];
+   14          
+   15          float sum_L,sum_R;
+   16          float Diff,Plus;
+   17          float Ratio = 0;
+   18          float Diff_Mid,Plus_Mid;
+   19          float Ratio_Mid = 0;
+   20          
+   21          void ADC_InitAll(void)
+   22          {
+   23   1              adc_init(ADC_P10, ADC_SYSclk_DIV_2);
+   24   1              adc_init(ADC_P00, ADC_SYSclk_DIV_2);
+   25   1              
+   26   1              adc_init(ADC_P16, ADC_SYSclk_DIV_2);
+   27   1      
+   28   1              adc_init(ADC_P05, ADC_SYSclk_DIV_2);
+   29   1              adc_init(ADC_P06, ADC_SYSclk_DIV_2);
+   30   1      }
+   31          
+   32          //读取三次ADC各通道值，并取平均值
+   33          void ADC_GetValue(void)
+   34          {
+   35   1              float temp;
+   36   1              char i,j;
+   37   1              for(i=0;i<3;i++)
+   38   1              {
+   39   2                      ADC_Array_Original[0][i] = adc_once(ADC_P10, ADC_8BIT);         //左一路电感
+   40   2                      ADC_Array_Original[1][i] = adc_once(ADC_P00, ADC_8BIT);         //左二路电感    
+   41   2      
+   42   2                      ADC_Array_Original[2][i] = adc_once(ADC_P05, ADC_8BIT);         //右三路电感
+   43   2                      
+   44   2                      ADC_Array_Original[3][i] = adc_once(ADC_P06, ADC_8BIT);         //中间横电感 
+   45   2                      ADC_Array_Original[4][i] = adc_once(ADC_P16, ADC_8BIT);         //右四路电感
+   46   2              }
+   47   1              //取三次电感值平均值
+   48   1              for(i=0;i<5;i++)
+   49   1              {
+   50   2                      temp = 0;
+   51   2                      for(j=0;j<3;j++)
+   52   2                      {
+   53   3                              temp += ADC_Array_Original[i][j];
+   54   3                      }
+   55   2                      ADC_proc[i] = temp/3;
+   56   2                      //对电感值限幅
+   57   2                      if(ADC_proc[i] >= 200)                  ADC_proc[i] = 200;      
+C251 COMPILER V5.60.0,  ADC                                                                27/03/24  17:05:19  PAGE 2   
+
+   58   2                      else if(ADC_proc[i] <= 2)               ADC_proc[i] = 2;
+   59   2                      //归一化,将电感值限制在0~100之间
+   60   2                      ADC_proc[i] = 100*(ADC_proc[i]/200);    
+   61   2      
+   62   2              }
+   63   1      }
+   64          
+   65          
+   66          //对ADC值进行处理得到差比和
+   67          void Get_Ratio(void)
+   68          {
+   69   1              #if TRACE_METHOD2
+   70   1              //向量法
+   71   1                      sum_L = sqrt((ADC_proc[0]*ADC_proc[0]+ADC_proc[1]*ADC_proc[1]));
+   72   1                      sum_R = sqrt((ADC_proc[4]*ADC_proc[4]+ADC_proc[3]*ADC_proc[3]));
+   73   1                      Diff = sum_L - sum_R;
+   74   1                      Plus = sum_L + sum_R;
+   75   1                  if((ADC_proc[0]+ADC_proc[1]+ADC_proc[3]+ADC_proc[4] > EDGE_PROTECT))  //如果小于EDGE_PROTECT
+   76   1                                      Ratio = Diff/Plus;                                                                                      //视作丢线，下次偏差值
+   77   1      //              else                                                                                                                            //在上次基础上再次加（减）
+   78   1      //              {
+   79   1      //                      if(Ratio >= 0 && Barrier_Executed == 1)
+   80   1      //                              Ratio += 0.2;
+   81   1      //                      else
+   82   1      //                              Ratio -= 0.2;
+   83   1      //              }
+   84   1              
+   85   1              #elif TRACE_METHOD1 //单向巡线
+                               Diff = ADC_proc[0] - ADC_proc[4];
+                               Plus = ADC_proc[0] + ADC_proc[4];
+                               
+                               Diff_Mid = ADC_proc[1] - ADC_proc[3];
+                               Plus_Mid = ADC_proc[1] + ADC_proc[3];
+               
+                               Ratio = Diff/Plus;
+                               Ratio_Mid = Diff_Mid/Plus_Mid;
+                               if((Plus_Mid > 36 && Plus_Mid < 75)|| Plus <45)
+                                       Ratio = Ratio_Mid;
+               
+                       #endif
+   98   1                      Limit_Out(&Ratio,-0.9,0.9);   //限幅
+   99   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =       374     ------
-C251 COMPILER V5.60.0,  ADC                                                                27/03/24  13:54:21  PAGE 2   
-
+  code size            =       540     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------
   pdata size           =    ------     ------
   xdata size           =    ------     ------
   xdata-const size     =    ------     ------
-  edata size           =        80     ------
+  edata size           =       112     ------
   bit size             =    ------     ------
   ebit size            =    ------     ------
   bitaddressable size  =    ------     ------
@@ -83,7 +129,7 @@ Module Information          Static   Overlayable
   far data size        =    ------     ------
   huge data size       =    ------     ------
   const size           =    ------     ------
-  hconst size          =    ------     ------
+  hconst size          =        16     ------
 End of Module Information.
 
 

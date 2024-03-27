@@ -7,9 +7,9 @@
 #include "PID.h"
 #include "Buzzer.h"
 #include "MPU6050.h"
+#include "ADC.h"
 
 extern float Exp_Speed;
-extern float Ratio;
 extern float ADC_proc[5];
 
 //上下坡标志位
@@ -75,8 +75,8 @@ void Elem_Barrier(float Gyro_Z)
 				Barrier_Flag1 = 0;
 				Barrier_Flag2 = 0;
 				Sum_Angle = 0;
-//				Avoid_ON = 0;
 				Barrier_Flag3 = 0;
+				Barrier_Delay = 30;
 			}	
 		}
 		else
@@ -115,6 +115,7 @@ void Elem_Barrier(float Gyro_Z)
 				Barrier_Flag1 = 0;
 				Barrier_Flag2 = 0;
 				Sum_Angle = 0;
+				Barrier_Delay = 30;
 				Barrier_Flag3 = 0;
 
 			}

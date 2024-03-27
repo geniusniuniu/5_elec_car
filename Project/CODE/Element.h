@@ -1,7 +1,6 @@
 #ifndef __Element_H
 #define __Element_H
 #include "PID.h"
-
 #define TRACE_METHOD1 		0  		//单向巡线
 #define TRACE_METHOD2 		1  		//向量法巡线
 

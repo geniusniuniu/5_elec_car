@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  UI                                                                 27/03/24  13:54:21  PAGE 1   
+C251 COMPILER V5.60.0,  UI                                                                 27/03/24  17:05:20  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE UI
@@ -20,12 +20,12 @@ stmt  level    source
     9          #include "MPU6050.h"
    10          
    11          extern uint16 vl53l0x_distance_mm;
-   12          extern float Ratio;
-   13          extern float Ratio_Mid;
-   14          extern float Exp_Speed;
-   15          extern float sum;
-   16          extern float Diff;
-   17          uint8 page=0;
+   12          extern float Exp_Speed;
+   13          extern float Exp_Speed_L;
+   14          extern float Exp_Speed_R;
+   15          
+   16          uint8 page=0;
+   17          
    18          float value[4][7];
    19          char value_name[4][7][7];
    20          ///////////////////////////////////////////////////待显示参数
@@ -36,37 +36,37 @@ stmt  level    source
    25          void value_name_init(void)//将name改为想要的参数名，但“ ”中的总长度不要变
    26          {
    27   1              //page=0
-   28   1              strcpy(value_name[0][0],"ADC0_1"); //NAME_1表示显示的是第一页
+   28   1              strcpy(value_name[0][0],"ADC0  "); //NAME_1表示显示的是第一页
    29   1              strcpy(value_name[0][1],"ADC1  ");
    30   1              strcpy(value_name[0][2],"ADC2  ");
    31   1              strcpy(value_name[0][3],"ADC3  ");
    32   1      
    33   1      
    34   1              //page=1        
-   35   1              strcpy(value_name[1][0],"ADC4_2");
-   36   1              strcpy(value_name[1][1],"T_Kp  ");
-   37   1              strcpy(value_name[1][2],"T_Kd  ");
-   38   1              strcpy(value_name[1][3],"Exp_Sp");
+   35   1              strcpy(value_name[1][0],"ADC4  ");
+   36   1              strcpy(value_name[1][1],"Ratio ");
+   37   1              strcpy(value_name[1][2],"L_OUT ");
+   38   1              strcpy(value_name[1][3],"R_OUT ");
    39   1      
    40   1              
    41   1              //page=2
-   42   1              strcpy(value_name[2][0],"Sp_Kp3");
-   43   1              strcpy(value_name[2][1],"Sp_Ki ");
-   44   1              strcpy(value_name[2][2],"Circle");
+   42   1              strcpy(value_name[2][0],"Exp_L ");
+   43   1              strcpy(value_name[2][1],"Exp_R ");
+   44   1              strcpy(value_name[2][2],"Bar_Ex");
    45   1              strcpy(value_name[2][3],"Vl_Dis");
    46   1              
    47   1              //page=3
-   48   1              strcpy(value_name[3][0],"Ratio ");
-   49   1              strcpy(value_name[3][1],"Dis1  ");
-   50   1              strcpy(value_name[3][2],"Dis2  ");
-   51   1              strcpy(value_name[3][3],"An_Sum");
+   48   1              strcpy(value_name[3][0],"Sum_An");
+   49   1              strcpy(value_name[3][1],"Bar1  ");
+   50   1              strcpy(value_name[3][2],"Bar2  ");
+   51   1              strcpy(value_name[3][3],"Bar3  ");
    52   1      
    53   1      }
    54          
    55          void refresh_value()//value=填入变量名
    56          {
    57   1              //page=0
-C251 COMPILER V5.60.0,  UI                                                                 27/03/24  13:54:21  PAGE 2   
+C251 COMPILER V5.60.0,  UI                                                                 27/03/24  17:05:20  PAGE 2   
 
    58   1          value[0][0]= ADC_proc[0];//Diff;//ADC_proc[0];
    59   1              value[0][1]= ADC_proc[1];
@@ -75,18 +75,18 @@ stmt  level    source
    62   1              
    63   1              //page=1
    64   1              value[1][0]= ADC_proc[2];
-   65   1              value[1][1]= Turn_PID.Kp;
-   66   1              value[1][2]= Turn_PID.Kd;
-   67   1              value[1][3]= Exp_Speed;
+   65   1              value[1][1]= Ratio;
+   66   1              value[1][2]= Left_Wheel.out;
+   67   1              value[1][3]= Right_Wheel.out;
    68   1              
    69   1              //page=2
-   70   1              value[2][0]= Left_Wheel_PID.Kp;
-   71   1              value[2][1]= Left_Wheel_PID.Ki;
-   72   1              value[2][2]= Sum_Angle;
+   70   1              value[2][0]= Exp_Speed_L;
+   71   1              value[2][1]= Exp_Speed_R;
+   72   1              value[2][2]= Barrier_Executed;
    73   1              value[2][3]= vl53l0x_distance_mm;
    74   1              
    75   1              //page=3
-   76   1              value[3][0]= Barrier_Executed;
+   76   1              value[3][0]= Sum_Angle;
    77   1              value[3][1]= Barrier_Flag1;//Sum_Dis1;
    78   1              value[3][2]= Barrier_Flag2;//Sum_Dis2;
    79   1              value[3][3]= Barrier_Flag3;//Sum_Angle_C1;
@@ -134,7 +134,7 @@ stmt  level    source
   121          void ui_init(void)
   122          {
   123   1              oled_init();
-C251 COMPILER V5.60.0,  UI                                                                 27/03/24  13:54:21  PAGE 3   
+C251 COMPILER V5.60.0,  UI                                                                 27/03/24  17:05:20  PAGE 3   
 
   124   1              value_name_init();
   125   1              oled_all_static_state();

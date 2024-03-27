@@ -4,9 +4,19 @@
 #include "common.h"
 #include "zf_adc.h"
 #include "Motor.h"
+#include "Element.h"
+#include "math.h"
+
+#define EDGE_PROTECT 35
 
 float ADC_Array_Original[5][3];
 float ADC_proc[5];
+
+float sum_L,sum_R;
+float Diff,Plus;
+float Ratio = 0;
+float Diff_Mid,Plus_Mid;
+float Ratio_Mid = 0;
 
 void ADC_InitAll(void)
 {
@@ -50,4 +60,40 @@ void ADC_GetValue(void)
 		ADC_proc[i] = 100*(ADC_proc[i]/200);	
 
 	}
+}
+
+
+//对ADC值进行处理得到差比和
+void Get_Ratio(void)
+{
+	#if TRACE_METHOD2
+	//向量法
+		sum_L = sqrt((ADC_proc[0]*ADC_proc[0]+ADC_proc[1]*ADC_proc[1]));
+		sum_R = sqrt((ADC_proc[4]*ADC_proc[4]+ADC_proc[3]*ADC_proc[3]));
+		Diff = sum_L - sum_R;
+		Plus = sum_L + sum_R;
+	    if((ADC_proc[0]+ADC_proc[1]+ADC_proc[3]+ADC_proc[4] > EDGE_PROTECT))  //如果小于EDGE_PROTECT
+				Ratio = Diff/Plus;											//视作丢线，下次偏差值
+//		else																//在上次基础上再次加（减）
+//		{
+//			if(Ratio >= 0 && Barrier_Executed == 1)
+//				Ratio += 0.2;
+//			else
+//				Ratio -= 0.2;
+//		}
+	
+	#elif TRACE_METHOD1 //单向巡线
+		Diff = ADC_proc[0] - ADC_proc[4];
+		Plus = ADC_proc[0] + ADC_proc[4];
+		
+		Diff_Mid = ADC_proc[1] - ADC_proc[3];
+		Plus_Mid = ADC_proc[1] + ADC_proc[3];
+
+		Ratio = Diff/Plus;
+		Ratio_Mid = Diff_Mid/Plus_Mid;
+		if((Plus_Mid > 36 && Plus_Mid < 75)|| Plus <45)
+			Ratio = Ratio_Mid;
+
+	#endif
+		Limit_Out(&Ratio,-0.9,0.9);   //限幅
 }

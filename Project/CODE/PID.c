@@ -33,12 +33,22 @@ void PID_Calculate(PID_InitTypeDef *PID_Struct, float Exp_Val, float Act_Val)		/
 {
 	PID_Struct->Err = Exp_Val-Act_Val;		//err值为期望偏差与当前偏差的差值	
 	PID_Struct->Integral += PID_Struct->Err;		//误差值累加	
-	Limit_Out(&PID_Struct->Integral, -PID_Struct->Integral_Limit,PID_Struct->Integral_Limit);									//积分限幅
+		//积分限幅
+	if(PID_Struct->Integral > PID_Struct->Integral_Limit){
+		PID_Struct->Integral = PID_Struct->Integral_Limit;
+	} else if(PID_Struct->Integral < -PID_Struct->Integral_Limit){
+		PID_Struct->Integral = -PID_Struct->Integral_Limit;
+	}
 	PID_Struct->PID_Out = PID_Struct->Err * PID_Struct->Kp + 
 								PID_Struct->Integral * PID_Struct->Ki +	//计算总输出量
 									(PID_Struct->Err - PID_Struct->Err_last)*(PID_Struct->Kd);
 	
-	Limit_Out(&PID_Struct->PID_Out,-PID_Struct->Out_Limit,PID_Struct->Out_Limit);							//输出限幅
+	//输出限幅
+	if(PID_Struct->PID_Out > PID_Struct->Out_Limit){
+		PID_Struct->PID_Out = PID_Struct->Out_Limit;
+	} else if(PID_Struct->PID_Out < -PID_Struct->Out_Limit){
+		PID_Struct->PID_Out = -PID_Struct->Out_Limit;
+	}
 	PID_Struct->Err_last = PID_Struct->Err;		//更新上一次err
 }
 
@@ -52,21 +62,21 @@ PID_Incremental Turn;
 PID_Incremental Left_Wheel;
 PID_Incremental Right_Wheel;
 
-void PID_Incremental_Init(PID_Incremental *pid, float Kp, float Ki, float Kd,float Out_Limit, uint8 use_lowpass_filter)
+PID_Incremental PID_Incremental_Init(float Kp, float Ki, float Kd,float Out_Limit)
 {
-	pid->Kp = Kp;
-	pid->Ki = Ki;
-	pid->Kd = Kd;
+	PID_Incremental pid;
+	pid.Kp = Kp;
+	pid.Ki = Ki;
+	pid.Kd = Kd;
 	
-    pid->error = 0;
-    pid->last_error = 0;
-    pid->last_last_error = 0;
-    pid->last_out = 0;
-    pid->out = 0;
-    pid->outmax = Out_Limit;
-    pid->outmin = -Out_Limit;
-    pid->use_lowpass_filter = use_lowpass_filter;
-    pid->lowpass_filter_factor = 0.3;
+    pid.error = 0;
+    pid.last_error = 0;
+    pid.last_last_error = 0;
+    pid.last_out = 0;
+    pid.out = 0;
+    pid.outmax = Out_Limit;
+    pid.outmin = -Out_Limit;
+	return pid;
 }
 
 
@@ -82,13 +92,12 @@ float PID_Incremental_Calc(PID_Incremental *pid, float setpoint, float input_val
 
     pid->out += output_increment;
 
-    // Output limit
-   	Limit_Out(&pid->out,pid->outmax,pid->outmin);							//输出限幅
+    if(pid->out > pid->outmax){
+		pid->out = pid->outmax;
+	} else if(pid->out < pid->outmin){
+		pid->out = pid->outmin;
+	}
 
-    // Low pass filter
-    if(pid->use_lowpass_filter){
-        pid->out = pid->last_out * pid->lowpass_filter_factor + pid->out * (1 - pid->lowpass_filter_factor);
-    }
 
     pid->last_out = pid->out;
 
